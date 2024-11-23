@@ -8,6 +8,20 @@
 
 //VertexBuffer ==================================================================
 
+static constexpr int value_type_size(ValueType vt)
+{
+    switch (vt)
+    {
+    case ValueType::Float: return sizeof(float);
+    case ValueType::Int:   return sizeof(int);
+    case ValueType::Bool:  return sizeof(bool);
+    case ValueType::Vec2:  return sizeof(float) * 2;
+    case ValueType::Vec3:  return sizeof(float) * 3;
+    case ValueType::Mat43: return sizeof(float) * 12;
+    }
+    return -1;
+}
+
 static bool edit(const char* label, ValueType& vt)
 {
     int index = (int)vt;
@@ -17,18 +31,87 @@ static bool edit(const char* label, ValueType& vt)
     return changed;
 }
 
+static bool edit(const char* label, VertexBuffer::Triangle& vt)
+{
+    int i3[3] = { vt.a,vt.b,vt.c };
+    ImGui::InputInt3(label, i3);
+    vt = { i3[0], i3[1], i3[2] };
+
+    return ImGui::IsItemDeactivatedAfterEdit();
+}
+
 bool VertexBuffer::edit()
 {
-    bool changed = false;
     char label[256];
     snprintf(label, 256, "%s###", m_name.c_str());
     if (!ImGui::CollapsingHeader(label))
     {
-        return changed;
+        return false;
     }
-    if (imhelp::edit_string("Name", m_name)) changed = true;
-    if (imhelp::edit_list("Components", m_components)) changed = true;
+
+    bool changed = false;
+    if (imhelp::edit("Name", m_name))                     changed = true;
+    if (imhelp::edit_list("Components", m_components))
+    {
+        m_data.resize(vertex_size() * m_num_vertices, 0);
+        changed = true;
+    }
+    for (int i = 0; i < m_num_vertices; ++i)
+    {
+        ImGui::PushID(i);
+        if (edit_vertex(i)) changed = true;
+        ImGui::PopID();
+        ImGui::Separator();
+    }
+    if (imhelp::edit("Num Vertices", m_num_vertices))
+    {
+        m_data.resize(vertex_size() * m_num_vertices, 0);
+        changed = true;
+    }
+    if (imhelp::edit_list("Triangles", m_triangles))      changed = true;
+    imhelp::display_error_if_present(m_error_log.c_str());
+
     return changed;
+}
+
+bool VertexBuffer::edit_vertex(int i)
+{
+    if (m_components.empty())
+    {
+        return false;
+    }
+
+    bool changed = false;
+    uint8_t* element = &(m_data[i * vertex_size()]);
+    for (int i = 0; i < m_components.size(); ++i)
+    {
+        auto& component = m_components[i];
+
+        ImGui::PushID(i);
+        switch (component)
+        {
+        case ValueType::Float: if(imhelp::edit("", *reinterpret_cast<float*>(element))) changed = true; break;
+        case ValueType::Int:   if(imhelp::edit("", *reinterpret_cast<int*>(element))) changed = true; break;
+        case ValueType::Bool:  if(imhelp::edit("", *reinterpret_cast<bool*>(element))) changed = true; break;
+        case ValueType::Vec2:  break;
+        case ValueType::Vec3:  break;
+        case ValueType::Mat43: break;
+        }
+        ImGui::PopID();
+
+        element += value_type_size(component);
+    }
+    return changed;
+}
+
+int VertexBuffer::vertex_size() const
+{
+    int size = 0;
+    for (auto& component : m_components)
+    {
+        size += value_type_size(component);
+    }
+    return size;
 }
 
 //Shader ========================================================================
@@ -36,16 +119,19 @@ bool VertexBuffer::edit()
 template<unsigned shader_type>
 bool Shader<shader_type>::edit()
 {
-    bool changed = false;
     char label[256];
     snprintf(label, 256, "%s###", m_name.c_str());
     if (!ImGui::CollapsingHeader(label))
     {
-        return changed;
+        return false;
     }
-    if (imhelp::edit_string("Name", m_name)) changed = true;
+
+    bool changed = false;
+    if (imhelp::edit("Name", m_name))                      changed = true;
+    if (imhelp::edit_list("Uniforms", m_uniforms))         changed = true;
     if (imhelp::edit_multiline_string("Source", m_source)) changed = true;
     imhelp::display_error_if_present(m_error_log.c_str());
+
     return changed;
 }
 
@@ -62,7 +148,14 @@ bool ShaderProgram::edit()
     {
         return false;
     }
-    return imhelp::edit_string("Name", m_name);
+
+    bool changed = false;
+    if (imhelp::edit("Name", m_name))                        changed = true;
+    if (imhelp::edit("Vertex Shader", m_vert_shader_name))   changed = true;
+    if (imhelp::edit("Fragment Shader", m_frag_shader_name)) changed = true;
+    imhelp::display_error_if_present(m_error_log.c_str());
+
+    return changed;
 }
 
 //VertexArrayObject =============================================================
@@ -75,7 +168,14 @@ bool VertexArrayObject::edit()
     {
         return false;
     }
-    return imhelp::edit_string("Name", m_name);
+
+    bool changed = false;
+    if (imhelp::edit("Name", m_name))                          changed = true;
+    if (imhelp::edit("Vertex buffer", m_vertex_buffer_name))   changed = true;
+    if (imhelp::edit("Shader program", m_shader_program_name)) changed = true;
+    imhelp::display_error_if_present(m_error_log.c_str());
+
+    return changed;
 }
 
 //GraphicsTestEditor ============================================================
@@ -92,15 +192,15 @@ bool GraphicsTestEditor::edit()
     if (ImGui::Begin("GraphicsTestEditor"))
     {
         ImGui::Text("Undo frame: %d, Undo/Redo length:[%d, %d]", m_undo_current, m_undo_length, m_redo_length);
-        ImGui::SeparatorText("Buffers");
+        ImGui::Separator();
         if (imhelp::edit_list("Buffers", m_data.m_vertex_buffers))                    changed = true;
-        ImGui::SeparatorText("Vertex shaders");
+        ImGui::Separator();
         if (imhelp::edit_list("Vertex shaders", m_data.m_vertex_shaders))             changed = true;
-        ImGui::SeparatorText("Fragment shaders");
+        ImGui::Separator();
         if (imhelp::edit_list("Fragment shaders", m_data.m_fragment_shaders))         changed = true;
-        ImGui::SeparatorText("Shader programs");
+        ImGui::Separator();
         if (imhelp::edit_list("Shader programs", m_data.m_shader_programs))           changed = true;
-        ImGui::SeparatorText("Vertex array objects");
+        ImGui::Separator();
         if (imhelp::edit_list("Vertex array objects", m_data.m_vertex_array_objects)) changed = true;
 
         //handle snapshot, undo, redo

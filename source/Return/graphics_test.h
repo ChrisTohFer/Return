@@ -28,17 +28,20 @@ enum class ValueType
 class VertexBuffer
 {
 public:
-    bool edit();
-
-    const std::string& name() const { return m_name; }
-
-private:
     struct Triangle
     {
         int a = 0;
         int b = 0;
         int c = 0;
     };
+
+    bool edit();
+
+    const std::string& name() const { return m_name; }
+
+private:
+    bool edit_vertex(int i);
+    int vertex_size() const;
     std::string m_name;
 
     std::vector<ValueType> m_components;
@@ -90,10 +93,9 @@ public:
 
 private:
     std::string m_name;
-    std::string m_shader_program_name;
     std::string m_vertex_buffer_name;
+    std::string m_shader_program_name;
     std::string m_error_log;
-    uint32_t m_id;
 };
 
 class GraphicsTestEditor

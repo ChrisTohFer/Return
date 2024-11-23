@@ -12,8 +12,12 @@
 namespace imhelp//ing
 {
     void display_error_if_present(const char* error);
-    bool edit_string(const char* label, std::string& s);
     bool edit_multiline_string(const char* label, std::string& s);
+
+    bool edit(const char* label, int& s);
+    bool edit(const char* label, float& s);
+    bool edit(const char* label, bool& s);
+    bool edit(const char* label, std::string& s);
 
     template<typename ElementT, typename ...ContextArgs>
     bool edit_list(const char* label, std::vector<ElementT>& list, ContextArgs&&... args);
@@ -26,6 +30,7 @@ namespace imhelp//ing
         bool changed = false;
 
         ImGui::PushID(label);
+        ImGui::Text(label);
         ImGui::Indent();
 
         //iterate elements and give opportunity to edit each one

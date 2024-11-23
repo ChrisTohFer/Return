@@ -5,26 +5,33 @@
 
 namespace imhelp
 {
-    bool edit_string(const char* label, std::string& s)
-    {
-        bool changed = false;
-        ImGui::InputText(label, &s);
-        if (ImGui::IsItemDeactivatedAfterEdit())
-        {
-            changed = true;
-        }
-        return changed;
-    }
-
     bool edit_multiline_string(const char* label, std::string& s)
     {
-        bool changed = false;
         ImGui::InputTextMultiline(label, &s);
-        if (ImGui::IsItemDeactivatedAfterEdit())
-        {
-            changed = true;
-        }
-        return changed;
+        return ImGui::IsItemDeactivatedAfterEdit();
+    }
+
+    bool edit(const char* label, int& i)
+    {
+        ImGui::InputInt(label, &i);
+        return ImGui::IsItemDeactivatedAfterEdit();
+    }
+
+    bool edit(const char* label, float& f)
+    {
+        ImGui::InputFloat(label, &f);
+        return ImGui::IsItemDeactivatedAfterEdit();
+    }
+
+    bool edit(const char* label, bool& b)
+    {
+        return ImGui::Checkbox(label, &b);
+    }
+
+    bool edit(const char* label, std::string& s)
+    {
+        ImGui::InputText(label, &s);
+        return ImGui::IsItemDeactivatedAfterEdit();
     }
 
     void display_error_if_present(const char* error)
