@@ -1,4 +1,4 @@
-#include "graphics_test2.h"
+#include "graphics_test.h"
 
 #include "glad/glad.h"
 #include "imgui/imgui.h"
