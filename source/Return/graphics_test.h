@@ -1,3 +1,5 @@
+#pragma once
+
 #include "glad/glad.h"
 
 #include <string>
@@ -31,13 +33,20 @@ public:
     const std::string& name() const { return m_name; }
 
 private:
+    struct Triangle
+    {
+        int a = 0;
+        int b = 0;
+        int c = 0;
+    };
     std::string m_name;
-    std::string m_error_log;
 
     std::vector<ValueType> m_components;
     std::vector<uint8_t> m_data;
-    //should probably also have an indices list to define triangles
-    int m_num_points = 0;
+    int m_num_vertices = 0;
+    std::vector<Triangle> m_triangles;
+
+    std::string m_error_log;
 };
 
 template<unsigned shader_type>
@@ -50,10 +59,10 @@ public:
 
 private:
     std::string m_name;
-    std::string m_error_log;
-
     std::string m_source;
     std::vector<std::string> m_uniforms;
+
+    std::string m_error_log;
 };
 using VertexShader = Shader<GL_VERTEX_SHADER>;
 using FragmentShader = Shader<GL_FRAGMENT_SHADER>;
