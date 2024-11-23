@@ -1,5 +1,7 @@
 #include "task_manager.h"
 
+#include "graphics_test2.h"
+
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
@@ -56,10 +58,12 @@ int main()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
 
-        glClearColor(255.f, 0.f, 0.f, 255.f);
+        glClearColor(0.f, 0.f, 0.f, 255.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         ImGui::ShowDemoWindow();
+        static GraphicsTestEditor editor;
+        editor.edit();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
