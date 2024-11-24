@@ -135,8 +135,8 @@ bool Shader<shader_type>::edit()
     return changed;
 }
 
-template Shader<GL_VERTEX_SHADER>;
-template Shader<GL_FRAGMENT_SHADER>;
+template class Shader<GL_VERTEX_SHADER>;
+template class Shader<GL_FRAGMENT_SHADER>;
 
 //ShaderProgram =================================================================
 
