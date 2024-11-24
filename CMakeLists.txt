@@ -2,8 +2,14 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Return)
 
+#set some global values
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+#compiler/platform dependent values
+if(MSVC_VERSION)
+	add_compile_options(/permissive- /W4)
+endif()
 
 #define each target, starting from lowest level dependency and ending with exe
 

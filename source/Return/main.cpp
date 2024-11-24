@@ -13,11 +13,11 @@
 #include <iostream>
 
 
-void error_callback(int error, const char* description)
+void error_callback(int /*error*/, const char* description)
 {
     printf("Error: %s\n", description);
 }
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow*, int width, int height)
 {
     glViewport(0, 0, width, height);
 }

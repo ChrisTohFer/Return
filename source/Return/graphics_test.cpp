@@ -74,7 +74,7 @@ bool VertexBuffer::edit()
     return changed;
 }
 
-bool VertexBuffer::edit_vertex(int i)
+bool VertexBuffer::edit_vertex(int vertex_index)
 {
     if (m_components.empty())
     {
@@ -82,12 +82,12 @@ bool VertexBuffer::edit_vertex(int i)
     }
 
     bool changed = false;
-    uint8_t* element = &(m_data[i * vertex_size()]);
-    for (int i = 0; i < m_components.size(); ++i)
+    uint8_t* element = &(m_data[vertex_index * vertex_size()]);
+    for (int component_index = 0; component_index < m_components.size(); ++component_index)
     {
-        auto& component = m_components[i];
+        auto& component = m_components[component_index];
 
-        ImGui::PushID(i);
+        ImGui::PushID(component_index);
         switch (component)
         {
         case ValueType::Float: if(imhelp::edit("", *reinterpret_cast<float*>(element))) changed = true; break;
@@ -180,11 +180,11 @@ bool VertexArrayObject::edit()
 
 //GraphicsTestEditor ============================================================
 
-static bool edit(const char* label, VertexBuffer& vb) { return vb.edit(); }
+static bool edit(const char*, VertexBuffer& vb) { return vb.edit(); }
 template<unsigned shader_type>
-static bool edit(const char* label, Shader<shader_type>& s) { return s.edit(); }
-static bool edit(const char* label, ShaderProgram& sp) { return sp.edit(); }
-static bool edit(const char* label, VertexArrayObject& vao) { return vao.edit(); }
+static bool edit(const char*, Shader<shader_type>& s) { return s.edit(); }
+static bool edit(const char*, ShaderProgram& sp) { return sp.edit(); }
+static bool edit(const char*, VertexArrayObject& vao) { return vao.edit(); }
 
 bool GraphicsTestEditor::edit()
 {
