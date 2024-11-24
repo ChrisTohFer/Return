@@ -13,6 +13,7 @@ endif()
 
 #define each target, starting from lowest level dependency and ending with exe
 
+#thirdparty interface targets
 add_library(Glfw INTERFACE)
 target_include_directories(Glfw INTERFACE "third_party/glfw/include")
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -21,6 +22,7 @@ else()
 	target_link_libraries(Glfw INTERFACE "${CMAKE_SOURCE_DIR}/third_party/glfw/win64/glfw3dll.lib")
 endif()
 
+#thirdparty source targets
 file(GLOB_RECURSE glad_source "third_party/glad/*.h" "third_party/glad/*.c")
 add_library(Glad STATIC ${glad_source})
 target_include_directories(Glad PUBLIC "third_party/glad")
@@ -31,11 +33,18 @@ target_include_directories(ImGui PUBLIC "third_party/imgui/include")
 target_include_directories(ImGui PRIVATE "third_party/imgui/include/imgui")
 target_link_libraries(ImGui PUBLIC Glfw)
 
+#original targets
+file(GLOB_RECURSE maths_source "source/maths/*.h" "source/maths/*.cpp")
+add_library(Maths STATIC ${maths_source})
+target_include_directories(Maths PUBLIC "source/maths/include")
+target_include_directories(Maths PRIVATE "source/maths")
+
 file(GLOB_RECURSE return_source_files "source/Return/*.h" "source/Return/*.cpp")
 add_executable(Return ${return_source_files})
 target_link_libraries(Return PUBLIC Glfw)
 target_link_libraries(Return PUBLIC Glad)
 target_link_libraries(Return PUBLIC ImGui)
+target_link_libraries(Return PUBLIC Maths)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 add_custom_command(TARGET Return POST_BUILD
