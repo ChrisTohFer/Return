@@ -2,6 +2,9 @@
 
 #include "imgui_helpers.h"
 
+#include "maths/vector2.h"
+#include "maths/vector3.h"
+
 #include "glad/glad.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_stdlib.h"
@@ -15,8 +18,8 @@ static constexpr int value_type_size(ValueType vt)
     case ValueType::Float: return sizeof(float);
     case ValueType::Int:   return sizeof(int);
     case ValueType::Bool:  return sizeof(bool);
-    case ValueType::Vec2:  return sizeof(float) * 2;
-    case ValueType::Vec3:  return sizeof(float) * 3;
+    case ValueType::Vec2:  return sizeof(geom::Vector2);
+    case ValueType::Vec3:  return sizeof(geom::Vector3);
     case ValueType::Mat43: return sizeof(float) * 12;
     }
     return -1;
@@ -48,25 +51,27 @@ bool VertexBuffer::edit()
     {
         return false;
     }
+    imhelp::Indent indent;
 
     bool changed = false;
     if (imhelp::edit("Name", m_name))                     changed = true;
-    if (imhelp::edit_list("Components", m_components))
+    if (imhelp::edit_list("Vertex Components", m_components))
     {
         m_data.resize(vertex_size() * m_num_vertices, 0);
         changed = true;
     }
+    ImGui::Text("Vertices");
+    if (ImGui::InputInt("Num Vertices", &m_num_vertices))
+    {
+        m_data.resize(vertex_size() * m_num_vertices, 0);
+    }
+    if (ImGui::IsItemDeactivatedAfterEdit())              changed = true;
     for (int i = 0; i < m_num_vertices; ++i)
     {
         ImGui::PushID(i);
         if (edit_vertex(i)) changed = true;
         ImGui::PopID();
         ImGui::Separator();
-    }
-    if (imhelp::edit("Num Vertices", m_num_vertices))
-    {
-        m_data.resize(vertex_size() * m_num_vertices, 0);
-        changed = true;
     }
     if (imhelp::edit_list("Triangles", m_triangles))      changed = true;
     imhelp::display_error_if_present(m_error_log.c_str());
@@ -90,11 +95,11 @@ bool VertexBuffer::edit_vertex(int vertex_index)
         ImGui::PushID(component_index);
         switch (component)
         {
-        case ValueType::Float: if(imhelp::edit("", *reinterpret_cast<float*>(element))) changed = true; break;
-        case ValueType::Int:   if(imhelp::edit("", *reinterpret_cast<int*>(element))) changed = true; break;
-        case ValueType::Bool:  if(imhelp::edit("", *reinterpret_cast<bool*>(element))) changed = true; break;
-        case ValueType::Vec2:  break;
-        case ValueType::Vec3:  break;
+        case ValueType::Float: if (imhelp::edit("", *reinterpret_cast<float*>(element)))         changed = true; break;
+        case ValueType::Int:   if (imhelp::edit("", *reinterpret_cast<int*>(element)))           changed = true; break;
+        case ValueType::Bool:  if (imhelp::edit("", *reinterpret_cast<bool*>(element)))          changed = true; break;
+        case ValueType::Vec2:  if (imhelp::edit("", *reinterpret_cast<geom::Vector2*>(element))) changed = true; break;
+        case ValueType::Vec3:  if (imhelp::edit("", *reinterpret_cast<geom::Vector3*>(element))) changed = true; break;
         case ValueType::Mat43: break;
         }
         ImGui::PopID();
@@ -125,6 +130,7 @@ bool Shader<shader_type>::edit()
     {
         return false;
     }
+    imhelp::Indent indent;
 
     bool changed = false;
     if (imhelp::edit("Name", m_name))                      changed = true;
@@ -148,6 +154,7 @@ bool ShaderProgram::edit()
     {
         return false;
     }
+    imhelp::Indent indent;
 
     bool changed = false;
     if (imhelp::edit("Name", m_name))                        changed = true;
@@ -168,6 +175,7 @@ bool VertexArrayObject::edit()
     {
         return false;
     }
+    imhelp::Indent indent;
 
     bool changed = false;
     if (imhelp::edit("Name", m_name))                          changed = true;

@@ -9,18 +9,34 @@
 //imgui helper functions
 //convention is to return true on edit and deactivate, not per keystroke
 
+namespace geom
+{
+    struct Vector2;
+    struct Vector3;
+}
+
 namespace imhelp//ing
 {
     void display_error_if_present(const char* error);
     bool edit_multiline_string(const char* label, std::string& s);
 
-    bool edit(const char* label, int& s);
-    bool edit(const char* label, float& s);
-    bool edit(const char* label, bool& s);
-    bool edit(const char* label, std::string& s);
+    bool edit(const char* label, int&);
+    bool edit(const char* label, float&);
+    bool edit(const char* label, bool&);
+    bool edit(const char* label, std::string&);
+    bool edit(const char* label, geom::Vector2&);
+    bool edit(const char* label, geom::Vector3&);
 
     template<typename ElementT, typename ...ContextArgs>
     bool edit_list(const char* label, std::vector<ElementT>& list, ContextArgs&&... args);
+
+    //RAII class to indent the output of a block of imgui code
+    class Indent
+    {
+    public:
+        Indent();
+        ~Indent();
+    };
 
     //inline implementations ========================================================
 
@@ -31,7 +47,6 @@ namespace imhelp//ing
 
         ImGui::PushID(label);
         ImGui::Text(label);
-        ImGui::Indent();
 
         //iterate elements and give opportunity to edit each one
         int to_delete = -1;
@@ -63,7 +78,6 @@ namespace imhelp//ing
 
             ImGui::PopID();
         }
-        ImGui::Unindent();
 
         //allow adding new elements
         if (ImGui::Button("Add"))

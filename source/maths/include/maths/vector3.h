@@ -5,15 +5,6 @@
 
 namespace geom
 {
-    //forward declarations
-
-    template<int rows, int columns>
-    struct Matrix;
-    struct Quaternion;
-
-    using Matrix44 = Matrix<4, 4>;
-    using Matrix34 = Matrix<3, 4>;
-
     //struct
 
     struct Vector3
