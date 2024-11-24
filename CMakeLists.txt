@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 #compiler/platform dependent values
 if(MSVC_VERSION)
-	add_compile_options(/permissive- /W4)
+	add_compile_options(/permissive- /W4 /WX) #conformance, warnings, warnings as errors
 endif()
 
 #define each target, starting from lowest level dependency and ending with exe
