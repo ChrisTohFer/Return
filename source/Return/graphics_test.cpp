@@ -276,8 +276,14 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
     m_fragment_shader_ids.clear();
     m_shader_program_ids.clear();
     m_vao_ids.clear();
+
+    //auto& buffers = editor.data().m_vertex_buffers;
+    auto& v_shaders = editor.data().m_vertex_shaders;
+    auto& f_shaders = editor.data().m_fragment_shaders;
+    auto& programs = editor.data().m_shader_programs;
+    //auto& vaos = editor.data().m_vertex_array_objects;
     
-    for(auto& vert_shader : editor.data().m_vertex_shaders)
+    for(auto& vert_shader : v_shaders)
     {
         vert_shader.error_log().clear();
         
@@ -296,6 +302,61 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
             glGetShaderInfoLog(id, sizeof(buf), nullptr, buf);
             vert_shader.error_log() = buf;
         }
+    }
+    
+    for(auto& frag_shader : f_shaders)
+    {
+        frag_shader.error_log().clear();
+        
+        auto id = glCreateShader(GL_FRAGMENT_SHADER);
+        const char* source = frag_shader.source().c_str();
+        glShaderSource(id, 1, &source, nullptr);
+        glCompileShader(id);
+        m_fragment_shader_ids.push_back(id);
+        
+        //check for and report errors
+        int success = false;
+        glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+        if(!success)
+        {
+            char buf[1024];
+            glGetShaderInfoLog(id, sizeof(buf), nullptr, buf);
+            frag_shader.error_log() = buf;
+        }
+    }
+    
+    for(auto& shader_program : programs)
+    {
+        shader_program.error_log().clear();
+        
+        auto find_vertex = std::find_if(v_shaders.begin(), v_shaders.end(), [&](auto& elem) { return shader_program.vertex_shader() == elem.name(); });
+        auto find_fragment = std::find_if(f_shaders.begin(), f_shaders.end(), [&](auto& elem) { return shader_program.fragment_shader() == elem.name(); });
+
+        shader_program.error_log() += find_vertex == v_shaders.end() ? "Couldn't find vertex shader.\n" : "";
+        shader_program.error_log() += find_fragment == f_shaders.end() ? "Couldn't find fragment shader.\n" : "";
+        if (!shader_program.error_log().empty())
+        {
+            continue;
+        }
+        auto vertex_id = m_vertex_shader_ids[find_vertex - v_shaders.begin()];
+        auto fragment_id = m_fragment_shader_ids[find_fragment - f_shaders.begin()];
+
+        auto id = glCreateProgram();
+        glAttachShader(id, vertex_id);
+        glAttachShader(id, fragment_id);
+        glLinkProgram(id);
+
+        //check for and report errors
+        int success = 0;
+        glGetProgramiv(id, GL_LINK_STATUS, &success);
+        if (!success)
+        {
+            char buf[1024];
+            glGetProgramInfoLog(id, sizeof(buf), nullptr, buf);
+            shader_program.error_log() = buf;
+        }
+
+        m_shader_program_ids.push_back(id);
     }
 
 }

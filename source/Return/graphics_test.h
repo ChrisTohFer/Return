@@ -79,6 +79,8 @@ public:
     bool edit();
 
     const std::string& name() const { return m_name; }
+    const std::string& vertex_shader() const { return m_vert_shader_name; }
+    const std::string& fragment_shader() const { return m_frag_shader_name; }
     std::string& error_log() { return m_error_log; }
 
 private:
@@ -137,7 +139,7 @@ class GraphicsTestPreview
 {
 public:
     void initialize(GraphicsTestEditor&);
-
+    void clear(); //todo
 private:
     std::vector<GLuint> m_buffer_ids;
     std::vector<GLuint> m_vertex_shader_ids;
