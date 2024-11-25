@@ -212,7 +212,7 @@ namespace geom
             }
         }
 
-        _ASSERT(t != 0.f);
+        assert(t != 0.f);
         q = q * (0.5f / sqrtf(t));
 
         return q;
@@ -238,7 +238,7 @@ namespace geom
     inline Quaternion Quaternion::normalized() const
     {
         float mag_squared = x * x + y * y + z * z + w * w;
-        _ASSERT(mag_squared != 0.f);
+        assert(mag_squared != 0.f);
 
         float scaling = 1.f / sqrtf(mag_squared);
         return { x * scaling, y * scaling, z * scaling, w * scaling };

@@ -132,7 +132,7 @@ namespace geom
 
     inline Vector3 operator/(const Vector3& lhs, float rhs)
     {
-        _ASSERT(rhs != 0.f);
+        assert(rhs != 0.f);
 
         return {
             lhs.x / rhs,

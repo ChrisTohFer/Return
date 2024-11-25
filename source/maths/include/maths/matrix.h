@@ -92,7 +92,7 @@ namespace geom
     template<int Rows, int Columns>
     Matrix<Rows, Columns> operator/(const Matrix<Rows, Columns>& lhs, float rhs)
     {
-        _ASSERT(rhs != 0.f);
+        assert(rhs != 0.f);
 
         Matrix<Rows, Columns> matrix;
         for (int i = 0; i < Rows * Columns; ++i)
