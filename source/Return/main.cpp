@@ -63,7 +63,12 @@ int main()
 
         ImGui::ShowDemoWindow();
         static GraphicsTestEditor editor;
-        editor.edit();
+        
+        if(editor.edit())
+        {
+            static GraphicsTestPreview preview;
+            preview.initialize(editor);
+        }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

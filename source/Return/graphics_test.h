@@ -38,6 +38,7 @@ public:
     bool edit();
 
     const std::string& name() const { return m_name; }
+    std::string& error_log() { return m_error_log; }
 
 private:
     bool edit_vertex(int i);
@@ -59,6 +60,8 @@ public:
     bool edit();
 
     const std::string& name() const { return m_name; }
+    const std::string& source() const { return m_source; }
+    std::string& error_log() { return m_error_log; }
 
 private:
     std::string m_name;
@@ -76,6 +79,7 @@ public:
     bool edit();
 
     const std::string& name() const { return m_name; }
+    std::string& error_log() { return m_error_log; }
 
 private:
     std::string m_name;
@@ -90,6 +94,7 @@ public:
     bool edit();
 
     const std::string& name() const { return m_name; }
+    std::string& error_log() { return m_error_log; }
 
 private:
     std::string m_name;
@@ -101,13 +106,6 @@ private:
 class GraphicsTestEditor
 {
 public:
-    bool edit();
-
-private:
-    void snapshot();
-    void undo();
-    void redo();
-
     struct Data
     {
         std::vector<VertexBuffer> m_vertex_buffers;
@@ -116,6 +114,16 @@ private:
         std::vector<ShaderProgram> m_shader_programs;
         std::vector<VertexArrayObject> m_vertex_array_objects;
     };
+
+    bool edit();
+
+    Data& data() { return m_data; }
+
+private:
+    void snapshot();
+    void undo();
+    void redo();
+
     Data m_data;
 
     constexpr static int undo_stack_size = 32;
@@ -123,4 +131,17 @@ private:
     int m_undo_length = 0;
     int m_redo_length = 0;
     int m_undo_current = 0;
+};
+
+class GraphicsTestPreview
+{
+public:
+    void initialize(GraphicsTestEditor&);
+
+private:
+    std::vector<GLuint> m_buffer_ids;
+    std::vector<GLuint> m_vertex_shader_ids;
+    std::vector<GLuint> m_fragment_shader_ids;
+    std::vector<GLuint> m_shader_program_ids;
+    std::vector<GLuint> m_vao_ids;
 };

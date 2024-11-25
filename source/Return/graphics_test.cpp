@@ -266,3 +266,36 @@ void GraphicsTestEditor::redo()
         m_data = m_undo_stack[m_undo_current];
     }
 }
+
+//GraphicsTestPreview ===========================================================
+
+void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
+{
+    m_buffer_ids.clear();
+    m_vertex_shader_ids.clear();
+    m_fragment_shader_ids.clear();
+    m_shader_program_ids.clear();
+    m_vao_ids.clear();
+    
+    for(auto& vert_shader : editor.data().m_vertex_shaders)
+    {
+        vert_shader.error_log().clear();
+        
+        auto id = glCreateShader(GL_VERTEX_SHADER);
+        const char* source = vert_shader.source().c_str();
+        glShaderSource(id, 1, &source, nullptr);
+        glCompileShader(id);
+        m_vertex_shader_ids.push_back(id);
+        
+        //check for and report errors
+        int success = false;
+        glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+        if(!success)
+        {
+            char buf[1024];
+            glGetShaderInfoLog(id, sizeof(buf), nullptr, buf);
+            vert_shader.error_log() = buf;
+        }
+    }
+
+}
