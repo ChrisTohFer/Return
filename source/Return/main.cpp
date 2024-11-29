@@ -24,6 +24,8 @@ void framebuffer_size_callback(GLFWwindow*, int width, int height)
 
 int main()
 {
+    std::cout << "Running " << CONFIGURATION_STR << " build.\n";
+
     constexpr int winx = 1000, winy = 700;
     glfwInit();
     glfwSetErrorCallback(error_callback);
@@ -31,6 +33,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     auto window = glfwCreateWindow(winx, winy, "Test", nullptr, nullptr);
+
 
     if (!window)
     {

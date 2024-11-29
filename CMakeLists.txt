@@ -13,6 +13,17 @@ endif()
 
 #define each target, starting from lowest level dependency and ending with exe
 
+#pseudo targets for grouping settings
+add_library(GlobalSettings INTERFACE)
+target_compile_definitions(GlobalSettings
+	INTERFACE
+	$<$<CONFIG:Debug,RelWithDebInfo>:DEBUG>
+	$<$<CONFIG:Release,MinSizeRel>:RELEASE NDEBUG>
+	$<$<CONFIG:Release,MinSizeRel,RelWithDebInfo>:OPTIMIZED>
+	CONFIGURATION=$<CONFIG>
+	"CONFIGURATION_STR=\"$<CONFIG>\""
+	)
+
 #thirdparty interface targets
 add_library(Glfw INTERFACE)
 target_include_directories(Glfw INTERFACE "third_party/glfw/include")
@@ -38,13 +49,16 @@ file(GLOB_RECURSE maths_source "source/maths/*.h" "source/maths/*.cpp")
 add_library(Maths STATIC ${maths_source})
 target_include_directories(Maths PUBLIC "source/maths/include")
 target_include_directories(Maths PRIVATE "source/maths")
+target_link_libraries(Maths PRIVATE GlobalSettings)
 
 file(GLOB_RECURSE return_source_files "source/Return/*.h" "source/Return/*.cpp")
 add_executable(Return ${return_source_files})
+target_link_libraries(Return PRIVATE GlobalSettings)
 target_link_libraries(Return PUBLIC Glfw)
 target_link_libraries(Return PUBLIC Glad)
 target_link_libraries(Return PUBLIC ImGui)
 target_link_libraries(Return PUBLIC Maths)
+
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 add_custom_command(TARGET Return POST_BUILD

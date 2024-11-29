@@ -9,6 +9,8 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_stdlib.h"
 
+#include <algorithm>
+
 //VertexBuffer ==================================================================
 
 static constexpr int value_type_size(ValueType vt)
