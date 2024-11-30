@@ -40,11 +40,12 @@ public:
     const std::string& name() const { return m_name; }
     std::string& error_log() { return m_error_log; }
     int total_size() const { return vertex_size() * m_num_vertices; }
-    const void* data() const {return m_data.data(); }
+    const void* data() const { return m_data.data(); }
+    const std::vector<ValueType>& components() const { return m_components; }
+    int vertex_size() const;
 
 private:
     bool edit_vertex(int i);
-    int vertex_size() const;
     std::string m_name;
 
     std::vector<ValueType> m_components;
@@ -99,6 +100,8 @@ public:
 
     const std::string& name() const { return m_name; }
     std::string& error_log() { return m_error_log; }
+    const std::string& buffer_name() const { return m_vertex_buffer_name; }
+    const std::string& program_name() const { return m_shader_program_name; }
 
 private:
     std::string m_name;
@@ -142,6 +145,9 @@ class GraphicsTestPreview
 public:
     void initialize(GraphicsTestEditor&);
     void clear(); //todo
+
+    void draw() const;
+
 private:
     std::vector<GLuint> m_buffer_ids;
     std::vector<GLuint> m_vertex_shader_ids;

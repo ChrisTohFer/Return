@@ -1,7 +1,8 @@
 Todo:
--Write compiler for each component
-    -vertex buffers
-    -vaos
 -implement clear, ensure that allocated openGL resources are deallocated when recompiling
--display result on screen
 -provide some easy defaults for each resource type or for whole editor
+-support uniforms
+    -built in uniforms? e.g camera and time
+-store more than just id, e.g vertex count. need compiled types for this probably
+-editor context support for dropdowns
+-save/load

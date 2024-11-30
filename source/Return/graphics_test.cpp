@@ -284,7 +284,7 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
     auto& v_shaders = editor.data().m_vertex_shaders;
     auto& f_shaders = editor.data().m_fragment_shaders;
     auto& programs = editor.data().m_shader_programs;
-    //auto& vaos = editor.data().m_vertex_array_objects;
+    auto& vaos = editor.data().m_vertex_array_objects;
     
     {
         auto e = glGetError();
@@ -300,6 +300,8 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
         glBufferData(GL_ARRAY_BUFFER, buffer.total_size(), buffer.data(), GL_STATIC_DRAW);
         auto e = glGetError();
         if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
+
+        m_buffer_ids.push_back(id);
     }
 
     for(auto& vert_shader : v_shaders)
@@ -355,6 +357,8 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
         shader_program.error_log() += find_fragment == f_shaders.end() ? "Couldn't find fragment shader.\n" : "";
         if (!shader_program.error_log().empty())
         {
+            //no point trying to create a shader program if we're missing the components
+            m_shader_program_ids.push_back(0);
             continue;
         }
         auto vertex_id = m_vertex_shader_ids[find_vertex - v_shaders.begin()];
@@ -378,4 +382,64 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
         m_shader_program_ids.push_back(id);
     }
 
+    for(auto& vao : vaos)
+    {
+        vao.error_log().clear();
+
+        auto find_buffer = std::find_if(buffers.begin(), buffers.end(), [&](auto& elem) { return vao.buffer_name() == elem.name(); });
+        auto find_program = std::find_if(programs.begin(), programs.end(), [&](auto& elem) { return vao.program_name() == elem.name(); });
+
+        vao.error_log() += find_buffer == buffers.end() ? "Couldn't find buffer.\n" : "";
+        vao.error_log() += find_program == programs.end() ? "Couldn't find shader program.\n" : "";
+        
+        if (!vao.error_log().empty())
+        {
+            //no point trying to create a vao if we're missing the components
+            m_vao_ids.push_back(0);
+            continue;
+        }
+        auto buffer_id = m_buffer_ids[find_buffer - buffers.begin()];
+        auto program_id = m_shader_program_ids[find_program - programs.begin()];
+
+        GLuint id;
+        glGenVertexArrays(1, &id);
+        glBindVertexArray(id);
+        glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+
+        auto& components = find_buffer->components();
+        auto vertex_size = find_buffer->vertex_size();
+        int offset = 0;
+        for(int i = 0; i < components.size(); ++i)
+        {
+            auto component = components[i];
+            switch(component)
+            {
+            case ValueType::Float: glVertexAttribPointer(i, 1, GL_FLOAT, GL_FALSE, vertex_size, (void*)offset); break;
+            case ValueType::Int:   glVertexAttribPointer(i, 1, GL_INT,   GL_FALSE, vertex_size, (void*)offset); break;
+            case ValueType::Bool:  glVertexAttribPointer(i, 1, GL_BOOL,  GL_FALSE, vertex_size, (void*)offset); break;
+            case ValueType::Vec2:  glVertexAttribPointer(i, 2, GL_FLOAT, GL_FALSE, vertex_size, (void*)offset); break;
+            case ValueType::Vec3:  glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, vertex_size, (void*)offset); break;
+            case ValueType::Mat43: assert(!"Don't use mat43 as a buffer component yet."); break;
+            default: break;
+            }
+            offset += value_type_size(component); 
+            glEnableVertexAttribArray(i);
+        }
+
+        glUseProgram(program_id);
+
+        m_vao_ids.push_back(id);
+    }
+
+}
+
+void GraphicsTestPreview::draw() const
+{
+    for(auto& vao_id : m_vao_ids)
+    {
+        if(vao_id == 0) continue;
+
+        glBindVertexArray(vao_id);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+    }
 }

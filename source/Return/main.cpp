@@ -64,14 +64,14 @@ int main()
         glClearColor(0.f, 0.f, 0.f, 255.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        ImGui::ShowDemoWindow();
         static GraphicsTestEditor editor;
+        static GraphicsTestPreview preview;
         
         if(editor.edit())
         {
-            static GraphicsTestPreview preview;
             preview.initialize(editor);
         }
+        preview.draw();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
