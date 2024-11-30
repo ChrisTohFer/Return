@@ -39,6 +39,8 @@ public:
 
     const std::string& name() const { return m_name; }
     std::string& error_log() { return m_error_log; }
+    int total_size() const { return vertex_size() * m_num_vertices; }
+    const void* data() const {return m_data.data(); }
 
 private:
     bool edit_vertex(int i);

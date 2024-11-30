@@ -10,6 +10,7 @@
 #include "imgui/imgui_stdlib.h"
 
 #include <algorithm>
+#include <format>
 
 //VertexBuffer ==================================================================
 
@@ -279,12 +280,28 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
     m_shader_program_ids.clear();
     m_vao_ids.clear();
 
-    //auto& buffers = editor.data().m_vertex_buffers;
+    auto& buffers = editor.data().m_vertex_buffers;
     auto& v_shaders = editor.data().m_vertex_shaders;
     auto& f_shaders = editor.data().m_fragment_shaders;
     auto& programs = editor.data().m_shader_programs;
     //auto& vaos = editor.data().m_vertex_array_objects;
     
+    {
+        auto e = glGetError();
+        if(e != GL_NO_ERROR) printf("OpenGL error code %d when initializing preview.\n", (int)e);
+    }
+
+    for(auto& buffer : buffers)
+    {
+        buffer.error_log().clear();
+        GLuint id;
+        glGenBuffers(1, &id);
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+        glBufferData(GL_ARRAY_BUFFER, buffer.total_size(), buffer.data(), GL_STATIC_DRAW);
+        auto e = glGetError();
+        /*if(e != GL_NO_ERROR)*/ buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
+    }
+
     for(auto& vert_shader : v_shaders)
     {
         vert_shader.error_log().clear();
