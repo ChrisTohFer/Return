@@ -299,7 +299,7 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
         glBindBuffer(GL_ARRAY_BUFFER, id);
         glBufferData(GL_ARRAY_BUFFER, buffer.total_size(), buffer.data(), GL_STATIC_DRAW);
         auto e = glGetError();
-        /*if(e != GL_NO_ERROR)*/ buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
+        if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
     }
 
     for(auto& vert_shader : v_shaders)
