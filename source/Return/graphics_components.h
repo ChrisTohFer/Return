@@ -8,6 +8,8 @@
 
 namespace gfx
 {
+    void report_gl_error();
+
     class VertexBuffer
     {
     public:
@@ -46,6 +48,7 @@ namespace gfx
     class ShaderProgram
     {
     public:
+        ShaderProgram() = default;
         ShaderProgram(const VertexShader&, const FragmentShader&, std::string* error_log = nullptr);
         ShaderProgram(ShaderProgram&&);
         ~ShaderProgram();
@@ -55,12 +58,13 @@ namespace gfx
         void use() const;
 
     private:
-        GLuint m_id;
+        GLuint m_id = 0;
     };
 
     class VertexArray
     {
     public:
+        VertexArray() = default;
         VertexArray(const VertexBuffer&, const ShaderProgram&);
         VertexArray(VertexArray&&);
         ~VertexArray();
@@ -70,7 +74,7 @@ namespace gfx
         void draw_triangles() const;
 
     private:
-        GLuint m_id;
-        const VertexBuffer* m_vb;
+        GLuint m_id = 0;
+        const VertexBuffer* m_vb = nullptr;
     };
 }

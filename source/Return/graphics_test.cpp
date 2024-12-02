@@ -12,28 +12,18 @@
 #include <algorithm>
 #include <format>
 
+
 //VertexBuffer ==================================================================
 
-static constexpr int value_type_size(ValueType vt)
+namespace gfx
 {
-    switch (vt)
+    static bool edit(const char* label, gfx::VertexComponent& vt)
     {
-    case ValueType::Float: return sizeof(float);
-    case ValueType::Int:   return sizeof(int);
-    case ValueType::Bool:  return sizeof(bool);
-    case ValueType::Vec2:  return sizeof(geom::Vector2);
-    case ValueType::Vec3:  return sizeof(geom::Vector3);
+        int index = (int)vt;
+        bool changed = ImGui::Combo(label, &index, gfx::g_vertex_component_names, (int)gfx::VertexComponent::Num);
+        vt = gfx::VertexComponent(index);
+        return changed;
     }
-    return -1;
-}
-
-static bool edit(const char* label, ValueType& vt)
-{
-    int index = (int)vt;
-    static const char* names[] = { "Float", "Int", "Bool", "Vec2", "Vec3", "Mat43" };
-    bool changed = ImGui::Combo(label, &index, names, 6);
-    vt = ValueType(index);
-    return changed;
 }
 
 static bool edit(const char* label, VertexBuffer::Triangle& vt)
@@ -43,6 +33,22 @@ static bool edit(const char* label, VertexBuffer::Triangle& vt)
     vt = { i3[0], i3[1], i3[2] };
 
     return ImGui::IsItemDeactivatedAfterEdit();
+}
+
+VertexBuffer VertexBuffer::create_triangle_buffer()
+{
+    VertexBuffer triangle_buffer;
+    triangle_buffer.m_name = "triangle";
+    triangle_buffer.m_components = { gfx::VertexComponent::Vec3 };
+    triangle_buffer.m_num_vertices = 3;
+    triangle_buffer.m_data.resize(3 * sizeof(geom::Vector3));
+
+    auto* vertex = reinterpret_cast<geom::Vector3*>(triangle_buffer.m_data.data());
+    vertex[0] = {-0.5f, -0.5f, 0.0f};
+    vertex[1] = {0.5f, -0.5f, 0.0f};
+    vertex[2] = {0.0f, 0.5f, 0.0f};
+
+    return triangle_buffer;
 }
 
 bool VertexBuffer::edit()
@@ -97,15 +103,15 @@ bool VertexBuffer::edit_vertex(int vertex_index)
         ImGui::PushID(component_index);
         switch (component)
         {
-        case ValueType::Float: if (imhelp::edit("", *reinterpret_cast<float*>(element)))         changed = true; break;
-        case ValueType::Int:   if (imhelp::edit("", *reinterpret_cast<int*>(element)))           changed = true; break;
-        case ValueType::Bool:  if (imhelp::edit("", *reinterpret_cast<bool*>(element)))          changed = true; break;
-        case ValueType::Vec2:  if (imhelp::edit("", *reinterpret_cast<geom::Vector2*>(element))) changed = true; break;
-        case ValueType::Vec3:  if (imhelp::edit("", *reinterpret_cast<geom::Vector3*>(element))) changed = true; break;
+        case gfx::VertexComponent::Float: if (imhelp::edit("", *reinterpret_cast<float*>(element)))         changed = true; break;
+        case gfx::VertexComponent::Int:   if (imhelp::edit("", *reinterpret_cast<int*>(element)))           changed = true; break;
+        case gfx::VertexComponent::Bool:  if (imhelp::edit("", *reinterpret_cast<bool*>(element)))          changed = true; break;
+        case gfx::VertexComponent::Vec2:  if (imhelp::edit("", *reinterpret_cast<geom::Vector2*>(element))) changed = true; break;
+        case gfx::VertexComponent::Vec3:  if (imhelp::edit("", *reinterpret_cast<geom::Vector3*>(element))) changed = true; break;
         }
         ImGui::PopID();
 
-        element += value_type_size(component);
+        element += gfx::component_size(component);
     }
     return changed;
 }
@@ -115,14 +121,46 @@ int VertexBuffer::vertex_size() const
     int size = 0;
     for (auto& component : m_components)
     {
-        size += value_type_size(component);
+        size += gfx::component_size(component);
     }
     return size;
 }
 
 //Shader ========================================================================
 
-template<unsigned shader_type>
+template <unsigned shader_type>
+Shader<shader_type> Shader<shader_type>::create_triangle_shader() requires(shader_type == GL_VERTEX_SHADER)
+{
+    Shader shader;
+    shader.m_name = "triangle";
+    shader.m_source = 
+    "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = vec4(aPos, 1.0);\n"
+    "}\n"
+    ;
+    return shader;
+}
+
+template <unsigned shader_type>
+Shader<shader_type> Shader<shader_type>::create_triangle_shader() requires(shader_type == GL_FRAGMENT_SHADER)
+{
+    Shader shader;
+    shader.m_name = "triangle";
+    shader.m_source = 
+    "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "}\n"
+    ;
+    return shader;
+}
+
+template <unsigned shader_type>
 bool Shader<shader_type>::edit()
 {
     char label[256];
@@ -147,6 +185,15 @@ template class Shader<GL_FRAGMENT_SHADER>;
 
 //ShaderProgram =================================================================
 
+ShaderProgram ShaderProgram::create_default_triangle_program()
+{
+    ShaderProgram triangle_program;
+    triangle_program.m_name = "triangle";
+    triangle_program.m_vert_shader_name = "triangle";
+    triangle_program.m_frag_shader_name = "triangle";
+    return triangle_program;
+}
+
 bool ShaderProgram::edit()
 {
     char label[256];
@@ -167,6 +214,15 @@ bool ShaderProgram::edit()
 }
 
 //VertexArrayObject =============================================================
+
+VertexArrayObject VertexArrayObject::create_default_triangle_vao()
+{
+    VertexArrayObject triangle_array;
+    triangle_array.m_name = "triangle";
+    triangle_array.m_vertex_buffer_name = "triangle";
+    triangle_array.m_shader_program_name = "triangle";
+    return triangle_array;
+}
 
 bool VertexArrayObject::edit()
 {
@@ -195,6 +251,15 @@ static bool edit(const char*, Shader<shader_type>& s) { return s.edit(); }
 static bool edit(const char*, ShaderProgram& sp) { return sp.edit(); }
 static bool edit(const char*, VertexArrayObject& vao) { return vao.edit(); }
 
+GraphicsTestEditor::GraphicsTestEditor()
+{
+    m_data.m_vertex_buffers.push_back(VertexBuffer::create_triangle_buffer());
+    m_data.m_vertex_shaders.push_back(VertexShader::create_triangle_shader());
+    m_data.m_fragment_shaders.push_back(FragmentShader::create_triangle_shader());
+    m_data.m_shader_programs.push_back(ShaderProgram::create_default_triangle_program());
+    m_data.m_vertex_array_objects.push_back(VertexArrayObject::create_default_triangle_vao());
+}
+
 bool GraphicsTestEditor::edit()
 {
     bool changed = false;
@@ -221,11 +286,11 @@ bool GraphicsTestEditor::edit()
         {
             if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z))
             {
-                undo();
+                if(undo()) changed = true;
             }
             if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Y))
             {
-                redo();
+                if(redo()) changed = true;
             }
         }
     }
@@ -244,7 +309,7 @@ void GraphicsTestEditor::snapshot()
     m_undo_stack[m_undo_current] = m_data;
 }
 
-void GraphicsTestEditor::undo()
+bool GraphicsTestEditor::undo()
 {
     if (m_undo_length > 0)
     {
@@ -253,10 +318,12 @@ void GraphicsTestEditor::undo()
         m_undo_length -= 1;
         m_redo_length += 1;
         m_data = m_undo_stack[m_undo_current];
+        return true;
     }
+    return false;
 }
 
-void GraphicsTestEditor::redo()
+bool GraphicsTestEditor::redo()
 {
     if (m_redo_length > 0)
     {
@@ -265,18 +332,22 @@ void GraphicsTestEditor::redo()
         m_undo_length += 1;
         m_redo_length -= 1;
         m_data = m_undo_stack[m_undo_current];
+        return true;
     }
+    return false;
 }
 
 //GraphicsTestPreview ===========================================================
 
 void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
 {
-    m_buffer_ids.clear();
-    m_vertex_shader_ids.clear();
-    m_fragment_shader_ids.clear();
-    m_shader_program_ids.clear();
-    m_vao_ids.clear();
+    m_compiled_buffers.clear();
+    m_compiled_vertex_shaders.clear();
+    m_compiled_fragment_shaders.clear();
+    m_compiled_shader_programs.clear();
+    m_compiled_vaos.clear();
+
+    gfx::report_gl_error();
 
     auto& buffers = editor.data().m_vertex_buffers;
     auto& v_shaders = editor.data().m_vertex_shaders;
@@ -291,152 +362,108 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
 
     for(auto& buffer : buffers)
     {
+        gfx::report_gl_error();
         buffer.error_log().clear();
-        GLuint id;
-        glGenBuffers(1, &id);
-        glBindBuffer(GL_ARRAY_BUFFER, id);
-        glBufferData(GL_ARRAY_BUFFER, buffer.total_size(), buffer.data(), GL_STATIC_DRAW);
+        m_compiled_buffers.push_back(gfx::VertexBuffer(buffer.data(), buffer.num_vertices(), buffer.components()));
         auto e = glGetError();
         if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
-
-        m_buffer_ids.push_back(id);
     }
 
     for(auto& vert_shader : v_shaders)
     {
+        gfx::report_gl_error();
         vert_shader.error_log().clear();
-        
-        auto id = glCreateShader(GL_VERTEX_SHADER);
-        const char* source = vert_shader.source().c_str();
-        glShaderSource(id, 1, &source, nullptr);
-        glCompileShader(id);
-        m_vertex_shader_ids.push_back(id);
-        
-        //check for and report errors
-        int success = false;
-        glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-        if(!success)
-        {
-            char buf[1024];
-            glGetShaderInfoLog(id, sizeof(buf), nullptr, buf);
-            vert_shader.error_log() = buf;
-        }
+        m_compiled_vertex_shaders.push_back(gfx::VertexShader(vert_shader.source().c_str(), &vert_shader.error_log()));
     }
     
     for(auto& frag_shader : f_shaders)
     {
+        gfx::report_gl_error();
         frag_shader.error_log().clear();
-        
-        auto id = glCreateShader(GL_FRAGMENT_SHADER);
-        const char* source = frag_shader.source().c_str();
-        glShaderSource(id, 1, &source, nullptr);
-        glCompileShader(id);
-        m_fragment_shader_ids.push_back(id);
-        
-        //check for and report errors
-        int success = false;
-        glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-        if(!success)
-        {
-            char buf[1024];
-            glGetShaderInfoLog(id, sizeof(buf), nullptr, buf);
-            frag_shader.error_log() = buf;
-        }
+        m_compiled_fragment_shaders.push_back(gfx::FragmentShader(frag_shader.source().c_str(), &frag_shader.error_log()));
     }
     
     for(auto& shader_program : programs)
     {
+        gfx::report_gl_error();
         shader_program.error_log().clear();
         
+        //find components, report if missing
         auto find_vertex = std::find_if(v_shaders.begin(), v_shaders.end(), [&](auto& elem) { return shader_program.vertex_shader() == elem.name(); });
         auto find_fragment = std::find_if(f_shaders.begin(), f_shaders.end(), [&](auto& elem) { return shader_program.fragment_shader() == elem.name(); });
-
         shader_program.error_log() += find_vertex == v_shaders.end() ? "Couldn't find vertex shader.\n" : "";
         shader_program.error_log() += find_fragment == f_shaders.end() ? "Couldn't find fragment shader.\n" : "";
+
         if (!shader_program.error_log().empty())
         {
-            //no point trying to create a shader program if we're missing the components
-            m_shader_program_ids.push_back(0);
+            //no point trying to create a valid shader program if we're missing the components
+            m_compiled_shader_programs.push_back(gfx::ShaderProgram());
             continue;
         }
-        auto vertex_id = m_vertex_shader_ids[find_vertex - v_shaders.begin()];
-        auto fragment_id = m_fragment_shader_ids[find_fragment - f_shaders.begin()];
-
-        auto id = glCreateProgram();
-        glAttachShader(id, vertex_id);
-        glAttachShader(id, fragment_id);
-        glLinkProgram(id);
-
-        //check for and report errors
-        int success = 0;
-        glGetProgramiv(id, GL_LINK_STATUS, &success);
-        if (!success)
-        {
-            char buf[1024];
-            glGetProgramInfoLog(id, sizeof(buf), nullptr, buf);
-            shader_program.error_log() = buf;
-        }
-
-        m_shader_program_ids.push_back(id);
+        const auto& vshader = m_compiled_vertex_shaders[find_vertex - v_shaders.begin()];
+        const auto& fshader = m_compiled_fragment_shaders[find_fragment - f_shaders.begin()];
+        m_compiled_shader_programs.push_back(gfx::ShaderProgram(vshader, fshader, &shader_program.error_log()));
+        gfx::report_gl_error();
     }
 
     for(auto& vao : vaos)
     {
+        gfx::report_gl_error();
         vao.error_log().clear();
 
+        //find components, report if missing
         auto find_buffer = std::find_if(buffers.begin(), buffers.end(), [&](auto& elem) { return vao.buffer_name() == elem.name(); });
         auto find_program = std::find_if(programs.begin(), programs.end(), [&](auto& elem) { return vao.program_name() == elem.name(); });
-
         vao.error_log() += find_buffer == buffers.end() ? "Couldn't find buffer.\n" : "";
         vao.error_log() += find_program == programs.end() ? "Couldn't find shader program.\n" : "";
         
         if (!vao.error_log().empty())
         {
             //no point trying to create a vao if we're missing the components
-            m_vao_ids.push_back(0);
+            m_compiled_vaos.push_back(gfx::VertexArray());
             continue;
         }
-        auto buffer_id = m_buffer_ids[find_buffer - buffers.begin()];
-        auto program_id = m_shader_program_ids[find_program - programs.begin()];
+        const auto& buffer = m_compiled_buffers[find_buffer - buffers.begin()];
+        const auto& program = m_compiled_shader_programs[find_program - programs.begin()];
 
-        GLuint id;
-        glGenVertexArrays(1, &id);
-        glBindVertexArray(id);
-        glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-
-        auto& components = find_buffer->components();
-        auto vertex_size = find_buffer->vertex_size();
-        int offset = 0;
-        for(int i = 0; i < components.size(); ++i)
-        {
-            auto component = components[i];
-            switch(component)
-            {
-            case ValueType::Float: glVertexAttribPointer(i, 1, GL_FLOAT, GL_FALSE, vertex_size, (void*)offset); break;
-            case ValueType::Int:   glVertexAttribPointer(i, 1, GL_INT,   GL_FALSE, vertex_size, (void*)offset); break;
-            case ValueType::Bool:  glVertexAttribPointer(i, 1, GL_BOOL,  GL_FALSE, vertex_size, (void*)offset); break;
-            case ValueType::Vec2:  glVertexAttribPointer(i, 2, GL_FLOAT, GL_FALSE, vertex_size, (void*)offset); break;
-            case ValueType::Vec3:  glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, vertex_size, (void*)offset); break;
-            default: break;
-            }
-            offset += value_type_size(component); 
-            glEnableVertexAttribArray(i);
-        }
-
-        glUseProgram(program_id);
-
-        m_vao_ids.push_back(id);
+        m_compiled_vaos.push_back(gfx::VertexArray(buffer, program));
     }
-
 }
 
 void GraphicsTestPreview::draw() const
 {
-    for(auto& vao_id : m_vao_ids)
+    if(ImGui::Begin("Preview"))
     {
-        if(vao_id == 0) continue;
-
-        glBindVertexArray(vao_id);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        ImGui::Text("Buffers: ");
+        for(auto& elem : m_compiled_buffers)
+        {
+            ImGui::Text("%d, ", (int)elem.id());
+        }
+        ImGui::Text("VShaders: ");
+        for(auto& elem : m_compiled_vertex_shaders)
+        {
+            ImGui::Text("%d, ", (int)elem.id());
+        }
+        ImGui::Text("Shaders: ");
+        for(auto& elem : m_compiled_fragment_shaders)
+        {
+            ImGui::Text("%d, ", (int)elem.id());
+        }
+        ImGui::Text("Programs: ");
+        for(auto& elem : m_compiled_shader_programs)
+        {
+            ImGui::Text("%d, ", (int)elem.id());
+        }
+        ImGui::Text("Arrays: ");
+        for(auto& elem : m_compiled_vaos)
+        {
+            ImGui::Text("%d, ", (int)elem.id());
+        }
+    }
+    ImGui::End();
+    for(auto& vao : m_compiled_vaos)
+    {
+        gfx::report_gl_error();
+        vao.draw_triangles();
     }
 }

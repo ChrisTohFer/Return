@@ -1,7 +1,25 @@
 #include "graphics_components.h"
 
+#include <assert.h>
+
 namespace gfx
 {
+    void report_gl_error()
+    {
+    #ifdef DEBUG
+        auto error = glGetError();
+        switch(error)
+        {
+            case GL_INVALID_ENUM: assert(!"GL_INVALID_ENUM"); break;
+            case GL_INVALID_VALUE: assert(!"GL_INVALID_VALUE"); break;
+            case GL_INVALID_OPERATION: assert(!"GL_INVALID_OPERATION"); break;
+            case GL_STACK_OVERFLOW: assert(!"GL_STACK_OVERFLOW"); break;
+            case GL_STACK_UNDERFLOW: assert(!"GL_STACK_UNDERFLOW"); break;
+            case GL_OUT_OF_MEMORY: assert(!"GL_OUT_OF_MEMORY"); break;
+        }
+    #endif
+    }
+
     VertexBuffer::VertexBuffer(const void* data, int vertex_count, const std::vector<VertexComponent>& components)
         : m_vertex_count(vertex_count)
         , m_components(components)
@@ -126,11 +144,12 @@ namespace gfx
         glGenVertexArrays(1, &m_id);
         glBindVertexArray(m_id);
         glBindBuffer(GL_ARRAY_BUFFER, vb.id());
-        vb.bind_attributes();
+        m_vb->bind_attributes();
         program.use();
     }
     VertexArray::VertexArray(VertexArray&& other)
         : m_id(other.m_id)
+        , m_vb(other.m_vb)
     {
         other.m_id = 0;
     }
@@ -143,7 +162,10 @@ namespace gfx
     }
     void VertexArray::draw_triangles() const
     {
-        glBindVertexArray(m_id);
-        glDrawArrays(GL_TRIANGLES, 0, m_vb->vertex_count());
+        if(m_id != 0 && m_vb != nullptr)
+        {
+            glBindVertexArray(m_id);
+            glDrawArrays(GL_TRIANGLES, 0, m_vb->vertex_count());
+        }
     }
 }

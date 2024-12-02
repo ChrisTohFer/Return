@@ -1,28 +1,10 @@
 #pragma once
 
-#include "glad/glad.h"
+#include "graphics_components.h" 
 
 #include <string>
 #include <vector>
 
-
-/*require classes to represent:
-* -vertex buffer (vertex data, vertex format, id)
-* -vertex shader (source, id)
-* -fragment shader (source, id)
-* -vertex array object (refs to other components, id)
-* 
-* also give each class a name, error log
-*/
-
-enum class ValueType
-{
-    Float,
-    Int,
-    Bool,
-    Vec2,
-    Vec3
-};
 
 class VertexBuffer
 {
@@ -34,20 +16,23 @@ public:
         int c = 0;
     };
 
+    static VertexBuffer create_triangle_buffer();
+
     bool edit();
 
     const std::string& name() const { return m_name; }
     std::string& error_log() { return m_error_log; }
     int total_size() const { return vertex_size() * m_num_vertices; }
     const void* data() const { return m_data.data(); }
-    const std::vector<ValueType>& components() const { return m_components; }
+    const std::vector<gfx::VertexComponent>& components() const { return m_components; }
     int vertex_size() const;
+    int num_vertices() const { return m_num_vertices; }
 
 private:
     bool edit_vertex(int i);
     std::string m_name;
 
-    std::vector<ValueType> m_components;
+    std::vector<gfx::VertexComponent> m_components;
     std::vector<uint8_t> m_data;
     int m_num_vertices = 0;
     std::vector<Triangle> m_triangles;
@@ -59,6 +44,9 @@ template<unsigned shader_type>
 class Shader
 {
 public:
+    static Shader create_triangle_shader() requires (shader_type == GL_VERTEX_SHADER);
+    static Shader create_triangle_shader() requires (shader_type == GL_FRAGMENT_SHADER);
+
     bool edit();
 
     const std::string& name() const { return m_name; }
@@ -78,6 +66,7 @@ using FragmentShader = Shader<GL_FRAGMENT_SHADER>;
 class ShaderProgram
 {
 public:
+    static ShaderProgram create_default_triangle_program();
     bool edit();
 
     const std::string& name() const { return m_name; }
@@ -95,6 +84,7 @@ private:
 class VertexArrayObject
 {
 public:
+    static VertexArrayObject create_default_triangle_vao();
     bool edit();
 
     const std::string& name() const { return m_name; }
@@ -121,14 +111,16 @@ public:
         std::vector<VertexArrayObject> m_vertex_array_objects;
     };
 
+    GraphicsTestEditor();
+
     bool edit();
 
     Data& data() { return m_data; }
 
 private:
     void snapshot();
-    void undo();
-    void redo();
+    bool undo();
+    bool redo();
 
     Data m_data;
 
@@ -143,14 +135,13 @@ class GraphicsTestPreview
 {
 public:
     void initialize(GraphicsTestEditor&);
-    void clear(); //todo
 
     void draw() const;
 
 private:
-    std::vector<GLuint> m_buffer_ids;
-    std::vector<GLuint> m_vertex_shader_ids;
-    std::vector<GLuint> m_fragment_shader_ids;
-    std::vector<GLuint> m_shader_program_ids;
-    std::vector<GLuint> m_vao_ids;
+    std::vector<gfx::VertexBuffer>   m_compiled_buffers;
+    std::vector<gfx::VertexShader>   m_compiled_vertex_shaders;
+    std::vector<gfx::FragmentShader> m_compiled_fragment_shaders;
+    std::vector<gfx::ShaderProgram>  m_compiled_shader_programs;
+    std::vector<gfx::VertexArray>    m_compiled_vaos;
 };

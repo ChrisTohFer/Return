@@ -74,6 +74,7 @@ namespace imhelp//ing
             ImGui::SameLine();
 
             //allow user to edit the element
+            //if edit definition isn't found try defining it inside the same namespace as element
             if (edit("", element, args...)) changed = true;
 
             ImGui::PopID();
