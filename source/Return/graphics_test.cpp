@@ -262,7 +262,9 @@ GraphicsTestEditor::GraphicsTestEditor()
 
 bool GraphicsTestEditor::edit()
 {
-    bool changed = false;
+    bool changed = m_deferred_update;
+    m_deferred_update = false;
+
     if (ImGui::Begin("GraphicsTestEditor"))
     {
         ImGui::Text("Undo frame: %d, Undo/Redo length:[%d, %d]", m_undo_current, m_undo_length, m_redo_length);

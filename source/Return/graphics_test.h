@@ -122,6 +122,7 @@ private:
     bool undo();
     bool redo();
 
+    bool m_deferred_update = true;
     Data m_data;
 
     constexpr static int undo_stack_size = 32;
