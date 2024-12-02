@@ -21,8 +21,7 @@ enum class ValueType
     Int,
     Bool,
     Vec2,
-    Vec3,
-    Mat43
+    Vec3
 };
 
 class VertexBuffer

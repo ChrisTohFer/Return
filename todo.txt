@@ -6,3 +6,4 @@ Todo:
 -store more than just id, e.g vertex count. need compiled types for this probably
 -editor context support for dropdowns
 -save/load
+-detect if shader program or shaders weren't linked correctly and invalidate the id

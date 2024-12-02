@@ -23,7 +23,6 @@ static constexpr int value_type_size(ValueType vt)
     case ValueType::Bool:  return sizeof(bool);
     case ValueType::Vec2:  return sizeof(geom::Vector2);
     case ValueType::Vec3:  return sizeof(geom::Vector3);
-    case ValueType::Mat43: return sizeof(float) * 12;
     }
     return -1;
 }
@@ -103,7 +102,6 @@ bool VertexBuffer::edit_vertex(int vertex_index)
         case ValueType::Bool:  if (imhelp::edit("", *reinterpret_cast<bool*>(element)))          changed = true; break;
         case ValueType::Vec2:  if (imhelp::edit("", *reinterpret_cast<geom::Vector2*>(element))) changed = true; break;
         case ValueType::Vec3:  if (imhelp::edit("", *reinterpret_cast<geom::Vector3*>(element))) changed = true; break;
-        case ValueType::Mat43: break;
         }
         ImGui::PopID();
 
@@ -419,7 +417,6 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
             case ValueType::Bool:  glVertexAttribPointer(i, 1, GL_BOOL,  GL_FALSE, vertex_size, (void*)offset); break;
             case ValueType::Vec2:  glVertexAttribPointer(i, 2, GL_FLOAT, GL_FALSE, vertex_size, (void*)offset); break;
             case ValueType::Vec3:  glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, vertex_size, (void*)offset); break;
-            case ValueType::Mat43: assert(!"Don't use mat43 as a buffer component yet."); break;
             default: break;
             }
             offset += value_type_size(component); 
