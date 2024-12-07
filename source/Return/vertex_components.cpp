@@ -18,7 +18,7 @@ namespace gfx
         return 0;
     }
     
-    int vertex_size(const VertexComponent* first_component, size_t n)
+    int vertex_size(const VertexComponent* first_component, int n)
     {
         int result = 0;
         for(int i = 0; i < n; ++i) { result += component_size(first_component[i]); }

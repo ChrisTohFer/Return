@@ -118,12 +118,7 @@ bool VertexBuffer::edit_vertex(int vertex_index)
 
 int VertexBuffer::vertex_size() const
 {
-    int size = 0;
-    for (auto& component : m_components)
-    {
-        size += gfx::component_size(component);
-    }
-    return size;
+    return gfx::vertex_size(m_components.data(), (int)m_components.size());
 }
 
 //Shader ========================================================================

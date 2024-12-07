@@ -26,7 +26,7 @@ namespace gfx
     {
         glGenBuffers(1, &m_id);
         glBindBuffer(GL_ARRAY_BUFFER, m_id);
-        glBufferData(GL_ARRAY_BUFFER, vertex_size(components.data(), components.size()) * vertex_count, data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertex_size(components.data(), (int)components.size()) * vertex_count, data, GL_STATIC_DRAW);
     }
     VertexBuffer::VertexBuffer(VertexBuffer&& other)
         : m_id(other.m_id)
@@ -44,7 +44,7 @@ namespace gfx
     }
     void VertexBuffer::bind_attributes() const
     {
-        auto stride = vertex_size(m_components.data(), m_components.size());
+        auto stride = vertex_size(m_components.data(), (int)m_components.size());
         uint64_t offset = 0;
         for(int i = 0; i < m_components.size(); ++i)
         {
