@@ -2,5 +2,9 @@ Todo:
 -support uniforms
     -built in uniforms? e.g camera and time
 -editor context support for dropdowns
--save/load
 -detect if shader program or shaders weren't linked correctly and invalidate the id
+
+
+-save/load
+    -save whole editor state on exit (maybe on edit?)
+    -could also allow saving individual elements, but will need some ui to support this
