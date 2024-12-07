@@ -7,15 +7,25 @@
 
 namespace file
 {
-    template<size_t buf_size>
-    void get_data_path(const char* relative_path, char (&path_out)[buf_size])
+    std::filesystem::path get_data_path(const char* relative_path)
     {
-        snprintf(path_out, buf_size, "%s/data/%s", std::filesystem::current_path().c_str(), relative_path);
+        auto result = std::filesystem::current_path();
+        result += "/data/";
+        result += relative_path;
+        return result;
     }
-    template<size_t buf_size>
-    void get_appdata_path(const char* relative_path, char (&path_out)[buf_size])
+    std::filesystem::path get_appdata_path(const char* /*relative_path*/)
     {
         assert(!"get_appdata_path() not implemented yet!");
+        return std::filesystem::path();
+    }
+    void create_missing_directories(const std::filesystem::path& path)
+    {
+        auto parent_path = path.parent_path();
+        if (!std::filesystem::exists(parent_path))
+        {
+            std::filesystem::create_directories(parent_path);
+        }
     }
 
     //FileOut =========================================================================
@@ -26,19 +36,21 @@ namespace file
     };
     FileOut FileOut::from_data(const char *relative_path)
     {
-        char path[1024];
-        get_data_path(relative_path, path);
-        return FileOut(path);
+        auto path = get_data_path(relative_path);
+        create_missing_directories(path);
+        return FileOut(path.string().c_str());
     }
     FileOut FileOut::from_app_data(const char *relative_path)
     {
-        char path[1024];
-        get_appdata_path(relative_path, path);
-        return FileOut(path);
+        auto path = get_appdata_path(relative_path);
+        create_missing_directories(path);
+        return FileOut(path.string().c_str());
     }
-    FileOut FileOut::from_absolute(const char *path)
+    FileOut FileOut::from_absolute(const char *absolute_path)
     {
-        return FileOut(path);
+        auto path = std::filesystem::path(absolute_path);
+        create_missing_directories(path);
+        return FileOut(path.string().c_str());
     }
     FileOut::~FileOut() = default;
 
@@ -66,20 +78,20 @@ namespace file
     FileOut& FileOut::operator<<(const bool& value)       { write(value); return *this; }
     FileOut& FileOut::operator<<(const std::string& value)
     {
-        int size = value.size();
+        size_t size = value.size();
         write(size);
         write(value.data(), size);
         return *this;
     }
     FileOut& FileOut::operator<<(const char* value)
     {
-        int size = strlen(value);
-        m_impl->file.write(reinterpret_cast<const char*>(&size), sizeof(int));
-        m_impl->file.write(value, size);
+        size_t size = strlen(value);
+        write(size);
+        write(value, size);
         return *this;
     }
 
-    void FileOut::write(const void* data, int size)
+    void FileOut::write(const void* data, size_t size)
     {
         m_impl->file.write(reinterpret_cast<const char*>(data), size);
     }
@@ -98,15 +110,11 @@ namespace file
     };
     FileIn FileIn::from_data(const char* relative_path)
     {
-        char path[1024];
-        get_data_path(relative_path, path);
-        return FileIn(path);
+        return FileIn(get_data_path(relative_path).string().c_str());
     }
     FileIn FileIn::from_app_data(const char *relative_path)
     {
-        char path[1024];
-        get_appdata_path(relative_path, path);
-        return FileIn(path);
+        return FileIn(get_appdata_path(relative_path).string().c_str());
     }
     FileIn FileIn::from_absolute(const char *path)
     {
@@ -141,21 +149,34 @@ namespace file
     FileIn& FileIn::operator>>(bool& value)     { read(value); return *this; }
     FileIn& FileIn::operator>>(std::string& value)
     {
-        int size;
-        read(size);
-        value.resize(size);
-        read(value.data(), size);
+        size_t size;
+        if (read(size))
+        {
+            value.resize(size);
+            read(value.data(), size);
+        }
         return *this;
     }
 
-    void FileIn::read(void* data, int size)
+    bool FileIn::read(void* data, size_t size)
     {
         m_impl->file.read(reinterpret_cast<char*>(data), size);
+        if ((size_t)m_impl->file.gcount() < size)
+        {
+            return false;
+        }
+        return true;
     }
 
     template <typename T>
-    void FileIn::read(T& value)
+    bool FileIn::read(T& value)
     {
         m_impl->file.read(reinterpret_cast<char*>(&value), sizeof(T));
+        if (m_impl->file.gcount() < sizeof(T))
+        {
+            value = T();
+            return false;
+        }
+        return true;
     }
 }

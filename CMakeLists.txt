@@ -59,11 +59,14 @@ target_link_libraries(Return PUBLIC Glad)
 target_link_libraries(Return PUBLIC ImGui)
 target_link_libraries(Return PUBLIC Maths)
 
+if(CMAKE_GENERATOR MATCHES "Visual Studio")
+	set_property(TARGET Return PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-add_custom_command(TARGET Return POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/third_party/glfw/win64/glfw3.dll" $<TARGET_FILE_DIR:Return>/
-  )
+	add_custom_command(TARGET Return POST_BUILD
+	  COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/third_party/glfw/win64/glfw3.dll" $<TARGET_FILE_DIR:Return>/
+	  )
 endif()
 
 ##Add visual studio filters based on folders

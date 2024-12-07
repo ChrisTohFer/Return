@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 namespace file
 {
@@ -12,7 +13,6 @@ namespace file
         static FileOut from_absolute(const char* path);
         
         ~FileOut();
-        FileOut(const char*);
 
         bool valid() const;
 
@@ -29,9 +29,11 @@ namespace file
         FileOut& operator<<(const bool&);
         FileOut& operator<<(const std::string&);
         FileOut& operator<<(const char*);
-        void write(const void*, int size);
+        void write(const void*, size_t size);
 
     private:
+        FileOut(const char*);
+
         template<typename T>
         void write(const T&);
 
@@ -47,7 +49,6 @@ namespace file
         static FileIn from_absolute(const char* path);
 
         ~FileIn();
-        FileIn(const char*);
 
         bool valid() const;
         
@@ -63,11 +64,14 @@ namespace file
         FileIn& operator>>(double&);
         FileIn& operator>>(bool&);
         FileIn& operator>>(std::string&);
-        void read(void*, int size);
+        //returns true if read successfully, false if hit end of file
+        bool read(void*, size_t size);
 
     private:
+        FileIn(const char*);
+
         template<typename T>
-        void read(T&);
+        bool read(T&);
 
         struct Impl;
         std::unique_ptr<Impl> m_impl;
