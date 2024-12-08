@@ -4,18 +4,27 @@
 
 namespace gfx
 {
-    void report_gl_error()
+    static const char* get_gl_error_string()
+    {
+        auto error = glGetError();
+        switch (error)
+        {
+        case GL_INVALID_ENUM:       return "GL_INVALID_ENUM";      break;
+        case GL_INVALID_VALUE:      return "GL_INVALID_VALUE";     break;
+        case GL_INVALID_OPERATION:  return "GL_INVALID_OPERATION"; break;
+        case GL_STACK_OVERFLOW:     return "GL_STACK_OVERFLOW";    break;
+        case GL_STACK_UNDERFLOW:    return "GL_STACK_UNDERFLOW";   break;
+        case GL_OUT_OF_MEMORY:      return "GL_OUT_OF_MEMORY";     break;
+        default:                    return "";
+        }
+    }
+    void report_gl_error_fatal()
     {
     #ifdef DEBUG
-        auto error = glGetError();
-        switch(error)
+        auto error_string = get_gl_error_string();
+        if (strcmp(error_string, ""))
         {
-            case GL_INVALID_ENUM: assert(!"GL_INVALID_ENUM"); break;
-            case GL_INVALID_VALUE: assert(!"GL_INVALID_VALUE"); break;
-            case GL_INVALID_OPERATION: assert(!"GL_INVALID_OPERATION"); break;
-            case GL_STACK_OVERFLOW: assert(!"GL_STACK_OVERFLOW"); break;
-            case GL_STACK_UNDERFLOW: assert(!"GL_STACK_UNDERFLOW"); break;
-            case GL_OUT_OF_MEMORY: assert(!"GL_OUT_OF_MEMORY"); break;
+            printf(error_string);
         }
     #endif
     }
@@ -60,6 +69,27 @@ namespace gfx
             }
             offset += component_size(component); 
             glEnableVertexAttribArray(i);
+        }
+    }
+
+    ElementBuffer::ElementBuffer(const void* data, int triangle_count)
+        : m_triangle_count(triangle_count)
+    {
+        glGenBuffers(1, &m_id);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangle_count * sizeof(int) * 3, data, GL_STATIC_DRAW);
+    }
+    ElementBuffer::ElementBuffer(ElementBuffer&& other)
+        : m_id(other.m_id)
+        , m_triangle_count(other.m_triangle_count)
+    {
+        other.m_id = 0;
+    }
+    ElementBuffer::~ElementBuffer()
+    {
+        if (m_id != 0)
+        {
+            glDeleteBuffers(1, &m_id);
         }
     }
 
@@ -138,18 +168,24 @@ namespace gfx
         glUseProgram(m_id);
     }
 
-    VertexArray::VertexArray(const VertexBuffer& vb, const ShaderProgram& program)
+    VertexArray::VertexArray(const VertexBuffer& vb, const ShaderProgram& program, const ElementBuffer* eb)
         : m_vb(&vb)
+        , m_eb(eb)
     {
         glGenVertexArrays(1, &m_id);
         glBindVertexArray(m_id);
         glBindBuffer(GL_ARRAY_BUFFER, vb.id());
         m_vb->bind_attributes();
+        if (m_eb)
+        {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eb->id());
+        }
         program.use();
     }
     VertexArray::VertexArray(VertexArray&& other)
         : m_id(other.m_id)
         , m_vb(other.m_vb)
+        , m_eb(other.m_eb)
     {
         other.m_id = 0;
     }
@@ -165,7 +201,15 @@ namespace gfx
         if(m_id != 0 && m_vb != nullptr)
         {
             glBindVertexArray(m_id);
-            glDrawArrays(GL_TRIANGLES, 0, m_vb->vertex_count());
+            if (m_eb)
+            {
+                glDrawElements(GL_TRIANGLES, m_eb->triangle_count() * 3, GL_UNSIGNED_INT, nullptr);
+            }
+            else
+            {
+                glDrawArrays(GL_TRIANGLES, 0, m_vb->vertex_count());
+            }
+            glBindVertexArray(0);
         }
     }
 }

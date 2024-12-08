@@ -26,15 +26,6 @@ namespace gfx
     }
 }
 
-static bool edit(const char* label, VertexBuffer::Triangle& vt)
-{
-    int i3[3] = { vt.a,vt.b,vt.c };
-    ImGui::InputInt3(label, i3);
-    vt = { i3[0], i3[1], i3[2] };
-
-    return ImGui::IsItemDeactivatedAfterEdit();
-}
-
 VertexBuffer VertexBuffer::create_triangle_buffer()
 {
     VertexBuffer triangle_buffer;
@@ -81,7 +72,6 @@ bool VertexBuffer::edit()
         ImGui::PopID();
         ImGui::Separator();
     }
-    if (imhelp::edit_list("Triangles", m_triangles))      changed = true;
     imhelp::display_error_if_present(m_error_log.c_str());
 
     return changed;
@@ -119,6 +109,35 @@ bool VertexBuffer::edit_vertex(int vertex_index)
 int VertexBuffer::vertex_size() const
 {
     return gfx::vertex_size(m_components.data(), (int)m_components.size());
+}
+
+//ElementBuffer =================================================================
+
+static bool edit(const char* label, ElementBuffer::Triangle& vt)
+{
+    int i3[3] = { (int)vt.a,(int)vt.b,(int)vt.c };
+    ImGui::InputInt3(label, i3);
+    vt = { (unsigned)i3[0], (unsigned)i3[1], (unsigned)i3[2] };
+
+    return ImGui::IsItemDeactivatedAfterEdit();
+}
+
+bool ElementBuffer::edit()
+{
+    char label[256];
+    snprintf(label, 256, "%s###", m_name.c_str());
+    if (!ImGui::CollapsingHeader(label))
+    {
+        return false;
+    }
+    imhelp::Indent indent;
+
+    bool changed = false;
+    if (imhelp::edit("Name", m_name))                changed = true;
+    if (imhelp::edit_list("Triangles", m_triangles)) changed = true;
+    imhelp::display_error_if_present(m_error_log.c_str());
+
+    return changed;
 }
 
 //Shader ========================================================================
@@ -232,6 +251,7 @@ bool VertexArrayObject::edit()
     bool changed = false;
     if (imhelp::edit("Name", m_name))                          changed = true;
     if (imhelp::edit("Vertex buffer", m_vertex_buffer_name))   changed = true;
+    if (imhelp::edit("Element buffer", m_element_buffer_name)) changed = true;
     if (imhelp::edit("Shader program", m_shader_program_name)) changed = true;
     imhelp::display_error_if_present(m_error_log.c_str());
 
@@ -240,10 +260,11 @@ bool VertexArrayObject::edit()
 
 //GraphicsTestEditor ============================================================
 
-static bool edit(const char*, VertexBuffer& vb) { return vb.edit(); }
+static bool edit(const char*, VertexBuffer& vb)       { return vb.edit(); }
+static bool edit(const char*, ElementBuffer& eb)      { return eb.edit(); }
 template<unsigned shader_type>
 static bool edit(const char*, Shader<shader_type>& s) { return s.edit(); }
-static bool edit(const char*, ShaderProgram& sp) { return sp.edit(); }
+static bool edit(const char*, ShaderProgram& sp)      { return sp.edit(); }
 static bool edit(const char*, VertexArrayObject& vao) { return vao.edit(); }
 
 GraphicsTestEditor::GraphicsTestEditor()
@@ -264,7 +285,9 @@ bool GraphicsTestEditor::edit()
     {
         ImGui::Text("Undo frame: %d, Undo/Redo length:[%d, %d]", m_undo_current, m_undo_length, m_redo_length);
         ImGui::Separator();
-        if (imhelp::edit_list("Buffers", m_data.m_vertex_buffers))                    changed = true;
+        if (imhelp::edit_list("Vertex Buffers", m_data.m_vertex_buffers))             changed = true;
+        ImGui::Separator();
+        if (imhelp::edit_list("Element Buffers", m_data.m_element_buffers))           changed = true;
         ImGui::Separator();
         if (imhelp::edit_list("Vertex shaders", m_data.m_vertex_shaders))             changed = true;
         ImGui::Separator();
@@ -338,51 +361,57 @@ bool GraphicsTestEditor::redo()
 
 void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
 {
-    m_compiled_buffers.clear();
+    m_compiled_vertex_buffers.clear();
+    m_compiled_element_buffers.clear();
     m_compiled_vertex_shaders.clear();
     m_compiled_fragment_shaders.clear();
     m_compiled_shader_programs.clear();
     m_compiled_vaos.clear();
 
-    gfx::report_gl_error();
+    gfx::report_gl_error_fatal();
 
-    auto& buffers = editor.data().m_vertex_buffers;
+    auto& v_buffers = editor.data().m_vertex_buffers;
+    auto& e_buffers = editor.data().m_element_buffers;
     auto& v_shaders = editor.data().m_vertex_shaders;
     auto& f_shaders = editor.data().m_fragment_shaders;
     auto& programs = editor.data().m_shader_programs;
     auto& vaos = editor.data().m_vertex_array_objects;
-    
+
+    for(auto& buffer : v_buffers)
     {
+        gfx::report_gl_error_fatal();
+        buffer.error_log().clear();
+        m_compiled_vertex_buffers.push_back(gfx::VertexBuffer(buffer.data(), buffer.num_vertices(), buffer.components()));
         auto e = glGetError();
-        if(e != GL_NO_ERROR) printf("OpenGL error code %d when initializing preview.\n", (int)e);
+        if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
     }
 
-    for(auto& buffer : buffers)
+    for(auto& buffer : e_buffers)
     {
-        gfx::report_gl_error();
+        gfx::report_gl_error_fatal();
         buffer.error_log().clear();
-        m_compiled_buffers.push_back(gfx::VertexBuffer(buffer.data(), buffer.num_vertices(), buffer.components()));
+        m_compiled_element_buffers.push_back(gfx::ElementBuffer(buffer.data(), buffer.num_triangles()));
         auto e = glGetError();
         if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
     }
 
     for(auto& vert_shader : v_shaders)
     {
-        gfx::report_gl_error();
+        gfx::report_gl_error_fatal();
         vert_shader.error_log().clear();
         m_compiled_vertex_shaders.push_back(gfx::VertexShader(vert_shader.source().c_str(), &vert_shader.error_log()));
     }
     
     for(auto& frag_shader : f_shaders)
     {
-        gfx::report_gl_error();
+        gfx::report_gl_error_fatal();
         frag_shader.error_log().clear();
         m_compiled_fragment_shaders.push_back(gfx::FragmentShader(frag_shader.source().c_str(), &frag_shader.error_log()));
     }
     
     for(auto& shader_program : programs)
     {
-        gfx::report_gl_error();
+        gfx::report_gl_error_fatal();
         shader_program.error_log().clear();
         
         //find components, report if missing
@@ -400,18 +429,21 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
         const auto& vshader = m_compiled_vertex_shaders[find_vertex - v_shaders.begin()];
         const auto& fshader = m_compiled_fragment_shaders[find_fragment - f_shaders.begin()];
         m_compiled_shader_programs.push_back(gfx::ShaderProgram(vshader, fshader, &shader_program.error_log()));
-        gfx::report_gl_error();
+        gfx::report_gl_error_fatal();
     }
 
     for(auto& vao : vaos)
     {
-        gfx::report_gl_error();
+        gfx::report_gl_error_fatal();
         vao.error_log().clear();
 
         //find components, report if missing
-        auto find_buffer = std::find_if(buffers.begin(), buffers.end(), [&](auto& elem) { return vao.buffer_name() == elem.name(); });
+        bool requires_e_buffer = !vao.element_buffer_name().empty();
+        auto find_v_buffer = std::find_if(v_buffers.begin(), v_buffers.end(), [&](auto& elem) { return vao.vertex_buffer_name() == elem.name(); });
+        auto find_e_buffer = std::find_if(e_buffers.begin(), e_buffers.end(), [&](auto& elem) { return vao.element_buffer_name() == elem.name(); });
         auto find_program = std::find_if(programs.begin(), programs.end(), [&](auto& elem) { return vao.program_name() == elem.name(); });
-        vao.error_log() += find_buffer == buffers.end() ? "Couldn't find buffer.\n" : "";
+        vao.error_log() += find_v_buffer == v_buffers.end() ? "Couldn't find vertex buffer.\n" : "";
+        vao.error_log() += requires_e_buffer && find_e_buffer == e_buffers.end() ? "Couldn't find element buffer.\n" : "";
         vao.error_log() += find_program == programs.end() ? "Couldn't find shader program.\n" : "";
         
         if (!vao.error_log().empty())
@@ -420,10 +452,11 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
             m_compiled_vaos.push_back(gfx::VertexArray());
             continue;
         }
-        const auto& buffer = m_compiled_buffers[find_buffer - buffers.begin()];
+        const auto& v_buffer = m_compiled_vertex_buffers[find_v_buffer - v_buffers.begin()];
+        const auto* e_buffer = requires_e_buffer ? &m_compiled_element_buffers[find_e_buffer - e_buffers.begin()] : nullptr;
         const auto& program = m_compiled_shader_programs[find_program - programs.begin()];
 
-        m_compiled_vaos.push_back(gfx::VertexArray(buffer, program));
+        m_compiled_vaos.push_back(gfx::VertexArray(v_buffer, program, e_buffer));
     }
 }
 
@@ -432,7 +465,7 @@ void GraphicsTestPreview::draw() const
     if(ImGui::Begin("Preview"))
     {
         ImGui::Text("Buffers: ");
-        for(auto& elem : m_compiled_buffers)
+        for(auto& elem : m_compiled_vertex_buffers)
         {
             ImGui::Text("%d, ", (int)elem.id());
         }
@@ -460,7 +493,7 @@ void GraphicsTestPreview::draw() const
     ImGui::End();
     for(auto& vao : m_compiled_vaos)
     {
-        gfx::report_gl_error();
+        gfx::report_gl_error_fatal();
         vao.draw_triangles();
     }
 }

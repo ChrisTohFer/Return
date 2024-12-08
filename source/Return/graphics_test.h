@@ -9,13 +9,6 @@
 class VertexBuffer
 {
 public:
-    struct Triangle
-    {
-        int a = 0;
-        int b = 0;
-        int c = 0;
-    };
-
     static VertexBuffer create_triangle_buffer();
 
     bool edit();
@@ -30,11 +23,30 @@ public:
 
 private:
     bool edit_vertex(int i);
-    std::string m_name;
 
+    std::string m_name;
     std::vector<gfx::VertexComponent> m_components;
     std::vector<uint8_t> m_data;
     int m_num_vertices = 0;
+
+    std::string m_error_log;
+};
+
+class ElementBuffer
+{
+public:
+    struct Triangle
+    {
+        unsigned a, b, c;
+    };
+    bool edit();
+
+    const std::string& name() const { return m_name; }
+    std::string& error_log() { return m_error_log; }
+    const void* data() const { return m_triangles.data(); }
+    int num_triangles() const { return (int)m_triangles.size(); }
+private:
+    std::string m_name;
     std::vector<Triangle> m_triangles;
 
     std::string m_error_log;
@@ -89,12 +101,14 @@ public:
 
     const std::string& name() const { return m_name; }
     std::string& error_log() { return m_error_log; }
-    const std::string& buffer_name() const { return m_vertex_buffer_name; }
+    const std::string& vertex_buffer_name() const { return m_vertex_buffer_name; }
+    const std::string& element_buffer_name() const { return m_element_buffer_name; }
     const std::string& program_name() const { return m_shader_program_name; }
 
 private:
     std::string m_name;
     std::string m_vertex_buffer_name;
+    std::string m_element_buffer_name;
     std::string m_shader_program_name;
     std::string m_error_log;
 };
@@ -105,6 +119,7 @@ public:
     struct Data
     {
         std::vector<VertexBuffer> m_vertex_buffers;
+        std::vector<ElementBuffer> m_element_buffers;
         std::vector<VertexShader> m_vertex_shaders;
         std::vector<FragmentShader> m_fragment_shaders;
         std::vector<ShaderProgram> m_shader_programs;
@@ -140,7 +155,8 @@ public:
     void draw() const;
 
 private:
-    std::vector<gfx::VertexBuffer>   m_compiled_buffers;
+    std::vector<gfx::VertexBuffer>   m_compiled_vertex_buffers;
+    std::vector<gfx::ElementBuffer>  m_compiled_element_buffers;
     std::vector<gfx::VertexShader>   m_compiled_vertex_shaders;
     std::vector<gfx::FragmentShader> m_compiled_fragment_shaders;
     std::vector<gfx::ShaderProgram>  m_compiled_shader_programs;

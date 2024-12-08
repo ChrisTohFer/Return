@@ -8,7 +8,7 @@
 
 namespace gfx
 {
-    void report_gl_error();
+    void report_gl_error_fatal();
 
     class VertexBuffer
     {
@@ -25,6 +25,21 @@ namespace gfx
         GLuint m_id = 0;
         int m_vertex_count = 0;
         std::vector<VertexComponent> m_components;
+    };
+
+    class ElementBuffer
+    {
+    public:
+        ElementBuffer(const void* data, int triangle_count);
+        ElementBuffer(ElementBuffer&&);
+        ~ElementBuffer();
+
+        bool valid() const { return m_id != 0; }
+        GLuint id() const { return m_id; }
+        int triangle_count() const { return m_triangle_count; }
+    private:
+        GLuint m_id = 0;
+        int m_triangle_count = 0;
     };
 
     template<GLuint shader_type>
@@ -65,7 +80,7 @@ namespace gfx
     {
     public:
         VertexArray() = default;
-        VertexArray(const VertexBuffer&, const ShaderProgram&);
+        VertexArray(const VertexBuffer&, const ShaderProgram&, const ElementBuffer*);
         VertexArray(VertexArray&&);
         ~VertexArray();
 
@@ -75,6 +90,7 @@ namespace gfx
 
     private:
         GLuint m_id = 0;
-        const VertexBuffer* m_vb = nullptr;
+        const VertexBuffer* m_vb = nullptr;  //never nullptr
+        const ElementBuffer* m_eb = nullptr; //sometimes nullptr
     };
 }
