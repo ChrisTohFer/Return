@@ -46,7 +46,7 @@ namespace imhelp//ing
         bool changed = false;
 
         ImGui::PushID(label);
-        ImGui::Text(label);
+        ImGui::TextUnformatted(label);
 
         //iterate elements and give opportunity to edit each one
         int to_delete = -1;

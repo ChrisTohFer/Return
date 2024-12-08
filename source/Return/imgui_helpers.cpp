@@ -58,7 +58,10 @@ namespace imhelp
         if (error && strlen(error) != 0)
         {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.f, 0.f, 1.f));
-            ImGui::TextWrapped(error);
+            ImGui::PushTextWrapPos(0.f);
+            ImGui::TextUnformatted(error);
+            ImGui::PopTextWrapPos();
+
             ImGui::PopStyleColor();
         }
     }

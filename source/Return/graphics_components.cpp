@@ -1,6 +1,8 @@
 #include "graphics_components.h"
 
 #include <assert.h>
+#include <cstring>
+#include <iostream>
 
 namespace gfx
 {
@@ -24,7 +26,7 @@ namespace gfx
         auto error_string = get_gl_error_string();
         if (strcmp(error_string, ""))
         {
-            printf(error_string);
+            std::cout << error_string << "\n";
         }
     #endif
     }
