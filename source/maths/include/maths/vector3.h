@@ -1,5 +1,6 @@
 #pragma once
 
+#include <assert.h>
 #include <cmath>
 #include <math.h>
 

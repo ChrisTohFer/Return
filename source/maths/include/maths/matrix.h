@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+
 namespace geom
 {
     //forward declarations

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "constants.h"
+#include <assert.h>
 #include <math.h>
 
 namespace geom
