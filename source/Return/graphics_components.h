@@ -3,12 +3,14 @@
 #include "vertex_components.h"
 #include "glad/glad.h"
 
+#include "maths/geometry.h"
+
 #include <string>
 #include <vector>
 
 namespace gfx
 {
-    void report_gl_error_fatal();
+    void report_gl_error();
 
     class VertexBuffer
     {
@@ -71,6 +73,7 @@ namespace gfx
         bool valid() const { return m_id != 0; }
         GLuint id() const { return m_id; }
         void use() const;
+        int uniform_location(const char* name) const;
 
     private:
         GLuint m_id = 0;
@@ -87,10 +90,21 @@ namespace gfx
         bool valid() const { return m_id != 0; }
         GLuint id() const { return m_id; }
         void draw_triangles() const;
+        int uniform_location(const char* name) const;
 
     private:
         GLuint m_id = 0;
         const VertexBuffer* m_vb = nullptr;  //never nullptr
+        const ShaderProgram* m_sp = nullptr; //never nullptr
         const ElementBuffer* m_eb = nullptr; //sometimes nullptr
     };
+
+
+    //doesn't really belong here but eh
+    void set_uniform(GLint location, float);
+    void set_uniform(GLint location, bool);
+    void set_uniform(GLint location, int);
+    void set_uniform(GLint location, const geom::Vector2);
+    void set_uniform(GLint location, const geom::Vector3&);
+    void set_uniform(GLint location, const geom::Matrix44&);
 }

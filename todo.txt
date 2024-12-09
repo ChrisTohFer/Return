@@ -8,3 +8,12 @@ Todo:
 -save/load
     -save whole editor state on exit (maybe on edit?)
     -could also allow saving individual elements, but will need some ui to support this
+
+Current approach where VAOs are drawn every frame and there are no central concepts like camera isn't very flexible, might want to transition to a more traditional scene approach with entities?
+-Scene made up of a list of entities
+    -Each entity has a VAO associated for drawing
+    -May require additional values to satisfy shader uniforms
+    -Entity has a 3d transform
+-Central scene information available for drawing
+    -Time
+    -Camera

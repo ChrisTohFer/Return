@@ -150,9 +150,12 @@ Shader<shader_type> Shader<shader_type>::create_triangle_shader() requires(shade
     shader.m_source = 
     "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
+    "uniform float time;\n"
     "void main()\n"
     "{\n"
-    "    gl_Position = vec4(aPos, 1.0);\n"
+    "    float x = aPos.x * cos(time) + aPos.y * sin(time);\n"
+    "    float y = aPos.y * cos(time) - aPos.x * sin(time);\n"
+    "    gl_Position = vec4(x, y, 0.0, 1.0);\n"
     "}\n"
     ;
     return shader;
@@ -368,7 +371,7 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
     m_compiled_shader_programs.clear();
     m_compiled_vaos.clear();
 
-    gfx::report_gl_error_fatal();
+    gfx::report_gl_error();
 
     auto& v_buffers = editor.data().m_vertex_buffers;
     auto& e_buffers = editor.data().m_element_buffers;
@@ -379,7 +382,7 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
 
     for(auto& buffer : v_buffers)
     {
-        gfx::report_gl_error_fatal();
+        gfx::report_gl_error();
         buffer.error_log().clear();
         m_compiled_vertex_buffers.push_back(gfx::VertexBuffer(buffer.data(), buffer.num_vertices(), buffer.components()));
         auto e = glGetError();
@@ -388,7 +391,7 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
 
     for(auto& buffer : e_buffers)
     {
-        gfx::report_gl_error_fatal();
+        gfx::report_gl_error();
         buffer.error_log().clear();
         m_compiled_element_buffers.push_back(gfx::ElementBuffer(buffer.data(), buffer.num_triangles()));
         auto e = glGetError();
@@ -397,21 +400,21 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
 
     for(auto& vert_shader : v_shaders)
     {
-        gfx::report_gl_error_fatal();
+        gfx::report_gl_error();
         vert_shader.error_log().clear();
         m_compiled_vertex_shaders.push_back(gfx::VertexShader(vert_shader.source().c_str(), &vert_shader.error_log()));
     }
     
     for(auto& frag_shader : f_shaders)
     {
-        gfx::report_gl_error_fatal();
+        gfx::report_gl_error();
         frag_shader.error_log().clear();
         m_compiled_fragment_shaders.push_back(gfx::FragmentShader(frag_shader.source().c_str(), &frag_shader.error_log()));
     }
     
     for(auto& shader_program : programs)
     {
-        gfx::report_gl_error_fatal();
+        gfx::report_gl_error();
         shader_program.error_log().clear();
         
         //find components, report if missing
@@ -429,12 +432,13 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
         const auto& vshader = m_compiled_vertex_shaders[find_vertex - v_shaders.begin()];
         const auto& fshader = m_compiled_fragment_shaders[find_fragment - f_shaders.begin()];
         m_compiled_shader_programs.push_back(gfx::ShaderProgram(vshader, fshader, &shader_program.error_log()));
-        gfx::report_gl_error_fatal();
+
+        gfx::report_gl_error();
     }
 
     for(auto& vao : vaos)
     {
-        gfx::report_gl_error_fatal();
+        gfx::report_gl_error();
         vao.error_log().clear();
 
         //find components, report if missing
@@ -460,12 +464,17 @@ void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
     }
 }
 
-void GraphicsTestPreview::draw() const
+void GraphicsTestPreview::draw(float time_s) const
 {
     if(ImGui::Begin("Preview"))
     {
-        ImGui::Text("Buffers: ");
+        ImGui::Text("Vertex Buffers: ");
         for(auto& elem : m_compiled_vertex_buffers)
+        {
+            ImGui::Text("%d, ", (int)elem.id());
+        }
+        ImGui::Text("Element Buffers: ");
+        for(auto& elem : m_compiled_element_buffers)
         {
             ImGui::Text("%d, ", (int)elem.id());
         }
@@ -493,7 +502,9 @@ void GraphicsTestPreview::draw() const
     ImGui::End();
     for(auto& vao : m_compiled_vaos)
     {
-        gfx::report_gl_error_fatal();
+        gfx::report_gl_error();
+        glBindVertexArray(vao.id());
+        gfx::set_uniform(vao.uniform_location("time"), time_s);
         vao.draw_triangles();
     }
 }

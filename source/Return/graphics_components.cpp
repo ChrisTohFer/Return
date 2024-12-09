@@ -17,10 +17,11 @@ namespace gfx
         case GL_STACK_OVERFLOW:     return "GL_STACK_OVERFLOW";    break;
         case GL_STACK_UNDERFLOW:    return "GL_STACK_UNDERFLOW";   break;
         case GL_OUT_OF_MEMORY:      return "GL_OUT_OF_MEMORY";     break;
-        default:                    return "";
+        case GL_NO_ERROR:           return "";     break;
+        default:                    assert(!"Unrecognised error type"); return "";
         }
     }
-    void report_gl_error_fatal()
+    void report_gl_error()
     {
     #ifdef DEBUG
         auto error_string = get_gl_error_string();
@@ -170,8 +171,14 @@ namespace gfx
         glUseProgram(m_id);
     }
 
+    int ShaderProgram::uniform_location(const char *name) const
+    {
+        return glGetUniformLocation(m_id, name);
+    }
+
     VertexArray::VertexArray(const VertexBuffer& vb, const ShaderProgram& program, const ElementBuffer* eb)
         : m_vb(&vb)
+        , m_sp(&program)
         , m_eb(eb)
     {
         glGenVertexArrays(1, &m_id);
@@ -187,6 +194,7 @@ namespace gfx
     VertexArray::VertexArray(VertexArray&& other)
         : m_id(other.m_id)
         , m_vb(other.m_vb)
+        , m_sp(other.m_sp)
         , m_eb(other.m_eb)
     {
         other.m_id = 0;
@@ -214,4 +222,16 @@ namespace gfx
             glBindVertexArray(0);
         }
     }
+
+    int VertexArray::uniform_location(const char *name) const
+    {
+        return m_sp->uniform_location(name);
+    }
+
+    void set_uniform(GLint location, float value)                 { glUniform1f(location, value); }
+    void set_uniform(GLint location, bool value)                  { glUniform1i(location, value); }
+    void set_uniform(GLint location, int value)                   { glUniform1i(location, value); }
+    void set_uniform(GLint location, geom::Vector2 value)         { glUniform2f(location, value.x, value.y); }
+    void set_uniform(GLint location, const geom::Vector3& value)  { glUniform3f(location, value.x, value.y, value.z); }
+    void set_uniform(GLint location, const geom::Matrix44& value) { glUniformMatrix4fv(location, 1, false, value.values); }
 }

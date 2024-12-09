@@ -152,7 +152,7 @@ class GraphicsTestPreview
 public:
     void initialize(GraphicsTestEditor&);
 
-    void draw() const;
+    void draw(float time_s) const;
 
 private:
     std::vector<gfx::VertexBuffer>   m_compiled_vertex_buffers;

@@ -26,7 +26,7 @@ int main()
 {
     std::cout << "Running " << CONFIGURATION_STR << " build.\n";
 
-    constexpr int winx = 1000, winy = 700;
+    constexpr int winx = 700, winy = 700;
     glfwInit();
     glfwSetErrorCallback(error_callback);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -71,7 +71,7 @@ int main()
         {
             preview.initialize(editor);
         }
-        preview.draw();
+        preview.draw((float)glfwGetTime());
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
