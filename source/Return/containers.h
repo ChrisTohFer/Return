@@ -4,7 +4,7 @@
 #include <cassert>
 #include <vector>
 
-namespace r
+namespace re
 {
     //expanding fifo container. cannot shrink.
     template<typename ElementType>

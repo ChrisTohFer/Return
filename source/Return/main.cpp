@@ -64,8 +64,8 @@ int main()
         glClearColor(0.f, 0.f, 0.f, 255.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        static GraphicsTestEditor editor;
-        static GraphicsTestPreview preview;
+        static re::GraphicsTestEditor editor;
+        static re::GraphicsTestPreview preview;
         
         if(editor.edit())
         {

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace r
+namespace re
 {
     TaskManager::TaskManager(int thread_count)
     {

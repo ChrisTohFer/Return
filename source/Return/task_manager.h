@@ -8,7 +8,7 @@
 #include <thread>
 #include <vector>
 
-namespace r
+namespace re
 {
     /* Need two things for easy threading
     *   -Pre-created threads in a thread pool
