@@ -466,9 +466,12 @@ namespace re
 
             m_compiled_vaos.push_back(gfx::VertexArray(v_buffer, program, e_buffer));
 
+        }
+        for (auto& vao : m_compiled_vaos)
+        {
             Entity e;
             e.pos.x = 1.0f;
-            e.vao = &m_compiled_vaos.back();
+            e.vao = &vao;
             m_scene.add_entity(e);
         }
     }

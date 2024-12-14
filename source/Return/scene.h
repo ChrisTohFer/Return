@@ -15,7 +15,8 @@ namespace re
         geom::Quaternion orientation = geom::Quaternion::identity();
         float fov_x = 2.f;
 
-        geom::Matrix44 matrix();
+        geom::Matrix44 view_matrix();
+        geom::Matrix44 perspective_matrix();
     };
 
     struct Entity

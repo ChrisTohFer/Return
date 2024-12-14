@@ -225,7 +225,7 @@ namespace gfx
 
     int VertexArray::uniform_location(const char *name) const
     {
-        return m_sp->uniform_location(name);
+        return m_sp ? m_sp->uniform_location(name) : -1;
     }
 
     void set_uniform(GLint location, float value)                 { glUniform1f(location, value); }
