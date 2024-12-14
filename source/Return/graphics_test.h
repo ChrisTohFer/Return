@@ -2,6 +2,8 @@
 
 #include "graphics_components.h" 
 
+#include "scene.h"
+
 #include <string>
 #include <vector>
 
@@ -162,5 +164,7 @@ namespace re
         std::vector<gfx::FragmentShader> m_compiled_fragment_shaders;
         std::vector<gfx::ShaderProgram>  m_compiled_shader_programs;
         std::vector<gfx::VertexArray>    m_compiled_vaos;
+
+        Scene m_scene;
     };
 }

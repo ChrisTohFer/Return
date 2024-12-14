@@ -55,6 +55,7 @@ int main()
 
     glViewport(0, 0, winx, winy);
 
+    glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window))
     {
         ImGui_ImplGlfw_NewFrame();
@@ -62,7 +63,7 @@ int main()
         ImGui::NewFrame();
 
         glClearColor(0.f, 0.f, 0.f, 255.f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         static re::GraphicsTestEditor editor;
         static re::GraphicsTestPreview preview;

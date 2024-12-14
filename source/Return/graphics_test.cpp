@@ -152,11 +152,13 @@ namespace re
         "#version 330 core\n"
         "layout (location = 0) in vec3 aPos;\n"
         "uniform float time;\n"
+        "uniform mat4 camera;\n"
+        "uniform mat4 transform;\n"
         "void main()\n"
         "{\n"
         "    float x = aPos.x * cos(time) + aPos.y * sin(time);\n"
         "    float y = aPos.y * cos(time) - aPos.x * sin(time);\n"
-        "    gl_Position = vec4(x, y, 0.0, 1.0);\n"
+        "    gl_Position = camera * transform * vec4(x, y, 0.0, 1.0);\n"
         "}\n"
         ;
         return shader;
@@ -371,6 +373,7 @@ namespace re
         m_compiled_fragment_shaders.clear();
         m_compiled_shader_programs.clear();
         m_compiled_vaos.clear();
+        m_scene = {};
 
         gfx::report_gl_error();
 
@@ -462,6 +465,11 @@ namespace re
             const auto& program = m_compiled_shader_programs[find_program - programs.begin()];
 
             m_compiled_vaos.push_back(gfx::VertexArray(v_buffer, program, e_buffer));
+
+            Entity e;
+            e.pos.x = 1.0f;
+            e.vao = &m_compiled_vaos.back();
+            m_scene.add_entity(e);
         }
     }
 
@@ -501,13 +509,18 @@ namespace re
             }
         }
         ImGui::End();
-        for(auto& vao : m_compiled_vaos)
-        {
-            gfx::report_gl_error();
-            glBindVertexArray(vao.id());
-            gfx::set_uniform(vao.uniform_location("time"), time_s);
-            vao.draw_triangles();
-        }
+        static float previous_time = time_s;
+        const_cast<Scene&>(m_scene).update_and_draw(time_s - previous_time);
+        const_cast<Scene&>(m_scene).editor_ui();
+        previous_time = time_s;
+
+        //for(auto& vao : m_compiled_vaos)
+        //{
+        //    gfx::report_gl_error();
+        //    glBindVertexArray(vao.id());
+        //    gfx::set_uniform(vao.uniform_location("time"), time_s);
+        //    vao.draw_triangles();
+        //}
     }
         
 }

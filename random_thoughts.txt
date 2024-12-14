@@ -1,0 +1,114 @@
+Editor approaches:
+Some types of asset require a lot of extra information for the editor vs the runtime (e.g shader source)
+This leads to split editor/runtime formats, where the runtime format must be compiled from the editor format before previewing
+Not using a split format inflates the size of runtime assets and reduces efficiency
+When editing and previewing split formats I have found it easier to recompile a whole scene rather than only the specific asset
+Problems with trying to recompile the specific asset
+    -Requires a link between the editor and runtime instance, otherwise changes can't be delivered to the runtime instance
+    -If other assets depend on the edited asset then they may need to be updated too, otherwise can run into dangling refs or broken invariants
+Versus recompiling whole scene
+    -As the whole scene is compiled each time an existing version of the scene can be thrown away, no need to remember what was linked to what
+    -Dependencies are automatically recompiled
+This might be solvable with good dependency tracking and a system to link editor/runtime, but need to think about some case studies
+
+Possible assets to consider
+    -Graphics assets
+        -Vertex buffer, element buffer, array objects
+        -Shaders and shader programs
+        -Textures
+    -Animation assets
+        -Animations
+        -Skeletons
+        -Graphs
+    -Scene assets
+        -Entities/prefabs
+    -Effects
+        -Vfx, sfx
+Some of these assets can't be viewed in isolation, e.g an animation needs to be applied to something
+In those cases the editor must decide how to enable viewing, either using defaults or allowing a user to choose
+It's useful for a set of assets to have a parent or "entry point". When recompiling such a parent and it's dependencies, nothing outside that group should be affected.
+When compiling a component of such a parent, the parents themselves are affected but users of them are not
+Recompiling the graphical components of an entity does not need to affect the rest of the entity for instance
+Ideally there would be no dependencies on the internals of the graphics components to make this easier, a single interface should support all usage
+A single interface doesn't guarantee further dependencies, the user of an asset might made decisions based on the content gleaned from the interface!
+
+To make live editing practical some elements may need to be resistant to change. E.g an entity shouldn't be fully recompiled because its graphical elements were.
+More generally, each type of asset should decide how to handle its dependencies changing.
+
+
+Possible dependency tree:
+Scene
+    Entity
+        Transform
+        Graphics components
+            Vao
+                Vbo
+            ShaderProgram
+                VertexShader
+                FragmentShader
+            Textures
+        Animation assets
+            Graph
+            Anims[]
+        Vfx[]
+        Sfx[]
+
+What happens with this example if one of the shaders is edited?
+    -Need to recompile that shader
+    -Need to relink that shaderprogram
+    -Anything that references that shader program needs to receive an up to date reference
+        -This is a sticking point - if we used memory addresses then we risk corruption if we miss any references. Need a robust ref manager
+        -Alternatively we could use IDs, but these are a bit more involved
+            -Something needs to exchange the ID for the object, so we need manager objects
+            -Manager objects need to be available wherever we need them, so it's tempting to make them global or store extra pointers everywhere
+        -IDs don't solve every problem - e.g using an ID for the VertexShader won't automatically relink the shaderprogram which depends on it
+            -From this we can see there are at least two types of dependency - call them deep and shallow for now
+
+IDs are worth considering to make swapping assets out easier to do. Although it's also worth considering simply re-compiling an asset into the same memory location as the original
+Changes to deep dependencies must be tracked, otherwise it's not possible to guarantee the objects will remain valid.
+
+There doesn't seem to be any way around having some kind of dependency manager for live editing if we want all assets to remain valid all the time.
+
+Haven't delved much into the difference between an asset and an instance yet. In fact, have probably slightly conflated the two.
+In the world of assets, deep dependencies might not exist
+    -The data of an asset is mostly user defined, not calculated. There may be exceptions to this, e.g fields being created based on a dependency
+    -It's typically allowed for an asset to be invalid as assets often naturally become invalid while mid-edit
+    -Data which forms part of the definition of an asset can't ever be thrown away because we have nothing to reproduce it from
+Shallow dependencies on the other hand definitely do exist for assets
+Deep dependencies come into play when working with instances. Why does this happen?
+    -To prevent unneccessary recalculation and performance overhead, a lot of work is done on startup and the inputs are discarded.
+        -Example: A vertex shader is typically compiled and linked into shader programs then thrown away.
+    -"Deep dependencies" are examples where we need to redo our initial calculations, not simply substitute in a new asset.
+
+And now we're conflating instances and runtime assets... think more about this. Editor graph->runtime graph->runtime instances? The instance is the true dependant of the runtime graph?
+
+Things might not always be so simple as editor asset->runtime asset->instance. Consider compiler graph. Although in that case the compiler graph is a discarded intermediate form.
+
+Definition of an asset? An instance of data/content following a particular format (the asset type) for use by the game.
+    -The "editor format" of the asset is a complete set of data that fully describes the asset
+    -The "runtime format" of the asset is the data in memory when running the game. It is created from the editor asset(s) and may dicard certain information that is no longer needed.
+    -"Instances" are in game entities or components that make use of the asset. 
+
+Idea for editable scene:
+As assets are loaded and/or compiled the dependencies are tracked. 
+When an edit occurs to one of the assets, it is recompiled and either assigned the same ID or the same memory address as the old runtime asset
+Dependants of that asset are informed of the change and decide how to handle it
+    -For shallow dependencies, nothing needs to happen
+    -For deep dependencies, they update themselves or are recompiled. Is the shallow/deep part decided by dependant, dependency, or both?
+    -Another change might need to be broadcast to further dependants, how do we decide if this is necessary?
+        -For hardcoded types it might always be obvious what is shallow vs deep. This is less clear for scripted/user defined types though.
+
+Updating dependent assets when dependencies change is one thing but updating all instances that reference the asset is another. How do we catch these?
+    -Instances can explicitly inform a manager that they depend on something and be informed when it changes
+    -There isn't really any other way tbh, only the instance knows how it depends on the asset for sure so it must implement the the logic to handle it changing
+    -Instance updates aren't universal. In many cases an instance can simply use the new asset without any additional handling
+
+So what is needed for the scene?
+    -Asset definitions, which implicitly hold links to other assets where appropriate
+    -Asset hierarchy, which specifies dependencies and can notify changes to dependents
+        -Hierarchy is of runtime assets
+        -When a change is notified we could either update by loading or by recompiling
+    -Links between editor and runtime assets to identify when the runtime asset was changed and enable recompilation
+        -This is an editor level feature, but might need to be invoked from hierarchy if an asset was compiled rather than loaded
+
+This is going in circles, maybe need to build this up over time rather than trying to get it first time.
