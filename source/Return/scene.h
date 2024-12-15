@@ -13,7 +13,8 @@ namespace re
     {
         geom::Vector3 pos = geom::Vector3(0.f, 0.f, -5.f);
         geom::Quaternion orientation = geom::Quaternion::identity();
-        float fov_x = 2.f;
+        float fov_y = 1.f;
+        float aspect = 1.f;
 
         geom::Matrix44 view_matrix();
         geom::Matrix44 perspective_matrix();
@@ -32,7 +33,8 @@ namespace re
     class Scene
     {
     public:
-        void update_and_draw(float dt);
+
+        void update_and_draw(float dt, float aspect_ratio);
         void add_entity(const Entity&);
 
         void editor_ui();

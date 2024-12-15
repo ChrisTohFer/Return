@@ -91,6 +91,7 @@ namespace gfx
         GLuint id() const { return m_id; }
         void draw_triangles() const;
         int uniform_location(const char* name) const;
+        const ShaderProgram* program() const { return m_sp; }
 
     private:
         GLuint m_id = 0;

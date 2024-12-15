@@ -476,7 +476,7 @@ namespace re
         }
     }
 
-    void GraphicsTestPreview::draw(float time_s) const
+    void GraphicsTestPreview::draw(float time_s, float aspect) const
     {
         if(ImGui::Begin("Preview"))
         {
@@ -513,7 +513,7 @@ namespace re
         }
         ImGui::End();
         static float previous_time = time_s;
-        const_cast<Scene&>(m_scene).update_and_draw(time_s - previous_time);
+        const_cast<Scene&>(m_scene).update_and_draw(time_s - previous_time, aspect);
         const_cast<Scene&>(m_scene).editor_ui();
         previous_time = time_s;
 

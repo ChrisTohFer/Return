@@ -155,7 +155,7 @@ namespace re
     public:
         void initialize(GraphicsTestEditor&);
 
-        void draw(float time_s) const;
+        void draw(float time_s, float aspect) const;
 
     private:
         std::vector<gfx::VertexBuffer>   m_compiled_vertex_buffers;

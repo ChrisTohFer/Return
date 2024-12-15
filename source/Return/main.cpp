@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-
+float g_aspect = 1.f;
 void error_callback(int /*error*/, const char* description)
 {
     printf("Error: %s\n", description);
@@ -20,6 +20,7 @@ void error_callback(int /*error*/, const char* description)
 void framebuffer_size_callback(GLFWwindow*, int width, int height)
 {
     glViewport(0, 0, width, height);
+    g_aspect = (float)width / float(height);
 }
 
 int main()
@@ -27,6 +28,7 @@ int main()
     std::cout << "Running " << CONFIGURATION_STR << " build.\n";
 
     constexpr int winx = 700, winy = 700;
+    g_aspect = (float)winx / float(winy);
     glfwInit();
     glfwSetErrorCallback(error_callback);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -72,7 +74,7 @@ int main()
         {
             preview.initialize(editor);
         }
-        preview.draw((float)glfwGetTime());
+        preview.draw((float)glfwGetTime(), g_aspect);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
