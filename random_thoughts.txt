@@ -112,3 +112,5 @@ So what is needed for the scene?
         -This is an editor level feature, but might need to be invoked from hierarchy if an asset was compiled rather than loaded
 
 This is going in circles, maybe need to build this up over time rather than trying to get it first time.
+
+Another thing to consider is abandoning the editor/runtime split in favour of making editor info configuration dependent 
