@@ -61,7 +61,7 @@ namespace re
         if(ImGui::Begin("Scene"))
         {
             ImGui::DragFloat3("Camera pos", &m_camera.pos.x, 0.1f);
-            ImGui::DragFloat("fov_y", &m_camera.fov_y, 0.05);
+            ImGui::DragFloat("fov_y", &m_camera.fov_y, 0.05f);
             ImGui::DragFloat("near", &m_camera.near);
             ImGui::DragFloat("far", &m_camera.far);
             ImGui::Checkbox("Perspective", &m_perspective);

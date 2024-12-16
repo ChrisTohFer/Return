@@ -83,9 +83,11 @@ int main()
             scene.add_entity(std::move(e));
         }
         scene.editor_ui(manager);
-        static float previous_time = (float)glfwGetTime();
-        scene.update_and_draw((float)glfwGetTime() - previous_time, g_aspect);
-        previous_time = (float)glfwGetTime();
+
+        float time = (float)glfwGetTime();
+        static float previous_time = time;
+        scene.update_and_draw(time - previous_time, g_aspect);
+        previous_time = time;
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
