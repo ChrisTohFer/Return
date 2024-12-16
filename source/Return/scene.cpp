@@ -36,18 +36,19 @@ namespace re
 
         for(auto& entity : m_entities)
         {
-            if(entity.vao == nullptr || !entity.vao->valid()) continue;
+            if(entity.vao == nullptr || entity.program == nullptr) continue;
 
-            auto& vao = *entity.vao;
-            glUseProgram(vao.program()->id());
-            gfx::report_gl_error();
-            glBindVertexArray(vao.id());
-            gfx::set_uniform(vao.uniform_location("time"), (float)m_time);
             auto transform = geom::create_translation_matrix_44(entity.pos) *
                 geom::create_rotation_matrix_from_quaternion(entity.orientation) *
                 geom::create_scale_matrix_44(entity.scale);
-            gfx::set_uniform(vao.uniform_location("transform"), transform);
-            gfx::set_uniform(vao.uniform_location("camera"), camera);
+            auto& vao = *entity.vao;
+            auto& program = *entity.program;
+                
+            program.use();
+            glBindVertexArray(vao.id());
+            gfx::set_uniform(program.uniform_location("time"), (float)m_time);
+            gfx::set_uniform(program.uniform_location("transform"), transform);
+            gfx::set_uniform(program.uniform_location("camera"), camera);
             vao.draw_triangles();
         }
     }
@@ -55,7 +56,7 @@ namespace re
     {
         m_entities.push_back(e);
     }
-    void Scene::editor_ui()
+    void Scene::editor_ui(const gfx::GraphicsManager&)
     {
         if(ImGui::Begin("Scene"))
         {
@@ -72,6 +73,7 @@ namespace re
                 ImGui::DragFloat3("Pos", &entity.pos.x, 0.1f);
                 ImGui::PopID();
             }
+
         }
         ImGui::End();
     }

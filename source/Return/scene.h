@@ -3,7 +3,7 @@
 #include "maths/vector3.h"
 #include "maths/quaternion.h"
 #include "maths/matrix.h"
-#include "graphics_components.h"
+#include "graphics_manager.h"
 
 #include <vector>
 
@@ -30,17 +30,17 @@ namespace re
         geom::Quaternion orientation = geom::Quaternion::identity();
 
         //vao
-        gfx::VertexArray* vao = nullptr;
+        const gfx::VertexArray* vao = nullptr;
+        const gfx::ShaderProgram* program = nullptr;
     };
 
     class Scene
     {
     public:
-
         void update_and_draw(float dt, float aspect_ratio);
         void add_entity(const Entity&);
 
-        void editor_ui();
+        void editor_ui(const gfx::GraphicsManager&);
 
     private:
         std::vector<Entity> m_entities;

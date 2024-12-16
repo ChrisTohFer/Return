@@ -1,29 +1,8 @@
 Todo:
--support uniforms
-    -built in uniforms? e.g camera and time
 -editor context support for dropdowns
 -detect if shader program or shaders weren't linked correctly and invalidate the id
-
+-allow entities to be customised at runtime
 
 -save/load
     -save whole editor state on exit (maybe on edit?)
     -could also allow saving individual elements, but will need some ui to support this
-
--clean up current implementation
-    -editor for graphics components
-        -vao doesn't need a shader parameter
-    -graphics preview
-        -this is more of a "graphics manager" storing the various graphics assets
-    -scene
-        -should use scene to replace the graphics preview instead of making it a member of the preview
-        -camera should be separate from scene
-        -add orthogonal camera
-
-Current approach where VAOs are drawn every frame and there are no central concepts like camera isn't very flexible, might want to transition to a more traditional scene approach with entities?
--Scene made up of a list of entities
-    -Each entity has a VAO associated for drawing
-    -May require additional values to satisfy shader uniforms
-    -Entity has a 3d transform
--Central scene information available for drawing
-    -Time
-    -Camera

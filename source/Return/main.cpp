@@ -1,6 +1,8 @@
 #include "task_manager.h"
 
 #include "graphics_test.h"
+#include "graphics_manager.h"
+#include "scene.h"
 
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
@@ -68,13 +70,22 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         static re::GraphicsTestEditor editor;
-        static re::GraphicsTestPreview preview;
-        
+        static gfx::GraphicsManager manager;
+        static re::Scene scene;
+
         if(editor.edit())
         {
-            preview.initialize(editor);
+            editor.compile_assets(manager);
+            scene = {};
+            re::Entity e;
+            e.vao = manager.vertex_array("triangle");
+            e.program = manager.shader_program("triangle");
+            scene.add_entity(std::move(e));
         }
-        preview.draw((float)glfwGetTime(), g_aspect);
+        scene.editor_ui(manager);
+        static float previous_time = (float)glfwGetTime();
+        scene.update_and_draw((float)glfwGetTime() - previous_time, g_aspect);
+        previous_time = (float)glfwGetTime();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

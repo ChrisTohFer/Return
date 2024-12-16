@@ -1,8 +1,6 @@
 #pragma once
 
-#include "graphics_components.h" 
-
-#include "scene.h"
+#include "graphics_manager.h" 
 
 #include <string>
 #include <vector>
@@ -55,6 +53,24 @@ namespace re
         std::string m_error_log;
     };
 
+    class VertexArrayObject
+    {
+    public:
+        static VertexArrayObject create_default_triangle_vao();
+        bool edit();
+
+        const std::string& name() const { return m_name; }
+        std::string& error_log() { return m_error_log; }
+        const std::string& vertex_buffer_name() const { return m_vertex_buffer_name; }
+        const std::string& element_buffer_name() const { return m_element_buffer_name; }
+
+    private:
+        std::string m_name;
+        std::string m_vertex_buffer_name;
+        std::string m_element_buffer_name;
+        std::string m_error_log;
+    };
+
     template<unsigned shader_type>
     class Shader
     {
@@ -96,26 +112,6 @@ namespace re
         std::string m_error_log;
     };
 
-    class VertexArrayObject
-    {
-    public:
-        static VertexArrayObject create_default_triangle_vao();
-        bool edit();
-
-        const std::string& name() const { return m_name; }
-        std::string& error_log() { return m_error_log; }
-        const std::string& vertex_buffer_name() const { return m_vertex_buffer_name; }
-        const std::string& element_buffer_name() const { return m_element_buffer_name; }
-        const std::string& program_name() const { return m_shader_program_name; }
-
-    private:
-        std::string m_name;
-        std::string m_vertex_buffer_name;
-        std::string m_element_buffer_name;
-        std::string m_shader_program_name;
-        std::string m_error_log;
-    };
-
     class GraphicsTestEditor
     {
     public:
@@ -135,6 +131,8 @@ namespace re
 
         Data& data() { return m_data; }
 
+        void compile_assets(gfx::GraphicsManager& manager);
+
     private:
         void snapshot();
         bool undo();
@@ -148,23 +146,5 @@ namespace re
         int m_undo_length = 0;
         int m_redo_length = 0;
         int m_undo_current = 0;
-    };
-
-    class GraphicsTestPreview
-    {
-    public:
-        void initialize(GraphicsTestEditor&);
-
-        void draw(float time_s, float aspect) const;
-
-    private:
-        std::vector<gfx::VertexBuffer>   m_compiled_vertex_buffers;
-        std::vector<gfx::ElementBuffer>  m_compiled_element_buffers;
-        std::vector<gfx::VertexShader>   m_compiled_vertex_shaders;
-        std::vector<gfx::FragmentShader> m_compiled_fragment_shaders;
-        std::vector<gfx::ShaderProgram>  m_compiled_shader_programs;
-        std::vector<gfx::VertexArray>    m_compiled_vaos;
-
-        Scene m_scene;
     };
 }

@@ -240,7 +240,6 @@ namespace re
         VertexArrayObject triangle_array;
         triangle_array.m_name = "triangle";
         triangle_array.m_vertex_buffer_name = "triangle";
-        triangle_array.m_shader_program_name = "triangle";
         return triangle_array;
     }
 
@@ -258,7 +257,6 @@ namespace re
         if (imhelp::edit("Name", m_name))                          changed = true;
         if (imhelp::edit("Vertex buffer", m_vertex_buffer_name))   changed = true;
         if (imhelp::edit("Element buffer", m_element_buffer_name)) changed = true;
-        if (imhelp::edit("Shader program", m_shader_program_name)) changed = true;
         imhelp::display_error_if_present(m_error_log.c_str());
 
         return changed;
@@ -325,6 +323,105 @@ namespace re
         return changed;
     }
 
+    void GraphicsTestEditor::compile_assets(gfx::GraphicsManager &manager)
+    {
+        manager.clear();
+
+        auto& v_buffers = m_data.m_vertex_buffers;
+        auto& e_buffers = m_data.m_element_buffers;
+        auto& v_shaders = m_data.m_vertex_shaders;
+        auto& f_shaders = m_data.m_fragment_shaders;
+        auto& programs  = m_data.m_shader_programs;
+        auto& vaos      = m_data.m_vertex_array_objects;
+
+        for(auto& buffer : v_buffers)
+        {
+            gfx::report_gl_error();
+            buffer.error_log().clear();
+            manager.add(
+                buffer.name().c_str(),
+                std::make_unique<gfx::VertexBuffer>(buffer.data(), buffer.num_vertices(), buffer.components())
+            );
+            auto e = glGetError();
+            if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
+        }
+
+        for(auto& buffer : e_buffers)
+        {
+            gfx::report_gl_error();
+            buffer.error_log().clear();
+            manager.add(
+                buffer.name().c_str(), 
+                std::make_unique<gfx::ElementBuffer>(buffer.data(), buffer.num_triangles())
+            );
+            auto e = glGetError();
+            if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
+        }
+
+        for(auto& vao : vaos)
+        {
+            gfx::report_gl_error();
+            vao.error_log().clear();
+
+            //find components, report if missing
+            bool requires_e_buffer = !vao.element_buffer_name().empty();
+            auto* vbuffer = manager.vertex_buffer(vao.vertex_buffer_name().c_str());
+            auto* ebuffer = manager.element_buffer(vao.element_buffer_name().c_str());
+            vao.error_log() += vbuffer == nullptr ? "Couldn't find vertex buffer.\n" : "";
+            vao.error_log() += requires_e_buffer && ebuffer == nullptr ? "Couldn't find element buffer.\n" : "";
+            
+            if (!vao.error_log().empty())
+            {
+                //no point trying to create a vao if we're missing the components
+                continue;
+            }
+
+            manager.add(vao.name().c_str(), std::make_unique<gfx::VertexArray>(*vbuffer, ebuffer));
+        }
+
+        for(auto& vert_shader : v_shaders)
+        {
+            gfx::report_gl_error();
+            vert_shader.error_log().clear();
+            manager.add(
+                vert_shader.name().c_str(), 
+                std::make_unique<gfx::VertexShader>(vert_shader.source().c_str(), &vert_shader.error_log())
+            );
+        }
+        
+        for(auto& frag_shader : f_shaders)
+        {
+            gfx::report_gl_error();
+            frag_shader.error_log().clear();
+            manager.add(
+                frag_shader.name().c_str(),
+                std::make_unique<gfx::FragmentShader>(frag_shader.source().c_str(), &frag_shader.error_log())
+            );
+        }
+        
+        for(auto& shader_program : programs)
+        {
+            gfx::report_gl_error();
+            shader_program.error_log().clear();
+            
+            //find components, report if missing
+            auto* vshader = manager.vertex_shader(shader_program.vertex_shader().c_str());
+            auto* fshader = manager.fragment_shader(shader_program.fragment_shader().c_str());
+            shader_program.error_log() += vshader == nullptr ? "Couldn't find vertex shader.\n" : "";
+            shader_program.error_log() += fshader == nullptr ? "Couldn't find fragment shader.\n" : "";
+
+            if (!shader_program.error_log().empty())
+            {
+                //no point trying to create a valid shader program if we're missing the components
+                continue;
+            }
+
+            manager.add(shader_program.name().c_str(), std::make_unique<gfx::ShaderProgram>(*vshader, *fshader, &shader_program.error_log()));
+
+            gfx::report_gl_error();
+        }
+    }
+
     void GraphicsTestEditor::snapshot()
     {
         m_undo_current += 1;
@@ -361,169 +458,5 @@ namespace re
             return true;
         }
         return false;
-    }
-
-    //GraphicsTestPreview ===========================================================
-
-    void GraphicsTestPreview::initialize(GraphicsTestEditor& editor)
-    {
-        m_compiled_vertex_buffers.clear();
-        m_compiled_element_buffers.clear();
-        m_compiled_vertex_shaders.clear();
-        m_compiled_fragment_shaders.clear();
-        m_compiled_shader_programs.clear();
-        m_compiled_vaos.clear();
-        m_scene = {};
-
-        gfx::report_gl_error();
-
-        auto& v_buffers = editor.data().m_vertex_buffers;
-        auto& e_buffers = editor.data().m_element_buffers;
-        auto& v_shaders = editor.data().m_vertex_shaders;
-        auto& f_shaders = editor.data().m_fragment_shaders;
-        auto& programs = editor.data().m_shader_programs;
-        auto& vaos = editor.data().m_vertex_array_objects;
-
-        for(auto& buffer : v_buffers)
-        {
-            gfx::report_gl_error();
-            buffer.error_log().clear();
-            m_compiled_vertex_buffers.push_back(gfx::VertexBuffer(buffer.data(), buffer.num_vertices(), buffer.components()));
-            auto e = glGetError();
-            if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
-        }
-
-        for(auto& buffer : e_buffers)
-        {
-            gfx::report_gl_error();
-            buffer.error_log().clear();
-            m_compiled_element_buffers.push_back(gfx::ElementBuffer(buffer.data(), buffer.num_triangles()));
-            auto e = glGetError();
-            if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
-        }
-
-        for(auto& vert_shader : v_shaders)
-        {
-            gfx::report_gl_error();
-            vert_shader.error_log().clear();
-            m_compiled_vertex_shaders.push_back(gfx::VertexShader(vert_shader.source().c_str(), &vert_shader.error_log()));
-        }
-        
-        for(auto& frag_shader : f_shaders)
-        {
-            gfx::report_gl_error();
-            frag_shader.error_log().clear();
-            m_compiled_fragment_shaders.push_back(gfx::FragmentShader(frag_shader.source().c_str(), &frag_shader.error_log()));
-        }
-        
-        for(auto& shader_program : programs)
-        {
-            gfx::report_gl_error();
-            shader_program.error_log().clear();
-            
-            //find components, report if missing
-            auto find_vertex = std::find_if(v_shaders.begin(), v_shaders.end(), [&](auto& elem) { return shader_program.vertex_shader() == elem.name(); });
-            auto find_fragment = std::find_if(f_shaders.begin(), f_shaders.end(), [&](auto& elem) { return shader_program.fragment_shader() == elem.name(); });
-            shader_program.error_log() += find_vertex == v_shaders.end() ? "Couldn't find vertex shader.\n" : "";
-            shader_program.error_log() += find_fragment == f_shaders.end() ? "Couldn't find fragment shader.\n" : "";
-
-            if (!shader_program.error_log().empty())
-            {
-                //no point trying to create a valid shader program if we're missing the components
-                m_compiled_shader_programs.push_back(gfx::ShaderProgram());
-                continue;
-            }
-            const auto& vshader = m_compiled_vertex_shaders[find_vertex - v_shaders.begin()];
-            const auto& fshader = m_compiled_fragment_shaders[find_fragment - f_shaders.begin()];
-            m_compiled_shader_programs.push_back(gfx::ShaderProgram(vshader, fshader, &shader_program.error_log()));
-
-            gfx::report_gl_error();
-        }
-
-        for(auto& vao : vaos)
-        {
-            gfx::report_gl_error();
-            vao.error_log().clear();
-
-            //find components, report if missing
-            bool requires_e_buffer = !vao.element_buffer_name().empty();
-            auto find_v_buffer = std::find_if(v_buffers.begin(), v_buffers.end(), [&](auto& elem) { return vao.vertex_buffer_name() == elem.name(); });
-            auto find_e_buffer = std::find_if(e_buffers.begin(), e_buffers.end(), [&](auto& elem) { return vao.element_buffer_name() == elem.name(); });
-            auto find_program = std::find_if(programs.begin(), programs.end(), [&](auto& elem) { return vao.program_name() == elem.name(); });
-            vao.error_log() += find_v_buffer == v_buffers.end() ? "Couldn't find vertex buffer.\n" : "";
-            vao.error_log() += requires_e_buffer && find_e_buffer == e_buffers.end() ? "Couldn't find element buffer.\n" : "";
-            vao.error_log() += find_program == programs.end() ? "Couldn't find shader program.\n" : "";
-            
-            if (!vao.error_log().empty())
-            {
-                //no point trying to create a vao if we're missing the components
-                m_compiled_vaos.push_back(gfx::VertexArray());
-                continue;
-            }
-            const auto& v_buffer = m_compiled_vertex_buffers[find_v_buffer - v_buffers.begin()];
-            const auto* e_buffer = requires_e_buffer ? &m_compiled_element_buffers[find_e_buffer - e_buffers.begin()] : nullptr;
-            const auto& program = m_compiled_shader_programs[find_program - programs.begin()];
-
-            m_compiled_vaos.push_back(gfx::VertexArray(v_buffer, program, e_buffer));
-
-        }
-        for (auto& vao : m_compiled_vaos)
-        {
-            Entity e;
-            e.pos.x = 1.0f;
-            e.vao = &vao;
-            m_scene.add_entity(e);
-        }
-    }
-
-    void GraphicsTestPreview::draw(float time_s, float aspect) const
-    {
-        if(ImGui::Begin("Preview"))
-        {
-            ImGui::Text("Vertex Buffers: ");
-            for(auto& elem : m_compiled_vertex_buffers)
-            {
-                ImGui::Text("%d, ", (int)elem.id());
-            }
-            ImGui::Text("Element Buffers: ");
-            for(auto& elem : m_compiled_element_buffers)
-            {
-                ImGui::Text("%d, ", (int)elem.id());
-            }
-            ImGui::Text("VShaders: ");
-            for(auto& elem : m_compiled_vertex_shaders)
-            {
-                ImGui::Text("%d, ", (int)elem.id());
-            }
-            ImGui::Text("Shaders: ");
-            for(auto& elem : m_compiled_fragment_shaders)
-            {
-                ImGui::Text("%d, ", (int)elem.id());
-            }
-            ImGui::Text("Programs: ");
-            for(auto& elem : m_compiled_shader_programs)
-            {
-                ImGui::Text("%d, ", (int)elem.id());
-            }
-            ImGui::Text("Arrays: ");
-            for(auto& elem : m_compiled_vaos)
-            {
-                ImGui::Text("%d, ", (int)elem.id());
-            }
-        }
-        ImGui::End();
-        static float previous_time = time_s;
-        const_cast<Scene&>(m_scene).update_and_draw(time_s - previous_time, aspect);
-        const_cast<Scene&>(m_scene).editor_ui();
-        previous_time = time_s;
-
-        //for(auto& vao : m_compiled_vaos)
-        //{
-        //    gfx::report_gl_error();
-        //    glBindVertexArray(vao.id());
-        //    gfx::set_uniform(vao.uniform_location("time"), time_s);
-        //    vao.draw_triangles();
-        //}
-    }
-        
+    }        
 }
