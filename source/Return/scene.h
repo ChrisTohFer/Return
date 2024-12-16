@@ -3,7 +3,7 @@
 #include "maths/vector3.h"
 #include "maths/quaternion.h"
 #include "maths/matrix.h"
-#include "graphics_manager.h"
+#include "gfx/graphics_manager.h"
 
 #include <vector>
 

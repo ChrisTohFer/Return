@@ -1,7 +1,7 @@
 #include "task_manager.h"
 
 #include "graphics_test.h"
-#include "graphics_manager.h"
+#include "gfx/graphics_manager.h"
 #include "scene.h"
 
 #define GLFW_INCLUDE_NONE

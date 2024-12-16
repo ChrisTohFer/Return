@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics_manager.h" 
+#include "gfx/graphics_manager.h" 
 
 #include <string>
 #include <vector>
