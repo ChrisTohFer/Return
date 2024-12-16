@@ -15,11 +15,11 @@ namespace geom
         float z;
 
         //useful default values
-        static Vector3 zero() { return { 0.f,0.f,0.f }; }
-        static Vector3 one() { return { 1.f,1.f,1.f }; }
-        static Vector3 unit_x() { return { 1.f,0.f,0.f }; }
-        static Vector3 unit_y() { return { 0.f,1.f,0.f }; }
-        static Vector3 unit_z() { return { 0.f,0.f,1.f }; }
+        static constexpr Vector3 zero() { return { 0.f,0.f,0.f }; }
+        static constexpr Vector3 one() { return { 1.f,1.f,1.f }; }
+        static constexpr Vector3 unit_x() { return { 1.f,0.f,0.f }; }
+        static constexpr Vector3 unit_y() { return { 0.f,1.f,0.f }; }
+        static constexpr Vector3 unit_z() { return { 0.f,0.f,1.f }; }
 
         //operations
         //+-*/ operations are defined as non-member functions

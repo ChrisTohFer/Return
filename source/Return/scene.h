@@ -15,9 +15,12 @@ namespace re
         geom::Quaternion orientation = geom::Quaternion::identity();
         float fov_y = 1.f;
         float aspect = 1.f;
+        float near = 0.001f;
+        float far = 1000.f;
 
         geom::Matrix44 view_matrix();
         geom::Matrix44 perspective_matrix();
+        geom::Matrix44 orthogonal_matrix();
     };
 
     struct Entity
@@ -43,6 +46,7 @@ namespace re
         std::vector<Entity> m_entities;
         double m_time = 0.0;
         Camera m_camera;
+        bool m_perspective = true;
     };
 
 
