@@ -7,7 +7,7 @@ namespace gfx
 {
     Image::Image(const char* path)
     {
-        m_data = stbi_load(file::get_data_path(path).c_str(), &m_width, &m_height, &m_n_channels, 0);
+        m_data = stbi_load(file::get_data_path(path).string().c_str(), &m_width, &m_height, &m_n_channels, 0);
     }
     Image::Image(Image&& other)
         : m_data(other.m_data)
