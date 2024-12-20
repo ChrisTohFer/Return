@@ -17,7 +17,7 @@ namespace gfx
         case GL_STACK_OVERFLOW:     return "GL_STACK_OVERFLOW";    break;
         case GL_STACK_UNDERFLOW:    return "GL_STACK_UNDERFLOW";   break;
         case GL_OUT_OF_MEMORY:      return "GL_OUT_OF_MEMORY";     break;
-        case GL_NO_ERROR:           return "";     break;
+        case GL_NO_ERROR:           return "";                     break;
         default:                    assert(!"Unrecognised error type"); return "";
         }
     }
