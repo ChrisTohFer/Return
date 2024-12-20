@@ -9,6 +9,7 @@ namespace gfx
         Image(Image&&);
         ~Image();
 
+        bool valid() const { return m_data != nullptr; }
         const void* data() const { return m_data; }
         int width() const { return m_width; }
         int height() const { return m_height; }

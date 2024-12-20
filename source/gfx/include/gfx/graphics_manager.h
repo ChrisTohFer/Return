@@ -4,6 +4,7 @@
 #include "element_buffer.h"
 #include "vertex_array_object.h"
 #include "shader.h"
+#include "texture.h"
 
 #include <memory>
 #include <string>
@@ -24,6 +25,7 @@ namespace gfx
         void add(const char* name, std::unique_ptr<gfx::VertexShader>&& obj);
         void add(const char* name, std::unique_ptr<gfx::FragmentShader>&& obj);
         void add(const char* name, std::unique_ptr<gfx::ShaderProgram>&& obj);
+        void add(const char* name, std::unique_ptr<gfx::Texture>&& obj);
 
         std::vector<std::string> vertex_buffer_names() const;
         std::vector<std::string> element_buffer_names() const;
@@ -31,6 +33,7 @@ namespace gfx
         std::vector<std::string> vertex_shader_names() const;
         std::vector<std::string> fragment_shader_names() const;
         std::vector<std::string> shader_program_names() const;
+        std::vector<std::string> texture_names() const;
 
         const gfx::VertexBuffer*   vertex_buffer(const char* name) const;
         const gfx::ElementBuffer*  element_buffer(const char* name) const;
@@ -38,6 +41,7 @@ namespace gfx
         const gfx::VertexShader*   vertex_shader(const char* name) const;
         const gfx::FragmentShader* fragment_shader(const char* name) const;
         const gfx::ShaderProgram*  shader_program(const char* name) const;
+        const gfx::Texture*        texture(const char* name) const;
 
     private:
         std::unordered_map<std::string, std::unique_ptr<gfx::VertexBuffer>>   m_vertex_buffers;
@@ -46,5 +50,6 @@ namespace gfx
         std::unordered_map<std::string, std::unique_ptr<gfx::VertexShader>>   m_vertex_shaders;
         std::unordered_map<std::string, std::unique_ptr<gfx::FragmentShader>> m_fragment_shaders;
         std::unordered_map<std::string, std::unique_ptr<gfx::ShaderProgram>>  m_shader_programs;
+        std::unordered_map<std::string, std::unique_ptr<gfx::Texture>>        m_textures;
     };
 }

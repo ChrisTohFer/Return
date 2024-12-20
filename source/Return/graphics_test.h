@@ -112,6 +112,23 @@ namespace re
         std::string m_error_log;
     };
 
+    class Texture
+    {
+    public:
+        static Texture default_wall_texture();
+
+        bool edit();
+
+        const std::string& name() const { return m_name; }
+        const std::string& texture_filename() const { return m_filename; }
+        std::string& error_log() { return m_error_log; }
+
+    private:
+        std::string m_name;
+        std::string m_filename;
+        std::string m_error_log;
+    };
+
     class GraphicsTestEditor
     {
     public:
@@ -123,6 +140,7 @@ namespace re
             std::vector<FragmentShader> m_fragment_shaders;
             std::vector<ShaderProgram> m_shader_programs;
             std::vector<VertexArrayObject> m_vertex_array_objects;
+            std::vector<Texture> m_textures;
         };
 
         GraphicsTestEditor();

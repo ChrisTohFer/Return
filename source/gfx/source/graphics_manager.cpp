@@ -50,6 +50,7 @@ namespace gfx
     void GraphicsManager::add(const char* name, std::unique_ptr<gfx::VertexShader>&& obj)   { m_vertex_shaders.emplace(name, std::move(obj)); }
     void GraphicsManager::add(const char* name, std::unique_ptr<gfx::FragmentShader>&& obj) { m_fragment_shaders.emplace(name, std::move(obj)); }
     void GraphicsManager::add(const char* name, std::unique_ptr<gfx::ShaderProgram>&& obj)  { m_shader_programs.emplace(name, std::move(obj)); }
+    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::Texture>&& obj)        { m_textures.emplace(name, std::move(obj)); }
 
     template<typename MapT>
     static std::vector<std::string> get_map_keys(MapT&& m)
@@ -92,6 +93,10 @@ namespace gfx
     {
         return get_map_keys(m_shader_programs);
     }
+    std::vector<std::string> GraphicsManager::texture_names() const
+    {
+        return get_map_keys(m_textures);
+    }
 
     const gfx::VertexBuffer* GraphicsManager::vertex_buffer(const char* name) const
     {
@@ -116,5 +121,9 @@ namespace gfx
     const gfx::ShaderProgram* GraphicsManager::shader_program(const char* name) const
     {
         return get_map_value(name, m_shader_programs);
+    }
+    const gfx::Texture *GraphicsManager::texture(const char *name) const
+    {
+        return get_map_value(name, m_textures);
     }
 }

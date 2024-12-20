@@ -5,6 +5,8 @@
 #include "maths/vector2.h"
 #include "maths/vector3.h"
 
+#include "gfx/image.h"
+
 #include "glad/glad.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_stdlib.h"
@@ -31,14 +33,14 @@ namespace re
     {
         VertexBuffer triangle_buffer;
         triangle_buffer.m_name = "triangle";
-        triangle_buffer.m_components = { gfx::VertexComponent::Vec3 };
+        triangle_buffer.m_components = { gfx::VertexComponent::Vec3, gfx::VertexComponent::Vec2 };
         triangle_buffer.m_num_vertices = 3;
-        triangle_buffer.m_data.resize(3 * sizeof(geom::Vector3));
+        triangle_buffer.m_data.resize(3 * (sizeof(geom::Vector3) + sizeof(geom::Vector2)));
 
-        auto* vertex = reinterpret_cast<geom::Vector3*>(triangle_buffer.m_data.data());
-        vertex[0] = {-0.5f, -0.5f, 0.0f};
-        vertex[1] = {0.5f, -0.5f, 0.0f};
-        vertex[2] = {0.0f, 0.5f, 0.0f};
+        auto* floats = reinterpret_cast<float*>(triangle_buffer.m_data.data());
+        floats[0] = -0.5f; floats[1] = -0.5f; floats[2] = 0.f; floats[3] = -0.5f; floats[4] = -0.5f;
+        floats[5] = 0.5f; floats[6] = -0.5f; floats[7] = 0.f; floats[8] = 0.5f; floats[9] = -0.5f;
+        floats[10] = 0.f; floats[11] = 0.5f; floats[12] = 0.f; floats[13] = 0.f; floats[14] = 0.5f;
 
         return triangle_buffer;
     }
@@ -151,6 +153,8 @@ namespace re
         shader.m_source = 
         "#version 330 core\n"
         "layout (location = 0) in vec3 aPos;\n"
+        "layout (location = 1) in vec2 aTexCoords;\n"
+        "out vec2 texCoords;\n"
         "uniform float time;\n"
         "uniform mat4 camera;\n"
         "uniform mat4 transform;\n"
@@ -158,6 +162,7 @@ namespace re
         "{\n"
         "    float x = aPos.x * cos(time) + aPos.y * sin(time);\n"
         "    float y = aPos.y * cos(time) - aPos.x * sin(time);\n"
+        "    texCoords = aTexCoords;\n"
         "    gl_Position = camera * transform * vec4(x, y, 0.0, 1.0);\n"
         "}\n"
         ;
@@ -172,9 +177,11 @@ namespace re
         shader.m_source = 
         "#version 330 core\n"
         "out vec4 FragColor;\n"
+        "in vec2 texCoords;\n"
+        "uniform sampler2D tex;\n"
         "void main()\n"
         "{\n"
-        "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "    FragColor = texture(tex, texCoords);\n"
         "}\n"
         ;
         return shader;
@@ -262,6 +269,34 @@ namespace re
         return changed;
     }
 
+    //Texture =======================================================================
+
+    Texture Texture::default_wall_texture()
+    {
+        Texture t;
+        t.m_name = "triangle";
+        t.m_filename = "wall.jpg";
+        return t;
+    }
+
+    bool Texture::edit()
+    {
+        char label[256];
+        snprintf(label, 256, "%s###", m_name.c_str());
+        if (!ImGui::CollapsingHeader(label))
+        {
+            return false;
+        }
+        imhelp::Indent indent;
+
+        bool changed = false;
+        if (imhelp::edit("Name", m_name))         changed = true;
+        if (imhelp::edit("Filename", m_filename)) changed = true;
+        imhelp::display_error_if_present(m_error_log.c_str());
+
+        return changed;
+    }
+
     //GraphicsTestEditor ============================================================
 
     static bool edit(const char*, VertexBuffer& vb)       { return vb.edit(); }
@@ -270,6 +305,7 @@ namespace re
     static bool edit(const char*, Shader<shader_type>& s) { return s.edit(); }
     static bool edit(const char*, ShaderProgram& sp)      { return sp.edit(); }
     static bool edit(const char*, VertexArrayObject& vao) { return vao.edit(); }
+    static bool edit(const char*, Texture& texture)       { return texture.edit(); }
 
     GraphicsTestEditor::GraphicsTestEditor()
     {
@@ -278,6 +314,7 @@ namespace re
         m_data.m_fragment_shaders.push_back(FragmentShader::create_triangle_shader());
         m_data.m_shader_programs.push_back(ShaderProgram::create_default_triangle_program());
         m_data.m_vertex_array_objects.push_back(VertexArrayObject::create_default_triangle_vao());
+        m_data.m_textures.push_back(Texture::default_wall_texture());
     }
 
     bool GraphicsTestEditor::edit()
@@ -300,6 +337,8 @@ namespace re
             if (imhelp::edit_list("Shader programs", m_data.m_shader_programs))           changed = true;
             ImGui::Separator();
             if (imhelp::edit_list("Vertex array objects", m_data.m_vertex_array_objects)) changed = true;
+            ImGui::Separator();
+            if (imhelp::edit_list("Textures", m_data.m_textures)) changed = true;
 
             //handle snapshot, undo, redo
             if (changed)
@@ -333,10 +372,10 @@ namespace re
         auto& f_shaders = m_data.m_fragment_shaders;
         auto& programs  = m_data.m_shader_programs;
         auto& vaos      = m_data.m_vertex_array_objects;
+        auto& textures  = m_data.m_textures;
 
         for(auto& buffer : v_buffers)
         {
-            gfx::report_gl_error();
             buffer.error_log().clear();
             manager.add(
                 buffer.name().c_str(),
@@ -345,10 +384,10 @@ namespace re
             auto e = glGetError();
             if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
         }
+        gfx::report_gl_error();
 
         for(auto& buffer : e_buffers)
         {
-            gfx::report_gl_error();
             buffer.error_log().clear();
             manager.add(
                 buffer.name().c_str(), 
@@ -357,10 +396,10 @@ namespace re
             auto e = glGetError();
             if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
         }
+        gfx::report_gl_error();
 
         for(auto& vao : vaos)
         {
-            gfx::report_gl_error();
             vao.error_log().clear();
 
             //find components, report if missing
@@ -378,30 +417,30 @@ namespace re
 
             manager.add(vao.name().c_str(), std::make_unique<gfx::VertexArray>(*vbuffer, ebuffer));
         }
+        gfx::report_gl_error();
 
         for(auto& vert_shader : v_shaders)
         {
-            gfx::report_gl_error();
             vert_shader.error_log().clear();
             manager.add(
                 vert_shader.name().c_str(), 
                 std::make_unique<gfx::VertexShader>(vert_shader.source().c_str(), &vert_shader.error_log())
             );
         }
-        
+        gfx::report_gl_error();
+
         for(auto& frag_shader : f_shaders)
         {
-            gfx::report_gl_error();
             frag_shader.error_log().clear();
             manager.add(
                 frag_shader.name().c_str(),
                 std::make_unique<gfx::FragmentShader>(frag_shader.source().c_str(), &frag_shader.error_log())
             );
         }
-        
+        gfx::report_gl_error();
+
         for(auto& shader_program : programs)
         {
-            gfx::report_gl_error();
             shader_program.error_log().clear();
             
             //find components, report if missing
@@ -418,8 +457,27 @@ namespace re
 
             manager.add(shader_program.name().c_str(), std::make_unique<gfx::ShaderProgram>(*vshader, *fshader, &shader_program.error_log()));
 
-            gfx::report_gl_error();
         }
+        gfx::report_gl_error();
+
+        for(auto& texture : textures)
+        {
+            texture.error_log().clear();
+
+            if(texture.texture_filename().empty())
+            {
+                texture.error_log() = "Filename not specified.";
+                continue;
+            }
+
+            gfx::Image texture_image(texture.texture_filename().c_str());
+            if(!texture_image.valid())
+            {
+                texture.error_log() = "Couldn't load the file.";
+            }
+            manager.add(texture.name().c_str(), std::make_unique<gfx::Texture>(texture_image));
+        }
+        gfx::report_gl_error();
     }
 
     void GraphicsTestEditor::snapshot()
@@ -458,5 +516,5 @@ namespace re
             return true;
         }
         return false;
-    }        
+    }
 }

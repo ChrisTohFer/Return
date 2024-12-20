@@ -32,6 +32,7 @@ namespace re
         //vao
         const gfx::VertexArray* vao = nullptr;
         const gfx::ShaderProgram* program = nullptr;
+        const gfx::Texture* texture = nullptr;
     };
 
     class Scene

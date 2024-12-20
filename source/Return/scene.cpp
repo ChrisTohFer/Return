@@ -45,7 +45,16 @@ namespace re
             auto& program = *entity.program;
                 
             program.use();
+            if(entity.texture)
+            {
+                entity.texture->use();
+            }
+            else
+            {
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
             glBindVertexArray(vao.id());
+            gfx::set_uniform(program.uniform_location("tex"), 0);
             gfx::set_uniform(program.uniform_location("time"), (float)m_time);
             gfx::set_uniform(program.uniform_location("transform"), transform);
             gfx::set_uniform(program.uniform_location("camera"), camera);
