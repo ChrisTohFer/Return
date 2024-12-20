@@ -6,3 +6,5 @@ Todo:
 -save/load
     -save whole editor state on exit (maybe on edit?)
     -could also allow saving individual elements, but will need some ui to support this
+
+-add texture classes that can load from file
