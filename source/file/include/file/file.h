@@ -1,10 +1,14 @@
 #pragma once
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
 namespace file
 {
+    std::filesystem::path get_data_path(const char* relative_path);
+    std::filesystem::path get_appdata_path(const char* relative_path);
+
     class FileOut
     {
     public:
