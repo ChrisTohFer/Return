@@ -77,11 +77,6 @@ int main()
         {
             editor.compile_assets(manager);
             scene = {};
-            re::Entity e;
-            e.vao = manager.vertex_array("triangle");
-            e.program = manager.shader_program("triangle");
-            e.texture = manager.texture("triangle");
-            scene.add_entity(std::move(e));
         }
         scene.editor_ui(manager);
 

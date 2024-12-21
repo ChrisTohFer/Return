@@ -23,7 +23,7 @@ namespace gfx
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         //data
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.data());
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, image.n_channels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, image.data());
         //generate mipmap
         glGenerateMipmap(GL_TEXTURE_2D);
     }

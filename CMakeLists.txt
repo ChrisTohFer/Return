@@ -84,8 +84,13 @@ target_link_libraries(return PUBLIC gfx)
 target_link_libraries(return PRIVATE file)
 
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
+	#debugger working directory
 	set_property(TARGET return PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 	
+	#add todo as source
+	target_sources(return PRIVATE "todo.txt")
+
+	#group projects into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS true)
 	set_target_properties(glad PROPERTIES FOLDER "third_party")
 	set_target_properties(imgui PROPERTIES FOLDER "third_party")
