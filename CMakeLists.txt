@@ -85,6 +85,15 @@ target_link_libraries(return PRIVATE file)
 
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	set_property(TARGET return PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+	
+	set_property(GLOBAL PROPERTY USE_FOLDERS true)
+	set_target_properties(glad PROPERTIES FOLDER "third_party")
+	set_target_properties(imgui PROPERTIES FOLDER "third_party")
+	set_target_properties(stb_image PROPERTIES FOLDER "third_party")
+
+	set_target_properties(maths PROPERTIES FOLDER "intermediate")
+	set_target_properties(gfx PROPERTIES FOLDER "intermediate")
+	set_target_properties(file PROPERTIES FOLDER "intermediate")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
