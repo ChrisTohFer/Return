@@ -23,13 +23,11 @@ namespace gfx
     }
     void report_gl_error()
     {
-    #ifdef DEBUG
         auto error_string = get_gl_error_string();
         if (strcmp(error_string, ""))
         {
             std::cout << error_string << "\n";
         }
-    #endif
     }
 
     //GraphicsManager ===========================================================
