@@ -1,7 +1,7 @@
 #include "imgui_helpers.h"
 
 #include "maths/vector2.h"
-#include "maths/vector3.h"
+#include "maths/maths.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_stdlib.h"
@@ -37,7 +37,7 @@ namespace imhelp
         return ImGui::IsItemDeactivatedAfterEdit();
     }
 
-    bool edit(const char* label, geom::Vector2& v)
+    bool edit(const char* label, maths::Vector2& v)
     {
         float float2[2] = { v.x, v.y };
         ImGui::InputFloat2(label, float2);
@@ -45,7 +45,7 @@ namespace imhelp
         return ImGui::IsItemDeactivatedAfterEdit();;
     }
 
-    bool edit(const char* label, geom::Vector3& v)
+    bool edit(const char* label, maths::Vector3& v)
     {
         float float3[3] = { v.x, v.y, v.z };
         ImGui::InputFloat3(label, float3);

@@ -3,7 +3,7 @@
 #include "imgui_helpers.h"
 
 #include "maths/vector2.h"
-#include "maths/vector3.h"
+#include "maths/maths.h"
 
 #include "gfx/image.h"
 
@@ -35,7 +35,7 @@ namespace re
         triangle_buffer.m_name = "triangle";
         triangle_buffer.m_components = { gfx::VertexComponent::Vec3, gfx::VertexComponent::Vec2 };
         triangle_buffer.m_num_vertices = 3;
-        triangle_buffer.m_data.resize(3 * (sizeof(geom::Vector3) + sizeof(geom::Vector2)));
+        triangle_buffer.m_data.resize(3 * (sizeof(maths::Vector3) + sizeof(maths::Vector2)));
 
         auto* floats = reinterpret_cast<float*>(triangle_buffer.m_data.data());
         floats[0] = -0.5f; floats[1] = -0.5f; floats[2] = 0.f; floats[3] = -0.5f; floats[4] = -0.5f;
@@ -99,8 +99,8 @@ namespace re
             case gfx::VertexComponent::Float: if (imhelp::edit("", *reinterpret_cast<float*>(element)))         changed = true; break;
             case gfx::VertexComponent::Int:   if (imhelp::edit("", *reinterpret_cast<int*>(element)))           changed = true; break;
             case gfx::VertexComponent::Bool:  if (imhelp::edit("", *reinterpret_cast<bool*>(element)))          changed = true; break;
-            case gfx::VertexComponent::Vec2:  if (imhelp::edit("", *reinterpret_cast<geom::Vector2*>(element))) changed = true; break;
-            case gfx::VertexComponent::Vec3:  if (imhelp::edit("", *reinterpret_cast<geom::Vector3*>(element))) changed = true; break;
+            case gfx::VertexComponent::Vec2:  if (imhelp::edit("", *reinterpret_cast<maths::Vector2*>(element))) changed = true; break;
+            case gfx::VertexComponent::Vec3:  if (imhelp::edit("", *reinterpret_cast<maths::Vector3*>(element))) changed = true; break;
             }
             ImGui::PopID();
 

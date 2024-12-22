@@ -9,7 +9,7 @@
 //imgui helper functions
 //convention is to return true on edit and deactivate, not per keystroke
 
-namespace geom
+namespace maths
 {
     struct Vector2;
     struct Vector3;
@@ -24,8 +24,8 @@ namespace imhelp//ing
     bool edit(const char* label, float&);
     bool edit(const char* label, bool&);
     bool edit(const char* label, std::string&);
-    bool edit(const char* label, geom::Vector2&);
-    bool edit(const char* label, geom::Vector3&);
+    bool edit(const char* label, maths::Vector2&);
+    bool edit(const char* label, maths::Vector3&);
 
     template<typename ElementT, typename ...ContextArgs>
     bool edit_list(const char* label, std::vector<ElementT>& list, ContextArgs&&... args);

@@ -54,7 +54,7 @@ if(MSVC_VERSION)
 endif()
 
 #original targets
-file(GLOB_RECURSE maths_source "source/maths/*.h" "source/maths/*.cpp")
+file(GLOB_RECURSE maths_source "source/maths/*.h" "source/maths/*.cpp" "source/maths/*.inl")
 add_library(maths STATIC ${maths_source})
 target_include_directories(maths PUBLIC "source/maths/include")
 target_include_directories(maths PRIVATE "source/maths")

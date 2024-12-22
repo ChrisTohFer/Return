@@ -1,11 +1,13 @@
 Todo:
--editor context support for dropdowns
+-maths library additions
+    -quaternion from euler angles
+    -quaternion to euler angles
+-camera/entity rotation (imguizmo?)
+-missing texture
+-try adding point lights/directional light
+-skybox
 -load more things from files
     -vbo, ebo, shaders can be read/write
--try adding point lights/directional light
--missing texture
--skybox
--camera/entity rotation (imguizmo?)
 
 -save/load
     -save whole editor state on exit (maybe on edit?)

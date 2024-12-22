@@ -1,60 +1,11 @@
-#pragma once
+#ifndef INCLUDED_MATHS_H
+static_assert(false, "Don't include this file directly, it should be included via maths.h");
+#endif
 
-#include "constants.h"
-#include <assert.h>
-#include <math.h>
+#include "maths.h"
 
-namespace geom
+namespace maths
 {
-    //forward declarations
-
-    template<int rows, int columns>
-    struct Matrix;
-    struct Vector3;
-
-    using Matrix44 = Matrix<4, 4>;
-    using Matrix34 = Matrix<3, 4>;
-
-    //struct
-
-    struct Quaternion
-    {
-        float x;
-        float y;
-        float z;
-        float w;
-
-        static Quaternion identity() { return { 0,0,0,1.f }; }
-        static Quaternion slerp(const Quaternion& q1, const Quaternion& q2, float t);
-        static Quaternion from_rotation_matrix(const Matrix44& mat);
-
-        Quaternion raised_to_power(float power) const;
-        Quaternion normalized() const;
-        Quaternion inverse() const;
-        Vector3 axis() const;
-        Vector3 axis_normalized() const;
-        float angle() const;
-        float mod_squared() const;
-    };
-
-    //operators
-
-    bool operator==(const Quaternion& lhs, const Quaternion& rhs);
-    bool operator!=(const Quaternion& lhs, const Quaternion& rhs);
-
-    Quaternion operator+(const Quaternion& lhs, const Quaternion& rhs);
-    Quaternion operator*(const Quaternion& lhs, const Quaternion& rhs);
-}
-
-//deliberately included after declarations to prevent circular dependency
-#include "matrix.h"
-#include "vector3.h"
-
-//inline definitions
-namespace geom
-{
-    //inline operator definitions
-
     inline bool operator==(const Quaternion& lhs, const Quaternion& rhs)
     {
         return
@@ -71,7 +22,7 @@ namespace geom
 
     inline Quaternion operator+(const Quaternion& lhs, const Quaternion& rhs)
     {
-        return { 
+        return {
             lhs.x + rhs.x,
             lhs.y + rhs.y,
             lhs.z + rhs.z,
@@ -223,7 +174,7 @@ namespace geom
     {
         float mod_squared_value = mod_squared();
         float half_angle = 0.5f * angle();
-        geom::Vector3 axis = axis_normalized();
+        Vector3 axis = axis_normalized();
 
         float front_term = powf(mod_squared_value, power * 0.5f);
         float vector_part_magnitude = sinf(power * half_angle);

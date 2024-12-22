@@ -2,9 +2,8 @@
 
 #include "gfx_forward.h"
 
+#include "maths/maths.h"
 #include "maths/vector2.h"
-#include "maths/vector3.h"
-#include "maths/matrix.h"
 
 #include "glad/glad.h"
 
@@ -50,7 +49,7 @@ namespace gfx
     void set_uniform(GLint location, float);
     void set_uniform(GLint location, bool);
     void set_uniform(GLint location, int);
-    void set_uniform(GLint location, const geom::Vector2&);
-    void set_uniform(GLint location, const geom::Vector3&);
-    void set_uniform(GLint location, const geom::Matrix44&);
+    void set_uniform(GLint location, const maths::Vector2&);
+    void set_uniform(GLint location, const maths::Vector3&);
+    void set_uniform(GLint location, const maths::Matrix44&);
 }

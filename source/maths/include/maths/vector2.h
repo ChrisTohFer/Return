@@ -4,7 +4,9 @@
 #include <cmath>
 #include <math.h>
 
-namespace geom
+//might unify this with maths.h at some point but it's not really used for 3d geometry so might not be needed
+
+namespace maths
 {
     //struct
 
@@ -50,12 +52,8 @@ namespace geom
     Vector2& operator/=(Vector2& lhs, float rhs);
 }
 
-//deliberately included after declarations to prevent circular dependency
-#include "matrix.h"
-#include "quaternion.h"
-
 //inline definitions
-namespace geom
+namespace maths
 {
     //inline operator definitions
 

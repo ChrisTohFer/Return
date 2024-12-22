@@ -1,67 +1,11 @@
-#pragma once
+#ifndef INCLUDED_MATHS_H
+static_assert(false, "Don't include this file directly, it should be included via maths.h");
+#endif
 
-#include <assert.h>
-#include <cmath>
-#include <math.h>
+#include "maths.h"
 
-namespace geom
+namespace maths
 {
-    //struct
-
-    struct Vector3
-    {
-        float x;
-        float y;
-        float z;
-
-        //useful default values
-        static constexpr Vector3 zero() { return { 0.f,0.f,0.f }; }
-        static constexpr Vector3 one() { return { 1.f,1.f,1.f }; }
-        static constexpr Vector3 unit_x() { return { 1.f,0.f,0.f }; }
-        static constexpr Vector3 unit_y() { return { 0.f,1.f,0.f }; }
-        static constexpr Vector3 unit_z() { return { 0.f,0.f,1.f }; }
-
-        //operations
-        //+-*/ operations are defined as non-member functions
-        static float dot(const Vector3&, const Vector3&);
-        static Vector3 cross(const Vector3&, const Vector3&);
-        static Vector3 interpolate(const Vector3&, const Vector3&, float t);
-
-        float magnitude_squared() const;
-        float magnitude() const;
-        Vector3 normalized() const;
-    };
-
-    //operators
-
-    bool operator==(const Vector3& lhs, const Vector3& rhs);
-    bool operator!=(const Vector3& lhs, const Vector3& rhs);
-
-    Vector3 operator-(const Vector3& value);
-
-    Vector3 operator+(const Vector3& lhs, const Vector3& rhs);
-    Vector3& operator+=(Vector3& lhs, const Vector3& rhs);
-
-    Vector3 operator-(const Vector3& lhs, const Vector3& rhs);
-    Vector3& operator-=(Vector3& lhs, const Vector3& rhs);
-
-    Vector3 operator*(const Vector3& lhs, float rhs);
-    Vector3 operator*(float lhs, const Vector3& rhs);
-    Vector3& operator*=(Vector3& lhs, float rhs);
-
-    Vector3 operator/(const Vector3& lhs, float rhs);
-    Vector3& operator/=(Vector3& lhs, float rhs);
-}
-
-//deliberately included after declarations to prevent circular dependency
-#include "matrix.h"
-#include "quaternion.h"
-
-//inline definitions
-namespace geom
-{
-    //inline operator definitions
-
     inline bool operator==(const Vector3& lhs, const Vector3& rhs)
     {
         return
@@ -92,6 +36,7 @@ namespace geom
             lhs.z + rhs.z
         };
     }
+
     inline Vector3& operator+=(Vector3& lhs, const Vector3& rhs)
     {
         return lhs = lhs + rhs;
@@ -105,6 +50,7 @@ namespace geom
             lhs.z - rhs.z
         };
     }
+
     inline Vector3& operator-=(Vector3& lhs, const Vector3& rhs)
     {
         return lhs = lhs - rhs;
@@ -118,6 +64,7 @@ namespace geom
             lhs.z * rhs
         };
     }
+
     inline Vector3 operator*(float lhs, const Vector3& rhs)
     {
         return {
@@ -126,6 +73,7 @@ namespace geom
             rhs.z * lhs
         };
     }
+
     inline Vector3& operator*=(Vector3& lhs, float rhs)
     {
         return lhs = lhs * rhs;
@@ -141,12 +89,11 @@ namespace geom
             lhs.z / rhs
         };
     }
+
     inline Vector3& operator/=(Vector3& lhs, float rhs)
     {
         return lhs = lhs / rhs;
     }
-
-    //inline member definitions
 
     inline float Vector3::dot(const Vector3& lhs, const Vector3& rhs)
     {
@@ -194,4 +141,55 @@ namespace geom
         return *this / m;
     }
 
+    inline Vector3 operator*(const Matrix44& mat, Vector3 vec)
+    {
+        Vector3 result;
+
+        result.x =
+            mat.get(0, 0) * vec.x +
+            mat.get(0, 1) * vec.y +
+            mat.get(0, 2) * vec.z +
+            mat.get(0, 3);
+        result.y =
+            mat.get(1, 0) * vec.x +
+            mat.get(1, 1) * vec.y +
+            mat.get(1, 2) * vec.z +
+            mat.get(1, 3);
+        result.z =
+            mat.get(2, 0) * vec.x +
+            mat.get(2, 1) * vec.y +
+            mat.get(2, 2) * vec.z +
+            mat.get(2, 3);
+
+        return result;
+    }
+
+    inline Vector3 operator*(const Matrix34& mat, Vector3 vec)
+    {
+        Vector3 result;
+
+        result.x =
+            mat.get(0, 0) * vec.x +
+            mat.get(0, 1) * vec.y +
+            mat.get(0, 2) * vec.z +
+            mat.get(0, 3);
+        result.y =
+            mat.get(1, 0) * vec.x +
+            mat.get(1, 1) * vec.y +
+            mat.get(1, 2) * vec.z +
+            mat.get(1, 3);
+        result.z =
+            mat.get(2, 0) * vec.x +
+            mat.get(2, 1) * vec.y +
+            mat.get(2, 2) * vec.z +
+            mat.get(2, 3);
+
+        return result;
+    }
+
+    inline Vector3 operator*(const Quaternion& q, Vector3 vec)
+    {
+        Quaternion q_res = q * Quaternion{ vec.x, vec.y, vec.z, 0.f } *q.inverse();
+        return q_res.axis();
+    }
 }

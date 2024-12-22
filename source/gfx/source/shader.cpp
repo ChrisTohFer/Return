@@ -87,7 +87,7 @@ namespace gfx
     void set_uniform(GLint location, float value)                 { glUniform1f(location, value); }
     void set_uniform(GLint location, bool value)                  { glUniform1i(location, value); }
     void set_uniform(GLint location, int value)                   { glUniform1i(location, value); }
-    void set_uniform(GLint location, geom::Vector2 value)         { glUniform2f(location, value.x, value.y); }
-    void set_uniform(GLint location, const geom::Vector3& value)  { glUniform3f(location, value.x, value.y, value.z); }
-    void set_uniform(GLint location, const geom::Matrix44& value) { glUniformMatrix4fv(location, 1, false, value.values); }
+    void set_uniform(GLint location, maths::Vector2 value)         { glUniform2f(location, value.x, value.y); }
+    void set_uniform(GLint location, const maths::Vector3& value)  { glUniform3f(location, value.x, value.y, value.z); }
+    void set_uniform(GLint location, const maths::Matrix44& value) { glUniformMatrix4fv(location, 1, false, value.values); }
 }
