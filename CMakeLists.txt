@@ -48,6 +48,10 @@ add_library(imgui STATIC ${imgui_source})
 target_include_directories(imgui PUBLIC "third_party/imgui/include")
 target_include_directories(imgui PRIVATE "third_party/imgui/include/imgui")
 target_link_libraries(imgui PUBLIC glfw)
+if(MSVC_VERSION)
+	#disable warnings for imgui as imguizmo build fails otherwise and I don't want to change third party code
+	target_compile_options(imgui PRIVATE /permissive /W0 /WX-)
+endif()
 
 #original targets
 file(GLOB_RECURSE maths_source "source/maths/*.h" "source/maths/*.cpp")
