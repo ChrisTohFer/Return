@@ -175,6 +175,43 @@ namespace maths
     }
 
     template<int rows, int columns>
+    Matrix<rows, columns> Matrix<rows, columns>::from_euler(Vector3 euler)
+        requires(columns >= 3 && rows >= 3)
+    {
+        //todo: there's probably a more efficient way to compute the matrix, find out how!
+        return
+#ifdef EULER_ORDER_XYZ
+            from_z_rotation(euler.z) *
+            from_y_rotation(euler.y) *
+            from_x_rotation(euler.x);
+#elifdef EULER_ORDER_YXZ
+            from_z_rotation(euler.z) *
+            from_x_rotation(euler.x) *
+            from_y_rotation(euler.y);
+#elifdef EULER_ORDER_YZX
+            from_x_rotation(euler.x) *
+            from_z_rotation(euler.z) *
+            from_y_rotation(euler.y);
+#elifdef EULER_ORDER_XZY
+            from_y_rotation(euler.y) *
+            from_z_rotation(euler.z) *
+            from_x_rotation(euler.x);
+#elifdef EULER_ORDER_ZXY
+            from_y_rotation(euler.y) *
+            from_x_rotation(euler.x) *
+            from_z_rotation(euler.z);
+#elifdef EULER_ORDER_ZYX
+            from_x_rotation(euler.x) *
+            from_y_rotation(euler.y) *
+            from_z_rotation(euler.z);
+#else //default to zxy
+            from_y_rotation(euler.y) *
+            from_x_rotation(euler.x) *
+            from_z_rotation(euler.z);
+#endif
+    }
+
+    template<int rows, int columns>
     Matrix<rows, columns> Matrix<rows, columns>::projection(float aspect, float fov, float near, float far)
         requires(columns == 4 && rows == 4)
     {
@@ -194,12 +231,12 @@ namespace maths
 
         result.get(2, 0) = 0.f;
         result.get(2, 1) = 0.f;
-        result.get(2, 2) = (far + near) / (far - near);
+        result.get(2, 2) = -(far + near) / (far - near);
         result.get(2, 3) = -2.f * far * near / (far - near);
 
         result.get(3, 0) = 0.f;
         result.get(3, 1) = 0.f;
-        result.get(3, 2) = 1.f;
+        result.get(3, 2) = -1.f;
         result.get(3, 3) = 0.f;
 
         return result;

@@ -1,6 +1,5 @@
 Todo:
 -maths library additions
-    -quaternion from euler angles
     -quaternion to euler angles
 -camera/entity rotation (imguizmo?)
 -missing texture

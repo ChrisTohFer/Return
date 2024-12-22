@@ -77,6 +77,10 @@ namespace re
             auto textures = manager.texture_names();
 
             ImGui::DragFloat3("Camera pos", &m_camera.pos.x, 0.1f);
+            if (ImGui::DragFloat3("Camera rot", &m_camera.euler.x, 0.1f))
+            {
+                m_camera.orientation = maths::Quaternion::from_euler(m_camera.euler);
+            }
             ImGui::DragFloat("fov_y", &m_camera.fov_y, 0.05f);
             ImGui::DragFloat("near", &m_camera.near);
             ImGui::DragFloat("far", &m_camera.far);
@@ -96,6 +100,10 @@ namespace re
                 }
                 ImGui::DragFloat3("Pos", &entity.pos.x, 0.1f);
                 ImGui::DragFloat3("Scale", &entity.scale.x, 0.1f);
+                if (ImGui::DragFloat3("Rot", &entity.euler.x, 0.1f))
+                {
+                    entity.orientation = maths::Quaternion::from_euler(entity.euler);
+                }
                 if (ImGui::Button("Clear vao"))
                 {
                     entity.vao = nullptr;

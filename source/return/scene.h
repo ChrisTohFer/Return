@@ -9,12 +9,15 @@ namespace re
 {
     struct Camera
     {
-        maths::Vector3 pos = maths::Vector3(0.f, 0.f, -5.f);
+        maths::Vector3 pos = maths::Vector3(0.f, 0.f, 5.f);
         maths::Quaternion orientation = maths::Quaternion::identity();
         float fov_y = 1.f;
         float aspect = 1.f;
         float near = 0.001f;
         float far = 1000.f;
+
+        //only for editor while there isn't a "Quaternion::to_euler" function
+        maths::Vector3 euler = maths::Vector3::zero();
 
         maths::Matrix44 view_matrix();
         maths::Matrix44 perspective_matrix();
@@ -26,6 +29,9 @@ namespace re
         maths::Vector3 pos = maths::Vector3::zero();
         maths::Vector3 scale = maths::Vector3::one();
         maths::Quaternion orientation = maths::Quaternion::identity();
+
+        //only for editor while there isn't a "Quaternion::to_euler" function
+        maths::Vector3 euler = maths::Vector3::zero();
 
         //vao
         const gfx::VertexArray* vao = nullptr;

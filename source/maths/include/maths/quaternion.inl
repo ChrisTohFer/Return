@@ -170,6 +170,12 @@ namespace maths
         return q;
     }
 
+    inline Quaternion Quaternion::from_euler(Vector3 euler)
+    {
+        //todo: there's probably a more efficient way to do this, find out how!
+        return from_rotation_matrix(Matrix44::from_euler(euler));
+    }
+
     inline Quaternion Quaternion::raised_to_power(float power) const
     {
         float mod_squared_value = mod_squared();

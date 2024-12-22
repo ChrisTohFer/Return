@@ -25,6 +25,8 @@ namespace maths
         static Matrix from_x_rotation(float) requires(columns >= 3 && rows >= 3);
         static Matrix from_y_rotation(float) requires(columns >= 3 && rows >= 3);
         static Matrix from_z_rotation(float) requires(columns >= 3 && rows >= 3);
+        //euler angle order can be defined using EULER_ORDER_XYZ syntax, defaults to EULER_ORDER_ZXY
+        static Matrix from_euler(Vector3) requires(columns >= 3 && rows >= 3);
         static Matrix projection(float aspect, float fov, float near, float far) requires(columns == 4 && rows == 4);
 
         int index(int row, int col) const;
@@ -77,6 +79,8 @@ namespace maths
         static Quaternion identity() { return { 0,0,0,1.f }; }
         static Quaternion slerp(const Quaternion& q1, const Quaternion& q2, float t);
         static Quaternion from_rotation_matrix(const Matrix44& mat);
+        //euler angle order can be defined using EULER_ORDER_XYZ syntax, defaults to EULER_ORDER_ZXY
+        static Quaternion from_euler(Vector3);
 
         Quaternion raised_to_power(float power) const;
         Quaternion normalized() const;
