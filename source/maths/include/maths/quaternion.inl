@@ -217,6 +217,11 @@ namespace maths
         return axis().normalized();
     }
 
+    inline Vector3 Quaternion::euler() const
+    {
+        return Matrix34::from_orientation(*this).euler();
+    }
+
     inline float Quaternion::angle() const
     {
         return 2.f * acosf(fminf(w, 1.f));

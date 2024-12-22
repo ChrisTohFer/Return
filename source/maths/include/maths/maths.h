@@ -41,6 +41,7 @@ namespace maths
         Matrix transpose() const;
 
         Vector3 translation() const requires(columns >= 4 && rows >= 3);
+        Vector3 euler() const requires(columns >= 3 && rows >= 3);
     };
     using Matrix44 = Matrix<4, 4>;
     using Matrix34 = Matrix<3, 4>;
@@ -87,6 +88,7 @@ namespace maths
         Quaternion inverse() const;
         Vector3 axis() const;
         Vector3 axis_normalized() const;
+        Vector3 euler() const;
         float angle() const;
         float mod_squared() const;
     };

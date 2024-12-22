@@ -41,6 +41,8 @@ namespace re
         std::string vao_name;
         std::string program_name;
         std::string texture_name;
+
+        maths::Matrix44 transform() const;
     };
 
     class Scene

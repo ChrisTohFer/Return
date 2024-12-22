@@ -5,6 +5,7 @@
 #include "imgui_helpers.h"
 
 #include "imgui/imgui.h"
+#include "imgui/ImGuizmo.h"
 
 #include "GLFW/glfw3.h"
 
@@ -29,6 +30,14 @@ namespace re
             maths::Matrix44::from_translation(maths::Vector3(0.f, 0.f, -near));
     }
 
+    maths::Matrix44 Entity::transform() const
+    {
+        return 
+            maths::Matrix44::from_translation(pos) *
+            maths::Matrix44::from_orientation(orientation) *
+            maths::Matrix44::from_scale(scale);
+    }
+
     void Scene::update_and_draw(float dt, float aspect_ratio)
     {
         m_camera.aspect = aspect_ratio;
@@ -40,10 +49,6 @@ namespace re
         {
             if(entity.vao == nullptr || entity.program == nullptr) continue;
 
-            auto transform =
-                maths::Matrix44::from_translation(entity.pos) *
-                maths::Matrix44::from_orientation(entity.orientation) *
-                maths::Matrix44::from_scale(entity.scale);
             auto& vao = *entity.vao;
             auto& program = *entity.program;
                 
@@ -59,7 +64,7 @@ namespace re
             }
             gfx::set_uniform(program.uniform_location("tex"), 0);
             gfx::set_uniform(program.uniform_location("time"), (float)m_time);
-            gfx::set_uniform(program.uniform_location("transform"), transform);
+            gfx::set_uniform(program.uniform_location("transform"), entity.transform());
             gfx::set_uniform(program.uniform_location("camera"), camera);
             vao.draw_triangles();
         }
@@ -72,6 +77,10 @@ namespace re
     {
         if(ImGui::Begin("Scene"))
         {
+            ImGuizmo::BeginFrame();
+            ImGuiIO& io = ImGui::GetIO();
+            ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+            
             auto vaos = manager.vertex_array_names();
             auto programs = manager.shader_program_names();
             auto textures = manager.texture_names();
@@ -93,6 +102,7 @@ namespace re
                 auto& entity = m_entities[i];
                 imhelp::Indent indentation;
                 ImGui::PushID(&entity);
+                ImGuizmo::PushID(&entity);
                 ImGui::Separator();
                 if (ImGui::Button("Clear entity"))
                 {
@@ -100,6 +110,19 @@ namespace re
                 }
                 ImGui::DragFloat3("Pos", &entity.pos.x, 0.1f);
                 ImGui::DragFloat3("Scale", &entity.scale.x, 0.1f);
+
+                auto transform = entity.transform();
+                if (ImGuizmo::Manipulate(
+                    m_camera.view_matrix().values,
+                    m_camera.perspective_matrix().values,
+                    ImGuizmo::OPERATION::TRANSLATE | ImGuizmo::OPERATION::ROTATE,
+                    ImGuizmo::MODE::LOCAL,
+                    transform.values))
+                {
+                    entity.euler = transform.euler();
+                    entity.pos = transform.translation();
+                    entity.orientation = maths::Quaternion::from_euler(entity.euler);
+                }
                 if (ImGui::DragFloat3("Rot", &entity.euler.x, 0.1f))
                 {
                     entity.orientation = maths::Quaternion::from_euler(entity.euler);
@@ -162,6 +185,7 @@ namespace re
                     ImGui::EndCombo();
                 }
                 ImGui::PopID();
+                ImGuizmo::PopID();
             }
 
             if (to_remove != -1)

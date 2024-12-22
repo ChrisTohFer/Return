@@ -339,4 +339,40 @@ namespace maths
     {
         return { get(0, 3), get(1, 3), get(2,3) };
     }
+
+    template<int rows, int columns>
+    Vector3 Matrix<rows, columns>::euler() const
+        requires(columns >= 3 && rows >= 3)
+    {
+        //assumes rotation matrix is formed of RyRxRz (EULER_ORDER_ZXY)
+        //definition taken from https://www.geometrictools.com/Documentation/EulerAngles.pdf
+        if(get(1,2) < 1.f)
+        {
+            if(get(1,2) > -1.f)
+            {
+                return {
+                    asinf(-get(1,2)),
+                    atan2(get(0,2), get(2,2)),
+                    atan2(get(1,0), get(1,1))
+                };
+            }
+            else
+            {
+                return {
+                    PI / 2.f,
+                    -atan2(-get(0,1), get(0,0)),
+                    0.f
+                };
+            }
+        }
+        else
+        {
+            return {
+                -PI / 2.f,
+                 atan2(-get(0,1) , get(0,0)),
+                 0.f
+            };
+        }
+
+    }
 }
