@@ -1,7 +1,4 @@
 Todo:
--maths library additions
-    -quaternion to euler angles
--camera/entity rotation (imguizmo?)
 -missing texture
 -try adding point lights/directional light
 -skybox

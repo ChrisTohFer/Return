@@ -76,7 +76,7 @@ int main()
         if(editor.edit())
         {
             editor.compile_assets(manager);
-            scene = {};
+            scene.relink_assets(manager);
         }
         scene.editor_ui(manager);
 

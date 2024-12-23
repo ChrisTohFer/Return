@@ -52,6 +52,7 @@ namespace re
         void add_entity(const Entity&);
 
         void editor_ui(const gfx::GraphicsManager&);
+        void relink_assets(const gfx::GraphicsManager&);
 
     private:
         std::vector<Entity> m_entities;

@@ -199,4 +199,14 @@ namespace re
         }
         ImGui::End();
     }
+    
+    void Scene::relink_assets(const gfx::GraphicsManager& gfx_manager)
+    {
+        for(auto& entity : m_entities)
+        {
+            entity.vao = gfx_manager.vertex_array(entity.vao_name.c_str());
+            entity.program = gfx_manager.shader_program(entity.program_name.c_str());
+            entity.texture = gfx_manager.texture(entity.texture_name.c_str());
+        }
+    }
 }
