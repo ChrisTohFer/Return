@@ -1,9 +1,13 @@
 Todo:
--missing texture
--try adding point lights/directional light
--skybox
 -load more things from files
     -vbo, ebo, shaders can be read/write
+
+-add more capabilities to scene:
+    -point lights/directional light
+    -skybox
+
+-collision detection
+-physics
 
 -save/load
     -save whole editor state on exit (maybe on edit?)

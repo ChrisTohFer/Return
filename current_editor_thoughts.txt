@@ -1,0 +1,12 @@
+In the current editor, all assets are displayed at once in a big list. They are all held in memory at the same time rather than on disc.
+
+The "scene" is separate from the assets. Scene itself should be treated as an asset
+Entity is a hardcoded concept, not made of components and not hierarchical. An ecs may be better long term, perhaps wait until later though.
+
+Assets are mostly editable but many of them don't make sense to edit in this form (e.g buffers, vaos). Can't currently be loaded from file.
+Many assets would make sense to load from raw formats (e.g fbx) but it may also be useful to have own format for quick load/compression
+May want to avoid storing too many assets in git
+
+Undo/redo is not contextual.
+
+Editor/runtime split is currently non-existent.

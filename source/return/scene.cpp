@@ -58,6 +58,10 @@ namespace re
             {
                 entity.texture->use();
             }
+            else if(m_missing_texture)
+            {
+                m_missing_texture->use();
+            }
             else
             {
                 glBindTexture(GL_TEXTURE_2D, 0);
@@ -68,10 +72,6 @@ namespace re
             gfx::set_uniform(program.uniform_location("camera"), camera);
             vao.draw_triangles();
         }
-    }
-    void Scene::add_entity(const Entity & e)
-    {
-        m_entities.push_back(e);
     }
     void Scene::editor_ui(const gfx::GraphicsManager& manager)
     {
@@ -85,8 +85,23 @@ namespace re
             auto programs = manager.shader_program_names();
             auto textures = manager.texture_names();
 
-            ImGui::DragFloat3("Camera pos", &m_camera.pos.x, 0.1f);
-            if (ImGui::DragFloat3("Camera rot", &m_camera.euler.x, 0.1f))
+            if (ImGui::BeginCombo("Missing texture", m_missing_texture_name.c_str()))
+            {
+                for (auto& texture : textures)
+                {
+                    const bool selected = texture == m_missing_texture_name;
+                    if (ImGui::Selectable(texture.c_str(), selected) && !selected)
+                    {
+                        m_missing_texture_name = texture;
+                        m_missing_texture = manager.texture(texture.c_str());
+                    }
+                }
+                ImGui::EndCombo();
+            }
+
+            ImGui::SeparatorText("Camera");
+            ImGui::DragFloat3("Pos", &m_camera.pos.x, 0.1f);
+            if (ImGui::DragFloat3("Rot", &m_camera.euler.x, 0.1f))
             {
                 m_camera.orientation = maths::Quaternion::from_euler(m_camera.euler);
             }
@@ -95,7 +110,7 @@ namespace re
             ImGui::DragFloat("far", &m_camera.far);
             ImGui::Checkbox("Perspective", &m_perspective);
 
-            ImGui::Text("Entities:");
+            ImGui::SeparatorText("Entities");
             int to_remove = -1;
             for(int i = 0; i < m_entities.size(); ++i)
             {
@@ -202,6 +217,7 @@ namespace re
     
     void Scene::relink_assets(const gfx::GraphicsManager& gfx_manager)
     {
+        m_missing_texture = gfx_manager.texture(m_missing_texture_name.c_str());
         for(auto& entity : m_entities)
         {
             entity.vao = gfx_manager.vertex_array(entity.vao_name.c_str());

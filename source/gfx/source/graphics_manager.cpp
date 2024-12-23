@@ -40,6 +40,7 @@ namespace gfx
         m_vertex_shaders.clear();
         m_fragment_shaders.clear();
         m_shader_programs.clear();
+        m_textures.clear();
     }
 
     void GraphicsManager::add(const char *name, std::unique_ptr<gfx::VertexBuffer> &&obj)   { m_vertex_buffers.emplace(name, std::move(obj)); }

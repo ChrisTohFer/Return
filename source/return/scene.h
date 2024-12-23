@@ -49,13 +49,14 @@ namespace re
     {
     public:
         void update_and_draw(float dt, float aspect_ratio);
-        void add_entity(const Entity&);
 
         void editor_ui(const gfx::GraphicsManager&);
         void relink_assets(const gfx::GraphicsManager&);
 
     private:
         std::vector<Entity> m_entities;
+        const gfx::Texture* m_missing_texture;
+        std::string m_missing_texture_name;
         double m_time = 0.0;
         Camera m_camera;
         bool m_perspective = true;
