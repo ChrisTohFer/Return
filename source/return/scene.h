@@ -7,6 +7,12 @@
 
 namespace re
 {
+    struct DirectionalLight
+    {
+        maths::Vector3 direction = maths::Vector3(1.f,-1.f,-1.f).normalized();
+        maths::Vector3 colour = {1.f,1.f,1.f};
+    };
+
     struct Camera
     {
         maths::Vector3 pos = maths::Vector3(0.f, 0.f, 5.f);
@@ -60,6 +66,8 @@ namespace re
         double m_time = 0.0;
         Camera m_camera;
         bool m_perspective = true;
+        DirectionalLight m_light;
+        maths::Vector3 m_ambient_light = {0.4f,0.4f,0.4f};
     };
 
 

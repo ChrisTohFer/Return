@@ -44,6 +44,8 @@ namespace re
         m_time += dt;
         auto cam_projection = m_perspective ? m_camera.perspective_matrix() : m_camera.orthogonal_matrix();
         auto camera = cam_projection * m_camera.view_matrix();
+        
+        gfx::report_gl_error();
 
         for(auto& entity : m_entities)
         {
@@ -70,6 +72,9 @@ namespace re
             gfx::set_uniform(program.uniform_location("time"), (float)m_time);
             gfx::set_uniform(program.uniform_location("transform"), entity.transform());
             gfx::set_uniform(program.uniform_location("camera"), camera);
+            gfx::set_uniform(program.uniform_location("light_direction"), m_light.direction);
+            gfx::set_uniform(program.uniform_location("light_colour"), m_light.colour);
+            gfx::set_uniform(program.uniform_location("ambient_colour"), m_ambient_light);
             vao.draw_triangles();
         }
     }

@@ -381,8 +381,6 @@ namespace re
                 buffer.name().c_str(),
                 std::make_unique<gfx::VertexBuffer>(buffer.data(), buffer.num_vertices(), buffer.components())
             );
-            auto e = glGetError();
-            if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
         }
         gfx::report_gl_error();
 
@@ -393,8 +391,6 @@ namespace re
                 buffer.name().c_str(), 
                 std::make_unique<gfx::ElementBuffer>(buffer.data(), buffer.num_triangles())
             );
-            auto e = glGetError();
-            if(e != GL_NO_ERROR) buffer.error_log() = std::format("OpenGL error code {} when creating vertex buffer \"{}\".\n", e, buffer.name());
         }
         gfx::report_gl_error();
 
