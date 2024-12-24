@@ -160,10 +160,13 @@ namespace re
         "uniform mat4 transform;\n"
         "void main()\n"
         "{\n"
+        //roatation part
         "    float x = aPos.x * cos(time) + aPos.y * sin(time);\n"
         "    float y = aPos.y * cos(time) - aPos.x * sin(time);\n"
+        "    float z = aPos.z;\n"
+        //outputs
         "    texCoords = aTexCoords;\n"
-        "    gl_Position = camera * transform * vec4(x, y, 0.0, 1.0);\n"
+        "    gl_Position = camera * transform * vec4(x, y, z, 1.0);\n"
         "}\n"
         ;
         return shader;
