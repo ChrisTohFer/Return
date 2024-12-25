@@ -19,4 +19,5 @@ namespace re
     void save_file_dialog(const FileDialogContext&);
     void open_file_dialog(const FileDialogContext&);
     std::optional<FileDialogResult> update_file_dialog();
+    bool file_dialog_open();
 }

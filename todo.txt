@@ -4,7 +4,6 @@ Todo:
 
 -file dialog
     -add fuzzy search
-    -restrict to valid characters
 
 -add more capabilities to scene:
     -point lights/directional light
