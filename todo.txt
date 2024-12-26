@@ -2,9 +2,6 @@ Todo:
 -load more things from files
     -vbo, ebo, shaders can be read/write
 
--file dialog
-    -add fuzzy search
-
 -add more capabilities to scene:
     -point lights/directional light
     -skybox

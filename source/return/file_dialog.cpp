@@ -70,7 +70,7 @@ namespace re
         }
         g_search_results.push_back({
             path,
-            levenshtein_distance(path.filename().c_str(), g_search_string.c_str())
+            adjusted_levenshtein_distance(path.filename().c_str(), g_search_string.c_str())
             });
     }
     static void apply_search()

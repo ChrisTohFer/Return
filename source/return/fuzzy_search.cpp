@@ -1,12 +1,13 @@
 #include "fuzzy_search.h"
 
+#include <assert.h>
 #include <cctype>
 #include <cstring>
 #include <vector>
 
 namespace re
 {
-    float levenshtein_distance(const char* s1, const char* s2)
+    float levenshtein_distance(const char* s1, const char* s2, float substitution_cost)
     {
         //see wikipedia page for explanation and original algorithm
         const auto l1 = strlen(s1);
@@ -38,12 +39,25 @@ namespace re
                 const bool match = tolower(s1[column - 1]) == tolower(s2[row-1]);
                 const float row_shift = distance(column, row-1) + 1;
                 const float col_shift = distance(column-1, row) + 1;
-                const float d_shift = distance(column-1, row-1) + (match ? 0.f : 1.f);
+                const float d_shift = distance(column-1, row-1) + (match ? 0.f : substitution_cost);
                 distance(column, row) = 
                     std::min(std::min(row_shift, col_shift), d_shift);
             }
         }
 
         return distances.back();
+    }
+
+    float adjusted_levenshtein_distance(const char* text, const char* search_term, float substitution_cost)
+    {
+        if(strstr(text, search_term) != nullptr)
+        {
+            //if search term is a substring then use alternative scoring, based on how much of the text we matched
+            auto text_length = strlen(text);
+            auto search_length = strlen(search_term);
+            assert(text_length != 0);
+            return 1.f - (float)search_length / (float)text_length;
+        }
+        return levenshtein_distance(text, search_term, substitution_cost);
     }
 }
