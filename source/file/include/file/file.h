@@ -8,17 +8,17 @@
 #define DEFINE_ENUM_SERIALIZE_FUNCTIONS(type)                  \
 inline ::file::FileOut& operator<<(::file::FileOut& f, type v) \
 {                                                              \
-    return f << (int)v;                                        \
+    return f << (uint64_t)v;                                   \
 }                                                              \
-inline ::file::FileIn& operator>>(::file::FileIn& f, type v)   \
+inline ::file::FileIn& operator>>(::file::FileIn& f, type& v)   \
 {                                                              \
-    int v_int;                                                 \
+    uint64_t v_int;                                            \
     f >> v_int;                                                \
     v = (type)v_int;                                           \
     return f;                                                  \
 }
 
-#define DEFINE_SERIALIZATION_FUNCTIONS(...)                                \
+#define DEFINE_SERIALIZATION_FUNCTIONS(...)                            \
     void write(::file::FileOut& f) const { f.write_all(__VA_ARGS__); } \
     void read(::file::FileIn& f) { f.read_all(__VA_ARGS__); };
 
