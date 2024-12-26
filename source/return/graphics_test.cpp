@@ -1,5 +1,6 @@
 #include "graphics_test.h"
 
+#include "file_dialog.h"
 #include "imgui_helpers.h"
 
 #include "maths/vector2.h"
@@ -203,7 +204,6 @@ namespace re
 
         bool changed = false;
         if (imhelp::edit("Name", m_name))                      changed = true;
-        if (imhelp::edit_list("Uniforms", m_uniforms))         changed = true;
         if (imhelp::edit_multiline_string("Source", m_source)) changed = true;
         imhelp::display_error_if_present(m_error_log.c_str());
 
@@ -327,6 +327,34 @@ namespace re
 
         if (ImGui::Begin("GraphicsTestEditor"))
         {
+            static bool saving = false;
+            if(ImGui::Button("Save state"))
+            {
+                saving = true;
+                save_file_dialog({file::get_data_path(""), ".editor_state"});
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Load state"))
+            {
+                saving = false;
+                open_file_dialog({file::get_data_path(""), ".editor_state"});
+            }
+            auto update_dialog_result = update_file_dialog();
+            if(update_dialog_result)
+            {
+                if(saving)
+                {
+                    auto file = file::FileOut::from_absolute(update_dialog_result->result_path.c_str());
+                    m_data.write(file);
+                }
+                else
+                {
+                    auto file = file::FileIn::from_absolute(update_dialog_result->result_path.c_str());
+                    m_data.read(file);
+                    changed = true;
+                }
+            }
+
             ImGui::Text("Undo frame: %d, Undo/Redo length:[%d, %d]", m_undo_current, m_undo_length, m_redo_length);
             ImGui::Separator();
             if (imhelp::edit_list("Vertex Buffers", m_data.m_vertex_buffers))             changed = true;

@@ -69,10 +69,9 @@ int main()
         glClearColor(0.f, 0.f, 0.f, 255.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        static re::GraphicsTestEditor editor;
         static gfx::GraphicsManager manager;
+        static re::GraphicsTestEditor editor;
         static re::Scene scene;
-
         if(editor.edit())
         {
             editor.compile_assets(manager);

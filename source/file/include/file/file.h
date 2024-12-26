@@ -3,6 +3,24 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <vector>
+
+#define DEFINE_ENUM_SERIALIZE_FUNCTIONS(type)                  \
+inline ::file::FileOut& operator<<(::file::FileOut& f, type v) \
+{                                                              \
+    return f << (int)v;                                        \
+}                                                              \
+inline ::file::FileIn& operator>>(::file::FileIn& f, type v)   \
+{                                                              \
+    int v_int;                                                 \
+    f >> v_int;                                                \
+    v = (type)v_int;                                           \
+    return f;                                                  \
+}
+
+#define DEFINE_SERIALIZATION_FUNCTIONS(...)                                \
+    void write(::file::FileOut& f) const { f.write_all(__VA_ARGS__); } \
+    void read(::file::FileIn& f) { f.read_all(__VA_ARGS__); };
 
 namespace file
 {
@@ -33,6 +51,12 @@ namespace file
         FileOut& operator<<(const bool&);
         FileOut& operator<<(const std::string&);
         FileOut& operator<<(const char*);
+        template<typename ElementT>
+        FileOut& operator<<(const ElementT&);
+        template<typename ElementT>
+        FileOut& operator<<(const std::vector<ElementT>&);
+        template<typename ... ElementT>
+        FileOut& write_all(const ElementT&...);
         void write(const void*, size_t size);
 
     private:
@@ -68,6 +92,12 @@ namespace file
         FileIn& operator>>(double&);
         FileIn& operator>>(bool&);
         FileIn& operator>>(std::string&);
+        template<typename ElementT>
+        FileIn& operator>>(ElementT&);
+        template<typename ElementT>
+        FileIn& operator>>(std::vector<ElementT>&);
+        template<typename ... ElementT>
+        FileIn& read_all(ElementT&...);
         //returns true if read successfully, false if hit end of file
         bool read(void*, size_t size);
 
@@ -80,4 +110,58 @@ namespace file
         struct Impl;
         std::unique_ptr<Impl> m_impl;
     };
+
+    //inline defs
+
+    template<typename ElementT>
+    FileOut& FileOut::operator<<(const ElementT& element)
+    {
+        //default to write function if we didn't define <<
+        //if running into an error here you need to define << or write on ElementT
+        element.write(*this);
+        return *this;
+    }
+    template<typename ElementT>
+    FileOut& FileOut::operator<<(const std::vector<ElementT>& vec)
+    {
+        *this << (int)vec.size();
+        for(auto& elem : vec)
+        {
+            *this << elem;
+        }
+        return *this;
+    }
+    template<typename ... ElementT>
+    FileOut& FileOut::write_all(const ElementT&... elements)
+    {
+        ((*this << elements), ...);
+        return *this;
+    }
+
+    template<typename ElementT>
+    FileIn& FileIn::operator>>(ElementT& element)
+    {
+        //default to read function if we didn't define >>
+        //if running into an error here you need to define >> or read on ElementT
+        element.read(*this);
+        return *this;
+    }
+    template<typename ElementT>
+    FileIn& FileIn::operator>>(std::vector<ElementT>& vec)
+    {
+        int size;
+        *this >> size;
+        vec.resize(size);
+        for(auto& elem : vec)
+        {
+            *this >> elem;
+        }
+        return *this;
+    }
+    template<typename ... ElementT>
+    FileIn& FileIn::read_all(ElementT&... elements)
+    {
+        ((*this >> elements), ...);
+        return *this;
+    }
 }

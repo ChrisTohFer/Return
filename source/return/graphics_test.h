@@ -1,9 +1,15 @@
 #pragma once
 
-#include "gfx/graphics_manager.h" 
+#include "gfx/graphics_manager.h"
+#include "file/file.h"
 
 #include <string>
 #include <vector>
+
+namespace gfx
+{
+    DEFINE_ENUM_SERIALIZE_FUNCTIONS(VertexComponent)
+}
 
 namespace re
 {
@@ -22,6 +28,8 @@ namespace re
         int vertex_size() const;
         int num_vertices() const { return m_num_vertices; }
 
+        DEFINE_SERIALIZATION_FUNCTIONS(m_name, m_components, m_data);
+
     private:
         bool edit_vertex(int i);
 
@@ -39,6 +47,7 @@ namespace re
         struct Triangle
         {
             unsigned a, b, c;
+            DEFINE_SERIALIZATION_FUNCTIONS(a,b,c);
         };
         bool edit();
 
@@ -46,6 +55,9 @@ namespace re
         std::string& error_log() { return m_error_log; }
         const void* data() const { return m_triangles.data(); }
         int num_triangles() const { return (int)m_triangles.size(); }
+        
+        DEFINE_SERIALIZATION_FUNCTIONS(m_name, m_triangles);
+
     private:
         std::string m_name;
         std::vector<Triangle> m_triangles;
@@ -63,6 +75,8 @@ namespace re
         std::string& error_log() { return m_error_log; }
         const std::string& vertex_buffer_name() const { return m_vertex_buffer_name; }
         const std::string& element_buffer_name() const { return m_element_buffer_name; }
+        
+        DEFINE_SERIALIZATION_FUNCTIONS(m_name, m_vertex_buffer_name,m_element_buffer_name)
 
     private:
         std::string m_name;
@@ -83,11 +97,12 @@ namespace re
         const std::string& name() const { return m_name; }
         const std::string& source() const { return m_source; }
         std::string& error_log() { return m_error_log; }
+        
+        DEFINE_SERIALIZATION_FUNCTIONS(m_name, m_source)
 
     private:
         std::string m_name;
         std::string m_source;
-        std::vector<std::string> m_uniforms;
 
         std::string m_error_log;
     };
@@ -104,6 +119,8 @@ namespace re
         const std::string& vertex_shader() const { return m_vert_shader_name; }
         const std::string& fragment_shader() const { return m_frag_shader_name; }
         std::string& error_log() { return m_error_log; }
+        
+        DEFINE_SERIALIZATION_FUNCTIONS(m_name, m_vert_shader_name, m_frag_shader_name)
 
     private:
         std::string m_name;
@@ -123,6 +140,8 @@ namespace re
         const std::string& texture_filename() const { return m_filename; }
         std::string& error_log() { return m_error_log; }
 
+        DEFINE_SERIALIZATION_FUNCTIONS(m_name, m_filename)
+        
     private:
         std::string m_name;
         std::string m_filename;
@@ -141,6 +160,8 @@ namespace re
             std::vector<ShaderProgram> m_shader_programs;
             std::vector<VertexArrayObject> m_vertex_array_objects;
             std::vector<Texture> m_textures;
+
+            DEFINE_SERIALIZATION_FUNCTIONS(m_vertex_buffers, m_element_buffers, m_vertex_shaders, m_fragment_shaders, m_shader_programs, m_vertex_array_objects, m_textures)
         };
 
         GraphicsTestEditor();
