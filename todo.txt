@@ -17,3 +17,10 @@ Todo:
 -make scene serializable
 -make entities serializable (prefabs)
 -Should scenes/entities be the same thing? (like godot)
+-add more debug visualisation
+    -lines
+    -spheres
+    -capsules
+    -cubes, triangles, frustums, etc could be done via lines but might be useful utilities
+    -line drawing should support different colours and thickness
+    -support frame/time duration
