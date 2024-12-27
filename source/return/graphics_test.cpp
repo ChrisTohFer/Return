@@ -344,12 +344,12 @@ namespace re
             {
                 if(saving)
                 {
-                    auto file = file::FileOut::from_absolute(update_dialog_result->result_path.c_str());
+                    auto file = file::FileOut::from_absolute(update_dialog_result->result_path.string().c_str());
                     m_data.write(file);
                 }
                 else
                 {
-                    auto file = file::FileIn::from_absolute(update_dialog_result->result_path.c_str());
+                    auto file = file::FileIn::from_absolute(update_dialog_result->result_path.string().c_str());
                     m_data.read(file);
                     changed = true;
                 }

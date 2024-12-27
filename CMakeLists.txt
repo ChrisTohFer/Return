@@ -16,10 +16,15 @@ endif()
 function(create_library_target target)
 	file(GLOB_RECURSE source "source/${target}/*.h" "source/${target}/*.cpp" "source/${target}/*.inl")
 	add_library(${target} STATIC ${source})
+
 	target_include_directories(${target} PUBLIC  "source/${target}/include")
 	target_include_directories(${target} PRIVATE "source/${target}/include/${target}")
 	target_include_directories(${target} PRIVATE "source/${target}/source")
 	target_link_libraries(${target} PRIVATE GlobalSettings)
+
+	if(CMAKE_GENERATOR MATCHES "Visual Studio")
+		set_target_properties(${target} PROPERTIES FOLDER "intermediate")
+	endif()
 endfunction()
 
 #define each target, starting from lowest level dependency and ending with exe
@@ -87,15 +92,11 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	#add todo as source
 	target_sources(return PRIVATE "todo.txt")
 
-	#group projects into folders
+	#put third party projects in folder
 	set_property(GLOBAL PROPERTY USE_FOLDERS true)
 	set_target_properties(glad PROPERTIES FOLDER "third_party")
 	set_target_properties(imgui PROPERTIES FOLDER "third_party")
 	set_target_properties(stb_image PROPERTIES FOLDER "third_party")
-
-	set_target_properties(maths PROPERTIES FOLDER "intermediate")
-	set_target_properties(gfx PROPERTIES FOLDER "intermediate")
-	set_target_properties(file PROPERTIES FOLDER "intermediate")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")

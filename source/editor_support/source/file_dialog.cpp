@@ -70,7 +70,7 @@ namespace re
         }
         g_search_results.push_back({
             path,
-            adjusted_levenshtein_distance(path.filename().c_str(), g_search_string.c_str())
+            adjusted_levenshtein_distance(path.filename().string().c_str(), g_search_string.c_str())
             });
     }
     static void apply_search()
@@ -128,7 +128,7 @@ namespace re
                 auto display_entry = [&](const std::filesystem::path& entry, bool is_directory)
                 {
                     char buf[512];
-                    snprintf(buf, sizeof(buf), "%s%s", is_directory ? "F> " : "   ", entry.filename().c_str());
+                    snprintf(buf, sizeof(buf), "%s%s", is_directory ? "F> " : "   ", entry.filename().string().c_str());
                     ImGui::Selectable(buf);
                     if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered())
                     {
@@ -158,11 +158,11 @@ namespace re
                 }
                 else
                 {
-                    for(auto result : g_search_results)
+                    for(auto search_result : g_search_results)
                     {
-                        display_entry(result.path, std::filesystem::is_directory(result.path));
+                        display_entry(search_result.path, std::filesystem::is_directory(search_result.path));
                         ImGui::SameLine();
-                        ImGui::Text("%f", result.levenshtein_distance);
+                        ImGui::Text("%f", search_result.levenshtein_distance);
                     }
                 }
                 ImGui::EndListBox();
@@ -176,7 +176,7 @@ namespace re
             {
                 full_filename.concat(g_context.extension);
             }
-            ImGui::TextUnformatted(full_filename.c_str());
+            ImGui::TextUnformatted(full_filename.string().c_str());
 
             //open/save
             const char* button_name = "";
