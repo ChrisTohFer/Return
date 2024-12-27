@@ -11,19 +11,43 @@
 
 namespace re
 {
-    maths::Matrix44 Camera::view_matrix()
+    maths::Matrix44 Camera::view_matrix() const
     {
         return 
             maths::Matrix44::from_orientation(orientation.inverse()) *
             maths::Matrix44::from_translation(-pos);
     }
 
-    maths::Matrix44 Camera::perspective_matrix()
+    maths::Matrix44 Camera::perspective_matrix() const
     {
         return maths::Matrix44::projection(aspect, fov_y, near, far);
     }
 
-    maths::Matrix44 Camera::orthogonal_matrix()
+    maths::Matrix44 Camera::orthogonal_matrix() const
+    {
+        return 
+            maths::Matrix44::from_scale(maths::Vector3(1.f/(fov_y*aspect), 1.f/fov_y, 1.f/far-near)) *
+            maths::Matrix44::from_translation(maths::Vector3(0.f, 0.f, -near));
+    }
+
+    maths::Vector3 OrbitCamera::pos() const
+    {
+        return center + orientation * maths::Vector3(0.f, 0.f, orbit_distance);
+    }
+
+    maths::Matrix44 OrbitCamera::view_matrix() const
+    {
+        return 
+            maths::Matrix44::from_orientation(orientation.inverse()) *
+            maths::Matrix44::from_translation(-pos());
+    }
+
+    maths::Matrix44 OrbitCamera::perspective_matrix() const
+    {
+        return maths::Matrix44::projection(aspect, fov_y, near, far);
+    }
+
+    maths::Matrix44 OrbitCamera::orthogonal_matrix() const
     {
         return 
             maths::Matrix44::from_scale(maths::Vector3(1.f/(fov_y*aspect), 1.f/fov_y, 1.f/far-near)) *
@@ -105,11 +129,12 @@ namespace re
             }
 
             ImGui::SeparatorText("Camera");
-            ImGui::DragFloat3("Pos", &m_camera.pos.x, 0.1f);
+            ImGui::DragFloat3("Pos", &m_camera.center.x, 0.1f);
             if (ImGui::DragFloat3("Rot", &m_camera.euler.x, 0.1f))
             {
                 m_camera.orientation = maths::Quaternion::from_euler(m_camera.euler);
             }
+            ImGui::DragFloat("Orbit distance", &m_camera.orbit_distance, 0.1f);
             ImGui::DragFloat("fov_y", &m_camera.fov_y, 0.05f);
             ImGui::DragFloat("near", &m_camera.near);
             ImGui::DragFloat("far", &m_camera.far);

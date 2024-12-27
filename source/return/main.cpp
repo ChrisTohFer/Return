@@ -60,6 +60,7 @@ int main()
     glViewport(0, 0, winx, winy);
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     while (!glfwWindowShouldClose(window))
     {
         ImGui_ImplGlfw_NewFrame();

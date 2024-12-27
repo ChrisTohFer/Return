@@ -25,9 +25,28 @@ namespace re
         //only for editor while there isn't a "Quaternion::to_euler" function
         maths::Vector3 euler = maths::Vector3::zero();
 
-        maths::Matrix44 view_matrix();
-        maths::Matrix44 perspective_matrix();
-        maths::Matrix44 orthogonal_matrix();
+        maths::Matrix44 view_matrix() const;
+        maths::Matrix44 perspective_matrix() const;
+        maths::Matrix44 orthogonal_matrix() const;
+    };
+
+    struct OrbitCamera
+    {
+        maths::Vector3 center = maths::Vector3(0.f, 0.f, 0.f);
+        maths::Quaternion orientation = maths::Quaternion::identity();
+        float orbit_distance = 5.f;
+        float fov_y = 1.f;
+        float aspect = 1.f;
+        float near = 0.001f;
+        float far = 1000.f;
+
+        //only for editor while there isn't a "Quaternion::to_euler" function
+        maths::Vector3 euler = maths::Vector3::zero();
+        maths::Vector3 pos() const;
+
+        maths::Matrix44 view_matrix() const;
+        maths::Matrix44 perspective_matrix() const;
+        maths::Matrix44 orthogonal_matrix() const;
     };
 
     struct Entity
@@ -64,7 +83,7 @@ namespace re
         const gfx::Texture* m_missing_texture;
         std::string m_missing_texture_name;
         double m_time = 0.0;
-        Camera m_camera;
+        OrbitCamera m_camera;
         bool m_perspective = true;
         DirectionalLight m_light;
         maths::Vector3 m_ambient_light = {0.4f,0.4f,0.4f};

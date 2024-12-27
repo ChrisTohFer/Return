@@ -10,7 +10,7 @@ inline ::file::FileOut& operator<<(::file::FileOut& f, type v) \
 {                                                              \
     return f << (uint64_t)v;                                   \
 }                                                              \
-inline ::file::FileIn& operator>>(::file::FileIn& f, type& v)   \
+inline ::file::FileIn& operator>>(::file::FileIn& f, type& v)  \
 {                                                              \
     uint64_t v_int;                                            \
     f >> v_int;                                                \
