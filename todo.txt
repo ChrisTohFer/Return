@@ -12,5 +12,8 @@ Todo:
 
 -collision detection
 -physics
+-input manager
 
--clean up cmake file, reduce target definition boilerplate
+-make scene serializable
+-make entities serializable (prefabs)
+-Should scenes/entities be the same thing? (like godot)

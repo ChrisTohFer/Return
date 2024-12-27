@@ -11,6 +11,17 @@ if(MSVC_VERSION)
 	add_compile_options(/permissive- /W4 /WX) #conformance, warnings, warnings as errors
 endif()
 
+#function definitions
+
+function(create_library_target target)
+	file(GLOB_RECURSE source "source/${target}/*.h" "source/${target}/*.cpp" "source/${target}/*.inl")
+	add_library(${target} STATIC ${source})
+	target_include_directories(${target} PUBLIC  "source/${target}/include")
+	target_include_directories(${target} PRIVATE "source/${target}/include/${target}")
+	target_include_directories(${target} PRIVATE "source/${target}/source")
+	target_link_libraries(${target} PRIVATE GlobalSettings)
+endfunction()
+
 #define each target, starting from lowest level dependency and ending with exe
 
 #pseudo targets for grouping settings
@@ -54,48 +65,20 @@ if(MSVC_VERSION)
 endif()
 
 #original targets
-file(GLOB_RECURSE maths_source "source/maths/*.h" "source/maths/*.cpp" "source/maths/*.inl")
-add_library(maths STATIC ${maths_source})
-target_include_directories(maths PUBLIC "source/maths/include")
-target_include_directories(maths PRIVATE "source/maths")
-target_link_libraries(maths PRIVATE GlobalSettings)
+create_library_target(maths)
 
-file(GLOB_RECURSE file_source "source/file/*.h" "source/file/*.cpp")
-add_library(file STATIC ${file_source})
-target_include_directories(file PUBLIC "source/file/include")
-target_include_directories(file PRIVATE "source/file/include/file")
-target_include_directories(file PRIVATE "source/file/source")
+create_library_target(file)
 
-file(GLOB_RECURSE gfx_source "source/gfx/*.h" "source/gfx/*.cpp")
-add_library(gfx STATIC ${gfx_source})
-target_include_directories(gfx PUBLIC "source/gfx/include")
-target_include_directories(gfx PRIVATE "source/gfx/include/gfx")
-target_include_directories(gfx PRIVATE "source/gfx/source")
-target_link_libraries(gfx PRIVATE glad)
-target_link_libraries(gfx PRIVATE stb_image)
-target_link_libraries(gfx PRIVATE GlobalSettings)
-target_link_libraries(gfx PRIVATE maths)
-target_link_libraries(gfx PRIVATE file)
+create_library_target(gfx)
+target_link_libraries(gfx PRIVATE glad stb_image maths file)
 
-file(GLOB_RECURSE editor_support_source "source/editor_support/*.h" "source/editor_support/*.cpp")
-add_library(editor_support STATIC ${editor_support_source})
-target_include_directories(editor_support PUBLIC "source/editor_support/include")
-target_include_directories(editor_support PRIVATE "source/editor_support/include/editor_support")
-target_include_directories(editor_support PRIVATE "source/editor_support/source")
-target_link_libraries(editor_support PUBLIC imgui)
-target_link_libraries(editor_support PRIVATE GlobalSettings)
-target_link_libraries(editor_support PUBLIC maths)
+create_library_target(editor_support)
+target_link_libraries(editor_support PRIVATE imgui maths)
 
 file(GLOB_RECURSE return_source_files "source/return/*.h" "source/return/*.cpp")
 add_executable(return ${return_source_files})
 target_link_libraries(return PRIVATE GlobalSettings)
-target_link_libraries(return PUBLIC glfw)
-target_link_libraries(return PUBLIC glad)
-target_link_libraries(return PUBLIC imgui)
-target_link_libraries(return PUBLIC maths)
-target_link_libraries(return PUBLIC gfx)
-target_link_libraries(return PRIVATE file)
-target_link_libraries(return PRIVATE editor_support)
+target_link_libraries(return PRIVATE glfw glad imgui maths gfx file editor_support)
 
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	#debugger working directory
@@ -120,11 +103,3 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	  COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/third_party/glfw/win64/glfw3.dll" $<TARGET_FILE_DIR:return>/
 	  )
 endif()
-
-##Add visual studio filters based on folders
-#foreach(source IN LISTS source_list)
-#	cmake_path(RELATIVE_PATH source OUTPUT_VARIABLE source_path)
-#	cmake_path(REMOVE_FILENAME source_path)
-#    string(REPLACE "/" "\\" source_path_msvc "${source_path}")
-#    source_group("${source_path_msvc}" FILES "${source}")
-#endforeach()
