@@ -1,7 +1,7 @@
 #include "graphics_test.h"
 
-#include "file_dialog.h"
-#include "imgui_helpers.h"
+#include "editor_support/file_dialog.h"
+#include "editor_support/imgui_helpers.h"
 
 #include "maths/vector2.h"
 #include "maths/maths.h"

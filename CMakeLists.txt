@@ -77,6 +77,15 @@ target_link_libraries(gfx PRIVATE GlobalSettings)
 target_link_libraries(gfx PRIVATE maths)
 target_link_libraries(gfx PRIVATE file)
 
+file(GLOB_RECURSE editor_support_source "source/editor_support/*.h" "source/editor_support/*.cpp")
+add_library(editor_support STATIC ${editor_support_source})
+target_include_directories(editor_support PUBLIC "source/editor_support/include")
+target_include_directories(editor_support PRIVATE "source/editor_support/include/editor_support")
+target_include_directories(editor_support PRIVATE "source/editor_support/source")
+target_link_libraries(editor_support PUBLIC imgui)
+target_link_libraries(editor_support PRIVATE GlobalSettings)
+target_link_libraries(editor_support PUBLIC maths)
+
 file(GLOB_RECURSE return_source_files "source/return/*.h" "source/return/*.cpp")
 add_executable(return ${return_source_files})
 target_link_libraries(return PRIVATE GlobalSettings)
@@ -86,6 +95,7 @@ target_link_libraries(return PUBLIC imgui)
 target_link_libraries(return PUBLIC maths)
 target_link_libraries(return PUBLIC gfx)
 target_link_libraries(return PRIVATE file)
+target_link_libraries(return PRIVATE editor_support)
 
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	#debugger working directory

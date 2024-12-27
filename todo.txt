@@ -3,12 +3,14 @@ Todo:
     -vbo, ebo, shaders can be read/write
 
 -add more capabilities to scene:
-    -point lights/directional light
+    -point lights
+    -make lights editable
     -skybox
+
+-try more graphics things
+    -vfx
 
 -collision detection
 -physics
 
--save/load
-    -save whole editor state on exit (maybe on edit?)
-    -could also allow saving individual elements, but will need some ui to support this
+-clean up cmake file, reduce target definition boilerplate
