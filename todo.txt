@@ -1,33 +1,37 @@
 Todo:
+
+file/management stuff:
 -load more things from files
     -vbo, ebo, shaders can be read/write
-
--add more capabilities to scene:
-    -point lights
-    -make lights editable
-    -skybox
-
--try more graphics things
-    -vfx
-
--collision detection
--physics
--input manager
-
 -make scene serializable
 -make entities serializable (prefabs)
 -Should scenes/entities be the same thing? (like godot)
 
+scene stuff:
+-add more capabilities to scene:
+    -point lights
+    -make lights editable
+    -skybox
+-make generic interface for visual component for entities (support 3d, 2d, debug spheres, etc)
+-make gizmos work in orthogonal camera if possible
+-camera flight controls
+
+graphics stuff:
+-try more graphics things
+    -vfx
 -add more debug visualisation
     -capsules
     -frustum
     -non-aligned cuboids
     -support frame/time duration
-
--make gizmos work in orthogonal camera if possible
-
 -make graphics classes more flexible
     -streaming vs static data
     -triangles vs lines
     -try to avoid gl_ functions leaking out of classes by refactoring api
     -try to avoid leaking glad headers
+
+new systems:
+-collision detection
+-physics
+-input manager
+-ecs
