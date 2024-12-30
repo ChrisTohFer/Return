@@ -118,7 +118,7 @@ void main()
         for(int i = 0; i < num_segments; ++i)
         {
             float phase = 2.f * maths::PI * (float)i / (float)num_segments;
-            points[i] = (ux * cos(phase) + uy * sin(phase)) * radius;
+            points[i] = pos + (ux * cos(phase) + uy * sin(phase)) * radius;
         }
         draw_line(points, camera, colour, use_z, true);
 
@@ -126,7 +126,7 @@ void main()
         for(int i = 0; i < num_segments; ++i)
         {
             float phase = 2.f * maths::PI * (float)i / (float)num_segments;
-            points[i] = (uy * cos(phase) + uz * sin(phase)) * radius;
+            points[i] = pos + (uy * cos(phase) + uz * sin(phase)) * radius;
         }
         draw_line(points, camera, colour, use_z, true);
 
@@ -134,7 +134,7 @@ void main()
         for(int i = 0; i < num_segments; ++i)
         {
             float phase = 2.f * maths::PI * (float)i / (float)num_segments;
-            points[i] = (uz * cos(phase) + ux * sin(phase)) * radius;
+            points[i] = pos + (uz * cos(phase) + ux * sin(phase)) * radius;
         }
         draw_line(points, camera, colour, use_z, true);
     }
