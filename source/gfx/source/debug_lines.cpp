@@ -62,7 +62,7 @@ void main()
 
         //create vector of positions and reserve required number
         std::vector<maths::Vector3> vertices;
-        int num_vertices = loop ? points.size() : points.size() - 2;
+        int num_vertices = (int)points.size() - loop ? 0 : 2;
         vertices.reserve(num_vertices);
 
         //push a pair of vertices for each line
@@ -83,7 +83,7 @@ void main()
         }
 
         //create buffers
-        VertexBuffer vbuffer(vertices.data(), vertices.size(), {VertexComponent::Vec3});
+        VertexBuffer vbuffer(vertices.data(), (int)vertices.size(), {VertexComponent::Vec3});
         VertexArray vao(vbuffer, nullptr);
 
         glBindVertexArray(vao.id());

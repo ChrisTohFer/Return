@@ -26,7 +26,7 @@ namespace gfx
 
     void clear(float r, float g, float b, float a)
     {
-        glClearColor(0.f, 0.f, 0.f, 255.f);
+        glClearColor(r, g, b, a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
