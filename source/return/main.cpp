@@ -2,11 +2,10 @@
 
 #include "graphics_test.h"
 #include "gfx/graphics_manager.h"
+#include "gfx/graphics_core.h"
 #include "scene.h"
 
-#define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
-#include "glad/glad.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -22,7 +21,7 @@ void error_callback(int /*error*/, const char* description)
 }
 void framebuffer_size_callback(GLFWwindow*, int width, int height)
 {
-    glViewport(0, 0, width, height);
+    gfx::resize_viewport(width, height);
     g_aspect = (float)width / float(height);
 }
 
@@ -30,6 +29,7 @@ int main()
 {
     std::cout << "Running " << CONFIGURATION_STR << " build.\n";
 
+    //initiailize window
     constexpr int winx = 700, winy = 700;
     g_aspect = (float)winx / float(winy);
     glfwInit();
@@ -39,7 +39,6 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     auto window = glfwCreateWindow(winx, winy, "Test", nullptr, nullptr);
 
-
     if (!window)
     {
         return -1;
@@ -47,21 +46,17 @@ int main()
     std::cout << "Created window" << std::endl;
     glfwMakeContextCurrent(window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    if(!gfx::init(glfwGetProcAddress, winx, winy))
     {
         return -1;
     }
-    std::cout << "gladLoadGLLoader successfull" << std::endl;
+
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     ImGui::CreateContext();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-    glViewport(0, 0, winx, winy);
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
     while (!glfwWindowShouldClose(window))
     {
         ImGui_ImplGlfw_NewFrame();
@@ -71,9 +66,8 @@ int main()
         ImGuizmo::BeginFrame();
         ImGuiIO& io = ImGui::GetIO();
         ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
-        glClearColor(0.f, 0.f, 0.f, 255.f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        gfx::clear(0.f,0.f,0.f,1.f);
 
         static gfx::GraphicsManager manager;
         static re::GraphicsTestEditor editor;
@@ -100,6 +94,8 @@ int main()
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    gfx::shutdown();
 
     glfwDestroyWindow(window);
     glfwTerminate();
