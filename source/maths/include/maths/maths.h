@@ -64,6 +64,7 @@ namespace maths
         static float dot(const Vector3&, const Vector3&);
         static Vector3 cross(const Vector3&, const Vector3&);
         static Vector3 interpolate(const Vector3&, const Vector3&, float t);
+        static float angle_between(const Vector3&, const Vector3&);
 
         float magnitude_squared() const;
         float magnitude() const;

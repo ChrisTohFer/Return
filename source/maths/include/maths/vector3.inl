@@ -120,6 +120,11 @@ namespace maths
             std::lerp(v1.z, v2.z, t)
         };
     }
+    
+    inline float Vector3::angle_between(const Vector3& v1, const Vector3& v2) 
+    {
+        return acos(dot(v1, v2) / (v1.magnitude() * v2.magnitude()));
+    }
 
     inline float Vector3::magnitude_squared() const
     {
@@ -140,7 +145,7 @@ namespace maths
         }
         return *this / m;
     }
-
+    
     inline Vector3 operator*(const Matrix44& mat, Vector3 vec)
     {
         Vector3 result;
