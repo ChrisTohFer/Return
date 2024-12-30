@@ -93,4 +93,84 @@ void main()
         gfx::set_uniform(debug_lines_shader_program().uniform_location("colour"), colour);
         vao.draw_lines();
     }
+
+    void draw_sphere(
+        maths::Vector3 pos,
+        float radius,
+        const maths::Matrix44 &camera,
+        maths::Vector3 colour,
+        int num_segments,
+        bool use_z)
+    {
+        if(num_segments < 2)
+        {
+            return;
+        }
+
+        //this would be much more efficient to do via its own shader but oh well
+        std::vector<maths::Vector3> points;
+        points.resize(num_segments);
+        auto ux = maths::Vector3::unit_x();
+        auto uy = maths::Vector3::unit_y();
+        auto uz = maths::Vector3::unit_z();
+
+        //xy plane
+        for(int i = 0; i < num_segments; ++i)
+        {
+            float phase = 2.f * maths::PI * (float)i / (float)num_segments;
+            points[i] = (ux * cos(phase) + uy * sin(phase)) * radius;
+        }
+        draw_line(points, camera, colour, use_z, true);
+
+        //yz plane
+        for(int i = 0; i < num_segments; ++i)
+        {
+            float phase = 2.f * maths::PI * (float)i / (float)num_segments;
+            points[i] = (uy * cos(phase) + uz * sin(phase)) * radius;
+        }
+        draw_line(points, camera, colour, use_z, true);
+
+        //zx plane
+        for(int i = 0; i < num_segments; ++i)
+        {
+            float phase = 2.f * maths::PI * (float)i / (float)num_segments;
+            points[i] = (uz * cos(phase) + ux * sin(phase)) * radius;
+        }
+        draw_line(points, camera, colour, use_z, true);
+    }
+    
+    void draw_aabb(
+        maths::Vector3 min,
+        maths::Vector3 max,
+        const maths::Matrix44 &camera,
+        maths::Vector3 colour,
+        bool use_z)
+    {
+        std::vector<maths::Vector3> points;
+        points.resize(4);
+
+        points[0] = {min.x, min.y, min.z};
+        points[1] = {min.x, min.y, max.z};
+        points[2] = {min.x, max.y, max.z};
+        points[3] = {min.x, max.y, min.z};
+        draw_line(points, camera, colour, use_z, false);
+
+        points[0] = {max.x, min.y, min.z};
+        points[1] = {min.x, min.y, min.z};
+        points[2] = {min.x, max.y, min.z};
+        points[3] = {max.x, max.y, min.z};
+        draw_line(points, camera, colour, use_z, false);
+
+        points[0] = {max.x, min.y, max.z};
+        points[1] = {max.x, min.y, min.z};
+        points[2] = {max.x, max.y, min.z};
+        points[3] = {max.x, max.y, max.z};
+        draw_line(points, camera, colour, use_z, false);
+
+        points[0] = {min.x, min.y, max.z};
+        points[1] = {max.x, min.y, max.z};
+        points[2] = {max.x, max.y, max.z};
+        points[3] = {min.x, max.y, max.z};
+        draw_line(points, camera, colour, use_z, false);
+    }
 }
