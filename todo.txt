@@ -17,15 +17,17 @@ Todo:
 -make scene serializable
 -make entities serializable (prefabs)
 -Should scenes/entities be the same thing? (like godot)
+
 -add more debug visualisation
-    -lines
-    -spheres
     -capsules
-    -cubes, triangles, frustums, etc could be done via lines but might be useful utilities
-    -line drawing should support different colours and thickness
+    -frustum
+    -non-aligned cuboids
     -support frame/time duration
+
+-make gizmos work in orthogonal camera if possible
 
 -make graphics classes more flexible
     -streaming vs static data
     -triangles vs lines
     -try to avoid gl_ functions leaking out of classes by refactoring api
+    -try to avoid leaking glad headers
