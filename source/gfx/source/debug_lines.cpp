@@ -48,6 +48,23 @@ void main()
         return sp;
     }
 
+    void draw_line_impl(
+        const std::vector<maths::Vector3>& vertices,
+        const maths::Matrix44& camera,
+        maths::Vector3 colour,
+        bool use_z)
+    {
+        VertexBuffer vbuffer(vertices.data(), (int)vertices.size(), { VertexComponent::Vec3 });
+        VertexArray vao(vbuffer, nullptr);
+
+        glBindVertexArray(vao.id());
+        debug_lines_shader_program().use();
+        gfx::set_uniform(debug_lines_shader_program().uniform_location("camera"), camera);
+        gfx::set_uniform(debug_lines_shader_program().uniform_location("use_z"), use_z);
+        gfx::set_uniform(debug_lines_shader_program().uniform_location("colour"), colour);
+        vao.draw_lines();
+    }
+
     void draw_line(
         const std::vector<maths::Vector3>& points,
         const maths::Matrix44& camera,
@@ -83,15 +100,7 @@ void main()
         }
 
         //create buffers
-        VertexBuffer vbuffer(vertices.data(), (int)vertices.size(), {VertexComponent::Vec3});
-        VertexArray vao(vbuffer, nullptr);
-
-        glBindVertexArray(vao.id());
-        debug_lines_shader_program().use();
-        gfx::set_uniform(debug_lines_shader_program().uniform_location("camera"), camera);
-        gfx::set_uniform(debug_lines_shader_program().uniform_location("use_z"), use_z);
-        gfx::set_uniform(debug_lines_shader_program().uniform_location("colour"), colour);
-        vao.draw_lines();
+        draw_line_impl(vertices, camera, colour, use_z);
     }
 
     void draw_sphere(
@@ -107,36 +116,48 @@ void main()
             return;
         }
 
-        //this would be much more efficient to do via its own shader but oh well
-        std::vector<maths::Vector3> points;
-        points.resize(num_segments);
-        auto ux = maths::Vector3::unit_x();
-        auto uy = maths::Vector3::unit_y();
-        auto uz = maths::Vector3::unit_z();
+        //this would probably be more efficient to do via its own shader but oh well
+        std::vector<maths::Vector3> vertices;
+        vertices.resize(num_segments * 6);
+        const auto ux = maths::Vector3::unit_x();
+        const auto uy = maths::Vector3::unit_y();
+        const auto uz = maths::Vector3::unit_z();
 
-        //xy plane
-        for(int i = 0; i < num_segments; ++i)
-        {
-            float phase = 2.f * maths::PI * (float)i / (float)num_segments;
-            points[i] = pos + (ux * cos(phase) + uy * sin(phase)) * radius;
-        }
-        draw_line(points, camera, colour, use_z, true);
+        float previous_c = 1.f;
+        float previous_s = 0.f;
 
-        //yz plane
-        for(int i = 0; i < num_segments; ++i)
+        for(int i = 1; i < num_segments; ++i)
         {
-            float phase = 2.f * maths::PI * (float)i / (float)num_segments;
-            points[i] = pos + (uy * cos(phase) + uz * sin(phase)) * radius;
-        }
-        draw_line(points, camera, colour, use_z, true);
+            const float phase = 2.f * maths::PI * (float)i / (float)num_segments;
+            const float c = cos(phase);
+            const float s = sin(phase);
+            //xy plane
+            vertices[i * 6]     = pos + radius * (ux * previous_c + uy * previous_s);
+            vertices[i * 6 + 1] = pos + radius * (ux * c + uy * s);
 
-        //zx plane
-        for(int i = 0; i < num_segments; ++i)
-        {
-            float phase = 2.f * maths::PI * (float)i / (float)num_segments;
-            points[i] = pos + (uz * cos(phase) + ux * sin(phase)) * radius;
+            //yz plane
+            vertices[i * 6 + 2] = pos + radius * (uy * previous_c + uz * previous_s);
+            vertices[i * 6 + 3] = pos + radius * (uy * c + uz * s);
+
+            //zx plane
+            vertices[i * 6 + 4] = pos + radius * (uz * previous_c + ux * previous_s);
+            vertices[i * 6 + 5] = pos + radius * (uz * c + ux * s);
+
+            previous_c = c;
+            previous_s = s;
         }
-        draw_line(points, camera, colour, use_z, true);
+
+        //connect start and end in each plane
+        vertices[0] = pos + radius * (ux * previous_c + uy * previous_s);
+        vertices[1] = pos + radius * (ux);
+
+        vertices[2] = pos + radius * (uy * previous_c + uz * previous_s);
+        vertices[3] = pos + radius * (uy);
+
+        vertices[4] = pos + radius * (uz * previous_c + ux * previous_s);
+        vertices[5] = pos + radius * (uz);
+
+        draw_line_impl(vertices, camera, colour, use_z);
     }
     
     void draw_aabb(
@@ -146,31 +167,39 @@ void main()
         maths::Vector3 colour,
         bool use_z)
     {
-        std::vector<maths::Vector3> points;
-        points.resize(4);
+        std::vector<maths::Vector3> vertices;
+        vertices.reserve(24);
 
-        points[0] = {min.x, min.y, min.z};
-        points[1] = {min.x, min.y, max.z};
-        points[2] = {min.x, max.y, max.z};
-        points[3] = {min.x, max.y, min.z};
-        draw_line(points, camera, colour, use_z, false);
+        //square at min x
+        vertices.push_back({min.x, min.y, min.z});
+        vertices.push_back({min.x, min.y, max.z});
+        vertices.push_back({min.x, min.y, max.z});
+        vertices.push_back({min.x, max.y, max.z});
+        vertices.push_back({min.x, max.y, max.z});
+        vertices.push_back({min.x, max.y, min.z});
+        vertices.push_back({min.x, max.y, min.z});
+        vertices.push_back({min.x, min.y, min.z});
 
-        points[0] = {max.x, min.y, min.z};
-        points[1] = {min.x, min.y, min.z};
-        points[2] = {min.x, max.y, min.z};
-        points[3] = {max.x, max.y, min.z};
-        draw_line(points, camera, colour, use_z, false);
+        //square at max x
+        vertices.push_back({max.x, min.y, min.z});
+        vertices.push_back({max.x, min.y, max.z});
+        vertices.push_back({max.x, min.y, max.z});
+        vertices.push_back({max.x, max.y, max.z});
+        vertices.push_back({max.x, max.y, max.z});
+        vertices.push_back({max.x, max.y, min.z});
+        vertices.push_back({max.x, max.y, min.z});
+        vertices.push_back({max.x, min.y, min.z});
 
-        points[0] = {max.x, min.y, max.z};
-        points[1] = {max.x, min.y, min.z};
-        points[2] = {max.x, max.y, min.z};
-        points[3] = {max.x, max.y, max.z};
-        draw_line(points, camera, colour, use_z, false);
+        //connect min and max x
+        vertices.push_back({min.x, min.y, min.z});
+        vertices.push_back({max.x, min.y, min.z});
+        vertices.push_back({min.x, max.y, min.z});
+        vertices.push_back({max.x, max.y, min.z});
+        vertices.push_back({min.x, max.y, max.z});
+        vertices.push_back({max.x, max.y, max.z});
+        vertices.push_back({min.x, min.y, max.z});
+        vertices.push_back({max.x, min.y, max.z});
 
-        points[0] = {min.x, min.y, max.z};
-        points[1] = {max.x, min.y, max.z};
-        points[2] = {max.x, max.y, max.z};
-        points[3] = {min.x, max.y, max.z};
-        draw_line(points, camera, colour, use_z, false);
+        draw_line_impl(vertices, camera, colour, use_z);
     }
 }
