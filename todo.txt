@@ -24,3 +24,8 @@ Todo:
     -cubes, triangles, frustums, etc could be done via lines but might be useful utilities
     -line drawing should support different colours and thickness
     -support frame/time duration
+
+-make graphics classes more flexible
+    -streaming vs static data
+    -triangles vs lines
+    -try to avoid gl_ functions leaking out of classes by refactoring api

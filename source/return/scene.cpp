@@ -3,6 +3,7 @@
 #include "maths/maths.h"
 
 #include "editor_support/imgui_helpers.h"
+#include "gfx/debug_lines.h"
 
 #include "imgui/imgui.h"
 #include "imgui/ImGuizmo.h"
@@ -70,7 +71,7 @@ namespace re
         auto camera = cam_projection * m_camera.view_matrix();
         
         gfx::report_gl_error();
-
+        
         for(auto& entity : m_entities)
         {
             if(entity.vao == nullptr || entity.program == nullptr) continue;
@@ -106,10 +107,6 @@ namespace re
     {
         if(ImGui::Begin("Scene"))
         {
-            ImGuizmo::BeginFrame();
-            ImGuiIO& io = ImGui::GetIO();
-            ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-            
             auto vaos = manager.vertex_array_names();
             auto programs = manager.shader_program_names();
             auto textures = manager.texture_names();

@@ -50,4 +50,13 @@ namespace gfx
             glBindVertexArray(0);
         }
     }
+    void VertexArray::draw_lines() const
+    {
+        if(m_id != 0 && m_vb != nullptr)
+        {
+            glBindVertexArray(m_id);
+            glDrawArrays(GL_LINES, 0, m_vb->vertex_count());
+            glBindVertexArray(0);
+        }
+    }
 }

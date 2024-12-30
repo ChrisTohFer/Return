@@ -18,6 +18,7 @@ namespace gfx
         bool valid() const { return m_id != 0; }
         GLuint id() const { return m_id; }
         void draw_triangles() const;
+        void draw_lines() const;
         int uniform_location(const char* name) const;
 
     private:
