@@ -12,6 +12,10 @@
 
 namespace re
 {
+    Scene::Scene(const gfx::GraphicsManager& gfx_manager)
+        : m_gfx_manager(gfx_manager)
+    {}
+
     void Scene::update_and_draw(float dt, float aspect_ratio)
     {
         m_camera.aspect = aspect_ratio;
@@ -23,58 +27,23 @@ namespace re
         
         for(auto& entity : m_entities)
         {
-            if(entity.vao == nullptr || entity.program == nullptr) continue;
-
-            auto& vao = *entity.vao;
-            auto& program = *entity.program;
-            
-            //texture
-            if(entity.texture)
-            {
-                entity.texture->use();
-            }
-            else if(m_missing_texture)
-            {
-                m_missing_texture->use();
-            }
-            else
-            {
-                gfx::unbind_texture();
-            }
-
-            //program
-            program.use();
-            gfx::set_uniform(program.uniform_location("tex"), 0);
-            gfx::set_uniform(program.uniform_location("time"), (float)m_time);
-            gfx::set_uniform(program.uniform_location("transform"), entity.transform());
-            gfx::set_uniform(program.uniform_location("camera"), camera);
-            gfx::set_uniform(program.uniform_location("light_direction"), m_light.direction);
-            gfx::set_uniform(program.uniform_location("light_colour"), m_light.colour);
-            gfx::set_uniform(program.uniform_location("ambient_colour"), m_ambient_light);
-
-            //vao
-            vao.use();
-            vao.draw_triangles();
+            entity.visual_component->draw(entity.transform(), camera, *this);
         }
     }
 
-    void Scene::editor_ui(const gfx::GraphicsManager& manager)
+    void Scene::editor_ui()
     {
         if(ImGui::Begin("Scene"))
         {
-            auto vaos = manager.vertex_array_names();
-            auto programs = manager.shader_program_names();
-            auto textures = manager.texture_names();
-
             if (ImGui::BeginCombo("Missing texture", m_missing_texture_name.c_str()))
             {
-                for (auto& texture : textures)
+                for (auto& texture : m_gfx_manager.texture_names())
                 {
                     const bool selected = texture == m_missing_texture_name;
                     if (ImGui::Selectable(texture.c_str(), selected) && !selected)
                     {
                         m_missing_texture_name = texture;
-                        m_missing_texture = manager.texture(texture.c_str());
+                        m_missing_texture = m_gfx_manager.texture(texture.c_str());
                     }
                 }
                 ImGui::EndCombo();
@@ -124,63 +93,9 @@ namespace re
                 {
                     entity.orientation = maths::Quaternion::from_euler(entity.euler);
                 }
-                if (ImGui::Button("Clear vao"))
-                {
-                    entity.vao = nullptr;
-                    entity.vao_name = "";
-                }
-                ImGui::SameLine();
-                if (ImGui::BeginCombo("VAO", entity.vao_name.c_str()))
-                {
-                    for (auto& vao : vaos)
-                    {
-                        const bool selected = vao == entity.vao_name;
-                        if (ImGui::Selectable(vao.c_str(), selected) && !selected)
-                        {
-                            entity.vao_name = vao;
-                            entity.vao = manager.vertex_array(vao.c_str());
-                        }
-                    }
-                    ImGui::EndCombo();
-                }
-                if (ImGui::Button("Clear program"))
-                {
-                    entity.program = nullptr;
-                    entity.program_name = "";
-                }
-                ImGui::SameLine();
-                if (ImGui::BeginCombo("Program", entity.program_name.c_str()))
-                {
-                    for (auto& program : programs)
-                    {
-                        const bool selected = program == entity.program_name;
-                        if (ImGui::Selectable(program.c_str(), selected) && !selected)
-                        {
-                            entity.program_name = program;
-                            entity.program = manager.shader_program(program.c_str());
-                        }
-                    }
-                    ImGui::EndCombo();
-                }
-                if (ImGui::Button("Clear texture"))
-                {
-                    entity.texture = nullptr;
-                    entity.texture_name = "";
-                }
-                ImGui::SameLine();
-                if (ImGui::BeginCombo("Texture", entity.texture_name.c_str()))
-                {
-                    for (auto& texture : textures)
-                    {
-                        const bool selected = texture == entity.texture_name;
-                        if (ImGui::Selectable(texture.c_str(), selected) && !selected)
-                        {
-                            entity.texture_name = texture;
-                            entity.texture = manager.texture(texture.c_str());
-                        }
-                    }
-                    ImGui::EndCombo();
-                }
+
+                entity.visual_component->edit(*this);
+
                 ImGui::PopID();
                 ImGuizmo::PopID();
             }
@@ -197,14 +112,12 @@ namespace re
         ImGui::End();
     }
     
-    void Scene::relink_assets(const gfx::GraphicsManager& gfx_manager)
+    void Scene::relink_assets()
     {
-        m_missing_texture = gfx_manager.texture(m_missing_texture_name.c_str());
+        m_missing_texture = m_gfx_manager.texture(m_missing_texture_name.c_str());
         for(auto& entity : m_entities)
         {
-            entity.vao = gfx_manager.vertex_array(entity.vao_name.c_str());
-            entity.program = gfx_manager.shader_program(entity.program_name.c_str());
-            entity.texture = gfx_manager.texture(entity.texture_name.c_str());
+            entity.visual_component->relink(*this);
         }
     }
 }

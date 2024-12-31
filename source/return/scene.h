@@ -2,6 +2,7 @@
 
 #include "camera.h"
 #include "entity.h"
+#include "lights.h"
 
 #include "maths/maths.h"
 #include "gfx/graphics_manager.h"
@@ -10,19 +11,19 @@
 
 namespace re
 {
-    struct DirectionalLight
-    {
-        maths::Vector3 direction = maths::Vector3(1.f,-1.f,-1.f).normalized();
-        maths::Vector3 colour = {1.f,1.f,1.f};
-    };
-
     class Scene
     {
     public:
+        Scene(const gfx::GraphicsManager&);
         void update_and_draw(float dt, float aspect_ratio);
 
-        void editor_ui(const gfx::GraphicsManager&);
-        void relink_assets(const gfx::GraphicsManager&);
+        void editor_ui();
+        void relink_assets();
+
+        const DirectionalLight& directional_light() const { return m_light; }
+        const AmbientLight& ambient_light() const { return m_ambient; }
+        float time() const { return (float)m_time; }
+        const gfx::GraphicsManager& gfx_manager() const { return m_gfx_manager; }
 
     private:
         std::vector<Entity> m_entities;
@@ -33,7 +34,9 @@ namespace re
         const gfx::Texture* m_missing_texture;
         std::string m_missing_texture_name;
         DirectionalLight m_light;
-        maths::Vector3 m_ambient_light = {0.4f,0.4f,0.4f};
+        AmbientLight m_ambient;
+
+        const gfx::GraphicsManager& m_gfx_manager;
     };
 
 

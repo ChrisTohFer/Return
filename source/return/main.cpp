@@ -57,6 +57,10 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
+    gfx::GraphicsManager manager;
+    re::GraphicsTestEditor editor;
+    re::Scene scene(manager);
+
     while (!glfwWindowShouldClose(window))
     {
         ImGui_ImplGlfw_NewFrame();
@@ -69,15 +73,12 @@ int main()
         
         gfx::clear(0.f,0.f,0.f,1.f);
 
-        static gfx::GraphicsManager manager;
-        static re::GraphicsTestEditor editor;
-        static re::Scene scene;
         if(editor.edit())
         {
             editor.compile_assets(manager);
-            scene.relink_assets(manager);
+            scene.relink_assets();
         }
-        scene.editor_ui(manager);
+        scene.editor_ui();
 
         float time = (float)glfwGetTime();
         static float previous_time = time;
