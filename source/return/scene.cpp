@@ -67,8 +67,8 @@ namespace re
             {
                 auto& entity = m_entities[i];
                 imhelp::Indent indentation;
-                ImGui::PushID(&entity);
                 ImGuizmo::PushID(&entity);
+                ImGui::PushID(&entity);
                 ImGui::Separator();
                 if (ImGui::Button("Clear entity"))
                 {
@@ -94,7 +94,7 @@ namespace re
                     entity.orientation = maths::Quaternion::from_euler(entity.euler);
                 }
 
-                entity.visual_component->edit(*this);
+                edit("Test", entity.visual_component, *this);
 
                 ImGui::PopID();
                 ImGuizmo::PopID();

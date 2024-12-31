@@ -3,6 +3,7 @@
 #include "scene.h"
 
 #include "maths/maths.h"
+#include "gfx/debug_lines.h"
 #include "gfx/graphics_manager.h"
 
 #include "imgui/imgui.h"
@@ -115,5 +116,43 @@ namespace re
         m_vao = manager.vertex_array(m_vao_name.c_str());
         m_program = manager.shader_program(m_program_name.c_str());
         m_texture = manager.texture(m_texture_name.c_str());
+    }
+
+    void SphereComponent::draw(const maths::Matrix44& transform, const maths::Matrix44& camera, const Scene& scene) const
+    {
+        gfx::draw_sphere(transform.translation(), m_radius, camera, m_colour, m_num_segments);
+    }
+
+    void SphereComponent::edit(const Scene& scene)
+    {
+        ImGui::SliderFloat3("Colour", &m_colour.x, 0.f, 1.f);
+        ImGui::SliderFloat("Radius", &m_radius, 0.01f, 10.f);
+        ImGui::SliderInt("Segments", &m_num_segments, 2, 64);
+    }
+
+    bool edit(const char* label, std::unique_ptr<VisualComponent>& vc, const Scene& scene)
+    {
+        bool changed = false;
+
+        ImGui::PushID(label);
+        if(ImGui::Button("Use VAO"))
+        {
+            vc = std::make_unique<VAOComponent>();
+            changed = true;
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Use Sphere"))
+        {
+            vc = std::make_unique<SphereComponent>();
+            changed = true;
+        }
+        
+        if(vc)
+        {
+            vc->edit(scene);
+        }
+        ImGui::PopID();
+
+        return changed;
     }
 }
