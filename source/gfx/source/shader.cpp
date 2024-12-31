@@ -4,10 +4,19 @@
 
 namespace gfx
 {
-    template<GLuint shader_type>
+    static GLuint shader_type_to_gl_type(ShaderType t)
+    {
+        switch(t)
+        {
+            case ShaderType::Vertex:   return GL_VERTEX_SHADER;
+            case ShaderType::Fragment: return GL_FRAGMENT_SHADER;
+            default:                   assert(false); return 0u;
+        }
+    }
+    template<ShaderType shader_type>
     Shader<shader_type>::Shader(const char* source, std::string* error_log)
     {
-        m_id = glCreateShader(shader_type);
+        m_id = glCreateShader(shader_type_to_gl_type(shader_type));
         glShaderSource(m_id, 1, &source, nullptr);
         glCompileShader(m_id);
         
@@ -24,13 +33,13 @@ namespace gfx
             }
         }
     }
-    template<GLuint shader_type>
+    template<ShaderType shader_type>
     Shader<shader_type>::Shader(Shader&& other)
         : m_id(other.m_id)
     {
         other.m_id = 0;
     }
-    template<GLuint shader_type>
+    template<ShaderType shader_type>
     Shader<shader_type>::~Shader()
     {
         if(m_id != 0)
@@ -38,9 +47,8 @@ namespace gfx
             glDeleteShader(m_id);
         }
     }
-    template class Shader<GL_VERTEX_SHADER>;
-    template class Shader<GL_FRAGMENT_SHADER>;
-    
+    template class Shader<ShaderType::Vertex>;
+    template class Shader<ShaderType::Fragment>;
     
     ShaderProgram::ShaderProgram(const VertexShader& vshader, const FragmentShader& fshader, std::string *error_log)
     {

@@ -85,12 +85,12 @@ namespace re
         std::string m_error_log;
     };
 
-    template<unsigned shader_type>
+    template<gfx::ShaderType shader_type>
     class Shader
     {
     public:
-        static Shader create_triangle_shader() requires (shader_type == GL_VERTEX_SHADER);
-        static Shader create_triangle_shader() requires (shader_type == GL_FRAGMENT_SHADER);
+        static Shader create_triangle_shader() requires (shader_type == gfx::ShaderType::Vertex);
+        static Shader create_triangle_shader() requires (shader_type == gfx::ShaderType::Fragment);
 
         bool edit();
 
@@ -106,8 +106,8 @@ namespace re
 
         std::string m_error_log;
     };
-    using VertexShader = Shader<GL_VERTEX_SHADER>;
-    using FragmentShader = Shader<GL_FRAGMENT_SHADER>;
+    using VertexShader = Shader<gfx::ShaderType::Vertex>;
+    using FragmentShader = Shader<gfx::ShaderType::Fragment>;
 
     class ShaderProgram
     {

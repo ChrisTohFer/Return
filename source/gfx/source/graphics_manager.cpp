@@ -1,5 +1,7 @@
 #include "graphics_manager.h"
 
+#include "glad/glad.h"
+
 #include <assert.h>
 #include <cstring>
 #include <iostream>

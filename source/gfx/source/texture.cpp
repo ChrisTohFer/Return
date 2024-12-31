@@ -42,4 +42,9 @@ namespace gfx
     {
         glBindTexture(GL_TEXTURE_2D, m_id);
     }
+    
+    void unbind_texture()
+    {
+        glBindTexture(GL_TEXTURE_2D, 0u);
+    }
 }

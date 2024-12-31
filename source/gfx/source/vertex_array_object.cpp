@@ -59,4 +59,8 @@ namespace gfx
             glBindVertexArray(0);
         }
     }
+    void VertexArray::use() const
+    {
+        glBindVertexArray(m_id);
+    }
 }

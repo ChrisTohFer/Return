@@ -20,4 +20,6 @@ namespace gfx
     private:
         GLuint m_id;
     };
+
+    void unbind_texture();
 }

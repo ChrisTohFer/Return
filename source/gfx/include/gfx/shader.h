@@ -5,13 +5,17 @@
 #include "maths/maths.h"
 #include "maths/vector2.h"
 
-#include "glad/glad.h"
-
 #include <string>
 
 namespace gfx
 {
-    template<GLuint shader_type>
+    enum class ShaderType
+    {
+        Vertex,
+        Fragment
+    };
+
+    template<ShaderType shader_type>
     class Shader
     {
     public:
@@ -26,8 +30,8 @@ namespace gfx
         GLuint m_id = 0;
     };
 
-    using VertexShader   = Shader<GL_VERTEX_SHADER>;
-    using FragmentShader = Shader<GL_FRAGMENT_SHADER>;
+    using VertexShader   = Shader<ShaderType::Vertex>;
+    using FragmentShader = Shader<ShaderType::Fragment>;
 
     class ShaderProgram
     {

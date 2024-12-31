@@ -8,7 +8,6 @@
 
 #include "gfx/image.h"
 
-#include "glad/glad.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_stdlib.h"
 
@@ -146,8 +145,8 @@ namespace re
 
     //Shader ========================================================================
 
-    template <unsigned shader_type>
-    Shader<shader_type> Shader<shader_type>::create_triangle_shader() requires(shader_type == GL_VERTEX_SHADER)
+    template <gfx::ShaderType shader_type>
+    Shader<shader_type> Shader<shader_type>::create_triangle_shader() requires(shader_type == gfx::ShaderType::Vertex)
     {
         Shader shader;
         shader.m_name = "triangle";
@@ -173,8 +172,8 @@ namespace re
         return shader;
     }
 
-    template <unsigned shader_type>
-    Shader<shader_type> Shader<shader_type>::create_triangle_shader() requires(shader_type == GL_FRAGMENT_SHADER)
+    template <gfx::ShaderType shader_type>
+    Shader<shader_type> Shader<shader_type>::create_triangle_shader() requires(shader_type == gfx::ShaderType::Fragment)
     {
         Shader shader;
         shader.m_name = "triangle";
@@ -191,7 +190,7 @@ namespace re
         return shader;
     }
 
-    template <unsigned shader_type>
+    template <gfx::ShaderType shader_type>
     bool Shader<shader_type>::edit()
     {
         char label[256];
@@ -210,8 +209,8 @@ namespace re
         return changed;
     }
 
-    template class Shader<GL_VERTEX_SHADER>;
-    template class Shader<GL_FRAGMENT_SHADER>;
+    template class Shader<gfx::ShaderType::Vertex>;
+    template class Shader<gfx::ShaderType::Fragment>;
 
     //ShaderProgram =================================================================
 
@@ -304,7 +303,7 @@ namespace re
 
     static bool edit(const char*, VertexBuffer& vb)       { return vb.edit(); }
     static bool edit(const char*, ElementBuffer& eb)      { return eb.edit(); }
-    template<unsigned shader_type>
+    template<gfx::ShaderType shader_type>
     static bool edit(const char*, Shader<shader_type>& s) { return s.edit(); }
     static bool edit(const char*, ShaderProgram& sp)      { return sp.edit(); }
     static bool edit(const char*, VertexArrayObject& vao) { return vao.edit(); }

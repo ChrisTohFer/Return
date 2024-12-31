@@ -27,9 +27,8 @@ namespace re
 
             auto& vao = *entity.vao;
             auto& program = *entity.program;
-                
-            program.use();
-            glBindVertexArray(vao.id());
+            
+            //texture
             if(entity.texture)
             {
                 entity.texture->use();
@@ -40,8 +39,11 @@ namespace re
             }
             else
             {
-                glBindTexture(GL_TEXTURE_2D, 0);
+                gfx::unbind_texture();
             }
+
+            //program
+            program.use();
             gfx::set_uniform(program.uniform_location("tex"), 0);
             gfx::set_uniform(program.uniform_location("time"), (float)m_time);
             gfx::set_uniform(program.uniform_location("transform"), entity.transform());
@@ -49,6 +51,9 @@ namespace re
             gfx::set_uniform(program.uniform_location("light_direction"), m_light.direction);
             gfx::set_uniform(program.uniform_location("light_colour"), m_light.colour);
             gfx::set_uniform(program.uniform_location("ambient_colour"), m_ambient_light);
+
+            //vao
+            vao.use();
             vao.draw_triangles();
         }
     }

@@ -63,7 +63,7 @@ file(GLOB_RECURSE imgui_source "third_party/imgui/*.h" "third_party/imgui/*.cpp"
 add_library(imgui STATIC ${imgui_source})
 target_include_directories(imgui PUBLIC "third_party/imgui/include")
 target_include_directories(imgui PRIVATE "third_party/imgui/include/imgui")
-target_link_libraries(imgui PUBLIC glfw)
+target_link_libraries(imgui PRIVATE glfw)
 if(MSVC_VERSION)
 	#disable warnings for imgui as imguizmo build fails otherwise and I don't want to change third party code
 	target_compile_options(imgui PRIVATE /permissive /W0 /WX-)
@@ -83,7 +83,7 @@ target_link_libraries(editor_support PRIVATE imgui maths)
 file(GLOB_RECURSE return_source_files "source/return/*.h" "source/return/*.cpp")
 add_executable(return ${return_source_files})
 target_link_libraries(return PRIVATE GlobalSettings)
-target_link_libraries(return PRIVATE glfw glad imgui maths gfx file editor_support)
+target_link_libraries(return PRIVATE glfw imgui maths gfx file editor_support)
 
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	#debugger working directory

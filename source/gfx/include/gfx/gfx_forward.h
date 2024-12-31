@@ -1,4 +1,5 @@
 using GLuint = unsigned;
+using GLint = int;
 
 namespace gfx
 {
