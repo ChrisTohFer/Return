@@ -29,7 +29,6 @@ namespace re
         double m_time = 0.0;
         
         OrbitCamera m_camera;
-        bool m_perspective = true;
 
         const gfx::Texture* m_missing_texture;
         std::string m_missing_texture_name;

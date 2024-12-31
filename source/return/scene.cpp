@@ -16,7 +16,7 @@ namespace re
     {
         m_camera.aspect = aspect_ratio;
         m_time += dt;
-        auto cam_projection = m_perspective ? m_camera.perspective_matrix() : m_camera.orthogonal_matrix();
+        auto cam_projection = m_camera.projection_matrix();
         auto camera = cam_projection * m_camera.view_matrix();
         
         gfx::report_gl_error();
@@ -52,7 +52,7 @@ namespace re
             vao.draw_triangles();
         }
     }
-    
+
     void Scene::editor_ui(const gfx::GraphicsManager& manager)
     {
         if(ImGui::Begin("Scene"))
@@ -85,7 +85,7 @@ namespace re
             ImGui::DragFloat("fov_y", &m_camera.fov_y, 0.05f);
             ImGui::DragFloat("near", &m_camera.near);
             ImGui::DragFloat("far", &m_camera.far);
-            ImGui::Checkbox("Perspective", &m_perspective);
+            ImGui::Checkbox("Perspective", &m_camera.perspective);
 
             ImGui::SeparatorText("Entities");
             int to_remove = -1;

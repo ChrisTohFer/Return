@@ -12,13 +12,15 @@ namespace re
         float aspect = 1.f;
         float near = 0.001f;
         float far = 1000.f;
+        bool  perspective = true;
 
         //only for editor while there isn't a "Quaternion::to_euler" function
         maths::Vector3 euler = maths::Vector3::zero();
 
         maths::Matrix44 view_matrix() const;
+        maths::Matrix44 projection_matrix() const;
         maths::Matrix44 perspective_matrix() const;
-        maths::Matrix44 orthogonal_matrix() const;
+        maths::Matrix44 orthographic_matrix() const;
     };
 
     struct OrbitCamera
@@ -30,13 +32,15 @@ namespace re
         float aspect = 1.f;
         float near = 0.001f;
         float far = 1000.f;
+        bool  perspective = true;
 
         //only for editor while there isn't a "Quaternion::to_euler" function
         maths::Vector3 euler = maths::Vector3::zero();
         maths::Vector3 pos() const;
 
         maths::Matrix44 view_matrix() const;
+        maths::Matrix44 projection_matrix() const;
         maths::Matrix44 perspective_matrix() const;
-        maths::Matrix44 orthogonal_matrix() const;
+        maths::Matrix44 orthographic_matrix() const;
     };
 }
