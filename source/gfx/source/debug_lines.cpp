@@ -13,11 +13,12 @@ R"(#version 330 core
 layout (location = 0) in vec3 pos;
 
 uniform mat4 camera;
+uniform mat4 transform;
 uniform bool use_z;
 
 void main()
 {
-    gl_Position = camera * vec4(pos, 1.0f);
+    gl_Position = camera * transform * vec4(pos, 1.0f);
     if(!use_z)
     {
         gl_Position.z = -1.0f;
@@ -51,6 +52,7 @@ void main()
     void draw_line_impl(
         const std::vector<maths::Vector3>& vertices,
         const maths::Matrix44& camera,
+        const maths::Matrix44& transform,
         maths::Vector3 colour,
         bool use_z)
     {
@@ -60,6 +62,7 @@ void main()
         glBindVertexArray(vao.id());
         debug_lines_shader_program().use();
         gfx::set_uniform(debug_lines_shader_program().uniform_location("camera"), camera);
+        gfx::set_uniform(debug_lines_shader_program().uniform_location("transform"), transform);
         gfx::set_uniform(debug_lines_shader_program().uniform_location("use_z"), use_z);
         gfx::set_uniform(debug_lines_shader_program().uniform_location("colour"), colour);
         vao.draw_lines();
@@ -100,11 +103,11 @@ void main()
         }
 
         //create buffers
-        draw_line_impl(vertices, camera, colour, use_z);
+        draw_line_impl(vertices, camera, maths::Matrix44::identity(), colour, use_z);
     }
 
     void draw_sphere(
-        maths::Vector3 pos,
+        const maths::Matrix44& transform,
         float radius,
         const maths::Matrix44 &camera,
         maths::Vector3 colour,
@@ -132,37 +135,48 @@ void main()
             const float c = cos(phase);
             const float s = sin(phase);
             //xy plane
-            vertices[i * 6]     = pos + radius * (ux * previous_c + uy * previous_s);
-            vertices[i * 6 + 1] = pos + radius * (ux * c + uy * s);
+            vertices[i * 6]     = radius * (ux * previous_c + uy * previous_s);
+            vertices[i * 6 + 1] = radius * (ux * c + uy * s);
 
             //yz plane
-            vertices[i * 6 + 2] = pos + radius * (uy * previous_c + uz * previous_s);
-            vertices[i * 6 + 3] = pos + radius * (uy * c + uz * s);
+            vertices[i * 6 + 2] = radius * (uy * previous_c + uz * previous_s);
+            vertices[i * 6 + 3] = radius * (uy * c + uz * s);
 
             //zx plane
-            vertices[i * 6 + 4] = pos + radius * (uz * previous_c + ux * previous_s);
-            vertices[i * 6 + 5] = pos + radius * (uz * c + ux * s);
+            vertices[i * 6 + 4] = radius * (uz * previous_c + ux * previous_s);
+            vertices[i * 6 + 5] = radius * (uz * c + ux * s);
 
             previous_c = c;
             previous_s = s;
         }
 
         //connect start and end in each plane
-        vertices[0] = pos + radius * (ux * previous_c + uy * previous_s);
-        vertices[1] = pos + radius * (ux);
+        vertices[0] = radius * (ux * previous_c + uy * previous_s);
+        vertices[1] = radius * (ux);
 
-        vertices[2] = pos + radius * (uy * previous_c + uz * previous_s);
-        vertices[3] = pos + radius * (uy);
+        vertices[2] = radius * (uy * previous_c + uz * previous_s);
+        vertices[3] = radius * (uy);
 
-        vertices[4] = pos + radius * (uz * previous_c + ux * previous_s);
-        vertices[5] = pos + radius * (uz);
+        vertices[4] = radius * (uz * previous_c + ux * previous_s);
+        vertices[5] = radius * (uz);
 
-        draw_line_impl(vertices, camera, colour, use_z);
+        draw_line_impl(vertices, camera, transform, colour, use_z);
     }
     
-    void draw_aabb(
-        maths::Vector3 min,
-        maths::Vector3 max,
+    void draw_sphere(
+        maths::Vector3 pos,
+        float radius,
+        const maths::Matrix44 &camera,
+        maths::Vector3 colour,
+        int num_segments,
+        bool use_z)
+    {
+        draw_sphere(maths::Matrix44::from_translation(pos), radius, camera, colour, num_segments, use_z);
+    }
+
+    void draw_cube(
+        const maths::Matrix44& transform,
+        maths::Vector3 dimensions,
         const maths::Matrix44 &camera,
         maths::Vector3 colour,
         bool use_z)
@@ -170,36 +184,38 @@ void main()
         std::vector<maths::Vector3> vertices;
         vertices.reserve(24);
 
-        //square at min x
-        vertices.push_back({min.x, min.y, min.z});
-        vertices.push_back({min.x, min.y, max.z});
-        vertices.push_back({min.x, min.y, max.z});
-        vertices.push_back({min.x, max.y, max.z});
-        vertices.push_back({min.x, max.y, max.z});
-        vertices.push_back({min.x, max.y, min.z});
-        vertices.push_back({min.x, max.y, min.z});
-        vertices.push_back({min.x, min.y, min.z});
+        auto half = dimensions * 0.5f;
 
-        //square at max x
-        vertices.push_back({max.x, min.y, min.z});
-        vertices.push_back({max.x, min.y, max.z});
-        vertices.push_back({max.x, min.y, max.z});
-        vertices.push_back({max.x, max.y, max.z});
-        vertices.push_back({max.x, max.y, max.z});
-        vertices.push_back({max.x, max.y, min.z});
-        vertices.push_back({max.x, max.y, min.z});
-        vertices.push_back({max.x, min.y, min.z});
+        //square at -half x
+        vertices.push_back({-half.x, -half.y, -half.z});
+        vertices.push_back({-half.x, -half.y, half.z});
+        vertices.push_back({-half.x, -half.y, half.z});
+        vertices.push_back({-half.x, half.y, half.z});
+        vertices.push_back({-half.x, half.y, half.z});
+        vertices.push_back({-half.x, half.y, -half.z});
+        vertices.push_back({-half.x, half.y, -half.z});
+        vertices.push_back({-half.x, -half.y, -half.z});
 
-        //connect min and max x
-        vertices.push_back({min.x, min.y, min.z});
-        vertices.push_back({max.x, min.y, min.z});
-        vertices.push_back({min.x, max.y, min.z});
-        vertices.push_back({max.x, max.y, min.z});
-        vertices.push_back({min.x, max.y, max.z});
-        vertices.push_back({max.x, max.y, max.z});
-        vertices.push_back({min.x, min.y, max.z});
-        vertices.push_back({max.x, min.y, max.z});
+        //square at half x
+        vertices.push_back({half.x, -half.y, -half.z});
+        vertices.push_back({half.x, -half.y, half.z});
+        vertices.push_back({half.x, -half.y, half.z});
+        vertices.push_back({half.x, half.y, half.z});
+        vertices.push_back({half.x, half.y, half.z});
+        vertices.push_back({half.x, half.y, -half.z});
+        vertices.push_back({half.x, half.y, -half.z});
+        vertices.push_back({half.x, -half.y, -half.z});
 
-        draw_line_impl(vertices, camera, colour, use_z);
+        //connect -half and half x
+        vertices.push_back({-half.x, -half.y, -half.z});
+        vertices.push_back({half.x, -half.y, -half.z});
+        vertices.push_back({-half.x, half.y, -half.z});
+        vertices.push_back({half.x, half.y, -half.z});
+        vertices.push_back({-half.x, half.y, half.z});
+        vertices.push_back({half.x, half.y, half.z});
+        vertices.push_back({-half.x, -half.y, half.z});
+        vertices.push_back({half.x, -half.y, half.z});
+
+        draw_line_impl(vertices, camera, transform, colour, use_z);
     }
 }

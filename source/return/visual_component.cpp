@@ -118,16 +118,27 @@ namespace re
         m_texture = manager.texture(m_texture_name.c_str());
     }
 
-    void SphereComponent::draw(const maths::Matrix44& transform, const maths::Matrix44& camera, const Scene& scene) const
+    void SphereComponent::draw(const maths::Matrix44& transform, const maths::Matrix44& camera, const Scene&) const
     {
-        gfx::draw_sphere(transform.translation(), m_radius, camera, m_colour, m_num_segments);
+        gfx::draw_sphere(transform, m_radius, camera, m_colour, m_num_segments);
     }
 
-    void SphereComponent::edit(const Scene& scene)
+    void SphereComponent::edit(const Scene&)
     {
         ImGui::SliderFloat3("Colour", &m_colour.x, 0.f, 1.f);
         ImGui::SliderFloat("Radius", &m_radius, 0.01f, 10.f);
         ImGui::SliderInt("Segments", &m_num_segments, 2, 64);
+    }
+    
+    void CubeComponent::draw(const maths::Matrix44& transform, const maths::Matrix44& camera, const Scene&) const
+    {
+        gfx::draw_cube(transform, m_dimensions, camera, m_colour);
+    }
+    
+    void CubeComponent::edit(const Scene&)
+    {
+        ImGui::SliderFloat3("Colour", &m_colour.x, 0.f, 1.f);
+        ImGui::SliderFloat3("Dimensions", &m_dimensions.x, 0.f, 5.f);
     }
 
     bool edit(const char* label, std::unique_ptr<VisualComponent>& vc, const Scene& scene)
@@ -146,9 +157,16 @@ namespace re
             vc = std::make_unique<SphereComponent>();
             changed = true;
         }
+        ImGui::SameLine();
+        if(ImGui::Button("Use Cube"))
+        {
+            vc = std::make_unique<CubeComponent>();
+            changed = true;
+        }
         
         if(vc)
         {
+            //should be checking for changes internally...
             vc->edit(scene);
         }
         ImGui::PopID();

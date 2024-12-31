@@ -13,6 +13,14 @@ namespace gfx
         bool loop = false);
     
     void draw_sphere(
+        const maths::Matrix44& transform,
+        float radius,
+        const maths::Matrix44& camera,
+        maths::Vector3 colour,
+        int num_segments = 20,
+        bool use_z = true);
+    
+    void draw_sphere(
         maths::Vector3 pos,
         float radius,
         const maths::Matrix44& camera,
@@ -31,9 +39,9 @@ namespace gfx
         maths::Vector3 colour,
         bool use_z = true);
     
-    void draw_aabb(
-        maths::Vector3 min,
-        maths::Vector3 max,
+    void draw_cube(
+        const maths::Matrix44& transform,
+        maths::Vector3 dimensions,
         const maths::Matrix44& camera,
         maths::Vector3 colour,
         bool use_z = true);
