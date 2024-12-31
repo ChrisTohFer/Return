@@ -14,6 +14,8 @@ namespace re
     class VisualComponent
     {
     public:
+        virtual ~VisualComponent() = default;
+
         virtual void draw(
             const maths::Matrix44& transform,
             const maths::Matrix44& camera,
