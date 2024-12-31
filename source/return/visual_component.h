@@ -62,5 +62,20 @@ namespace re
         int m_num_segments = 20;
     };
 
+    class CubeComponent : public VisualComponent
+    {
+    public:
+        void draw(
+            const maths::Matrix44& transform,
+            const maths::Matrix44& camera,
+            const Scene&) const override;
+        void edit(const Scene&) override;
+        void relink(const Scene&) override {}
+
+    private:
+        maths::Vector3 m_dimensions = maths::Vector3::one();
+        maths::Vector3 m_colour = {1.f,0.f,0.f};
+    };
+
     bool edit(const char* label, std::unique_ptr<VisualComponent>&, const Scene&);
 }
