@@ -1,5 +1,7 @@
 #pragma once
 
+#include "maths/vector2.h"
+
 struct GLFWwindow;
 
 namespace re
@@ -16,6 +18,7 @@ namespace re
         Top7,
         Top8,
         Top9,
+
         A,
         B,
         C,
@@ -46,6 +49,15 @@ namespace re
         Count
     };
 
+    enum class MouseButton
+    {
+        Left,
+        Right,
+        Middle,
+
+        Count
+    };
+
     class InputManager
     {
     public:
@@ -53,8 +65,16 @@ namespace re
 
         void update();
         bool get_key(Key) const;
+        bool get_mouse_button(MouseButton) const;
+
+        maths::Vector2 mouse_delta() const;
+        maths::Vector2 mouse_pos() const;
+
     private:
         GLFWwindow* m_window;
-        bool m_input_consumed_by_imgui = false;
+        bool m_key_input_consumed_by_imgui = false;
+        bool m_mouse_input_consumed_by_imgui = false;
+        maths::Vector2 m_cursor_pos = { 0.f,0.f };
+        maths::Vector2 m_cursor_delta = { 0.f,0.f };
     };
 }

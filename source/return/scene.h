@@ -30,7 +30,7 @@ namespace re
         std::vector<Entity> m_entities;
         double m_time = 0.0;
         
-        OrbitCamera m_camera;
+        Camera m_camera;
 
         const gfx::Texture* m_missing_texture;
         std::string m_missing_texture_name;

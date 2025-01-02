@@ -17,6 +17,7 @@ namespace re
         GLFW_KEY_7,
         GLFW_KEY_8,
         GLFW_KEY_9,
+
         GLFW_KEY_A,
         GLFW_KEY_B,
         GLFW_KEY_C,
@@ -45,13 +46,42 @@ namespace re
         GLFW_KEY_Z,
     };
 
+    int g_mouse_conversion[(int)MouseButton::Count] =
+    {
+        GLFW_MOUSE_BUTTON_1,
+        GLFW_MOUSE_BUTTON_2,
+        GLFW_MOUSE_BUTTON_3
+    };
+
     void InputManager::update()
     {
-        m_input_consumed_by_imgui = ImGui::GetIO().WantCaptureKeyboard;
+        m_key_input_consumed_by_imgui = ImGui::GetIO().WantCaptureKeyboard;
+        m_mouse_input_consumed_by_imgui = ImGui::GetIO().WantCaptureMouse;
+
+        double x, y;
+        glfwGetCursorPos(m_window, &x, &y);
+        maths::Vector2 new_cursor_pos = { (float)x, (float)y };
+        m_cursor_delta = new_cursor_pos - m_cursor_pos;
+        m_cursor_pos = new_cursor_pos;
     }
 
     bool InputManager::get_key(Key key) const
     {
-        return !m_input_consumed_by_imgui && glfwGetKey(m_window, g_key_conversion[(int)key]);
+        return !m_key_input_consumed_by_imgui && glfwGetKey(m_window, g_key_conversion[(int)key]);
+    }
+
+    bool InputManager::get_mouse_button(MouseButton button) const
+    {
+        return !m_mouse_input_consumed_by_imgui && glfwGetMouseButton(m_window, g_mouse_conversion[(int)button]);
+    }
+
+    maths::Vector2 InputManager::mouse_delta() const
+    {
+        return m_cursor_delta;
+    }
+
+    maths::Vector2 InputManager::mouse_pos() const
+    {
+        return m_cursor_pos;
     }
 }

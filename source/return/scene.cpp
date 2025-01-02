@@ -24,7 +24,16 @@ namespace re
         if(m_input_manager.get_key(Key::A)) camera_movement.x -= dt * 5.f;
         if(m_input_manager.get_key(Key::S)) camera_movement.z += dt * 5.f;
         if(m_input_manager.get_key(Key::D)) camera_movement.x += dt * 5.f;
-        m_camera.center += m_camera.orientation * camera_movement;
+        if(m_input_manager.get_key(Key::E)) camera_movement.y += dt * 5.f;
+        if(m_input_manager.get_key(Key::C)) camera_movement.y -= dt * 5.f;
+        m_camera.pos += m_camera.orientation * camera_movement;
+
+        if (m_input_manager.get_mouse_button(MouseButton::Right))
+        {
+            auto rotation = m_input_manager.mouse_delta() * 0.002f;
+            m_camera.euler += {-rotation.y, -rotation.x};
+            m_camera.orientation = maths::Quaternion::from_euler(m_camera.euler);
+        }
 
         m_camera.aspect = aspect_ratio;
         m_time += dt;
@@ -58,12 +67,12 @@ namespace re
             }
 
             ImGui::SeparatorText("Camera");
-            ImGui::DragFloat3("Pos", &m_camera.center.x, 0.1f);
+            ImGui::DragFloat3("Pos", &m_camera.pos.x, 0.1f);
             if (ImGui::DragFloat3("Rot", &m_camera.euler.x, 0.1f))
             {
                 m_camera.orientation = maths::Quaternion::from_euler(m_camera.euler);
             }
-            ImGui::DragFloat("Orbit distance", &m_camera.orbit_distance, 0.1f);
+            //ImGui::DragFloat("Orbit distance", &m_camera.orbit_distance, 0.1f);
             ImGui::DragFloat("fov_y", &m_camera.fov_y, 0.05f);
             ImGui::DragFloat("near", &m_camera.near);
             ImGui::DragFloat("far", &m_camera.far);
