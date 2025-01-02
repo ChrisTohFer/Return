@@ -1,6 +1,8 @@
 #include "task_manager.h"
 
 #include "graphics_test.h"
+#include "input_manager.h"
+
 #include "gfx/graphics_manager.h"
 #include "gfx/graphics_core.h"
 #include "scene.h"
@@ -59,7 +61,8 @@ int main()
 
     gfx::GraphicsManager manager;
     re::GraphicsTestEditor editor;
-    re::Scene scene(manager);
+    re::InputManager input_manager(*window);
+    re::Scene scene(manager, input_manager);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -73,6 +76,7 @@ int main()
         
         gfx::clear(0.f,0.f,0.f,1.f);
 
+        input_manager.update();
         if(editor.edit())
         {
             editor.compile_assets(manager);

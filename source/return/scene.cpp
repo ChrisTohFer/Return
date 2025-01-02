@@ -12,12 +12,20 @@
 
 namespace re
 {
-    Scene::Scene(const gfx::GraphicsManager& gfx_manager)
+    Scene::Scene(const gfx::GraphicsManager& gfx_manager, const InputManager& input_manager)
         : m_gfx_manager(gfx_manager)
+        , m_input_manager(input_manager)
     {}
 
     void Scene::update_and_draw(float dt, float aspect_ratio)
     {
+        maths::Vector3 camera_movement = maths::Vector3::zero();
+        if(m_input_manager.get_key(Key::W)) camera_movement.z -= dt * 5.f;
+        if(m_input_manager.get_key(Key::A)) camera_movement.x -= dt * 5.f;
+        if(m_input_manager.get_key(Key::S)) camera_movement.z += dt * 5.f;
+        if(m_input_manager.get_key(Key::D)) camera_movement.x += dt * 5.f;
+        m_camera.center += m_camera.orientation * camera_movement;
+
         m_camera.aspect = aspect_ratio;
         m_time += dt;
         auto cam_projection = m_camera.projection_matrix();

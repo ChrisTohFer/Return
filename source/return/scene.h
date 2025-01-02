@@ -3,6 +3,7 @@
 #include "camera.h"
 #include "entity.h"
 #include "lights.h"
+#include "input_manager.h"
 
 #include "maths/maths.h"
 #include "gfx/graphics_manager.h"
@@ -14,7 +15,7 @@ namespace re
     class Scene
     {
     public:
-        Scene(const gfx::GraphicsManager&);
+        Scene(const gfx::GraphicsManager&, const InputManager&);
         void update_and_draw(float dt, float aspect_ratio);
 
         void editor_ui();
@@ -37,6 +38,7 @@ namespace re
         AmbientLight m_ambient;
 
         const gfx::GraphicsManager& m_gfx_manager;
+        const InputManager& m_input_manager;
     };
 
 
