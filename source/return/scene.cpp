@@ -4,6 +4,7 @@
 
 #include "editor_support/imgui_helpers.h"
 #include "gfx/debug_lines.h"
+#include "editor_support/file_dialog.h"
 
 #include "imgui/imgui.h"
 #include "imgui/ImGuizmo.h"
@@ -19,6 +20,7 @@ namespace re
 
     void Scene::update_and_draw(float dt, float aspect_ratio)
     {
+        m_dt = dt;
         maths::Vector3 camera_movement = maths::Vector3::zero();
         if(m_input_manager.get_key(Key::W)) camera_movement.z -= dt * 5.f;
         if(m_input_manager.get_key(Key::A)) camera_movement.x -= dt * 5.f;
@@ -55,20 +57,36 @@ namespace re
     {
         if(ImGui::Begin("Scene"))
         {
-            if (ImGui::BeginCombo("Missing texture", m_missing_texture_name.c_str()))
+            static bool saving = false;
+            if (ImGui::Button("Save"))
             {
-                for (auto& texture : m_gfx_manager.texture_names())
-                {
-                    const bool selected = texture == m_missing_texture_name;
-                    if (ImGui::Selectable(texture.c_str(), selected) && !selected)
-                    {
-                        m_missing_texture_name = texture;
-                        m_missing_texture = m_gfx_manager.texture(texture.c_str());
-                    }
-                }
-                ImGui::EndCombo();
+                saving = true;
+                save_file_dialog({ file::get_data_path(""), ".scene" });
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Load"))
+            {
+                saving = false;
+                open_file_dialog({ file::get_data_path(""), ".scene" });
             }
 
+            auto result = update_file_dialog();
+            if (result)
+            {
+                if (saving)
+                {
+                    auto file = file::FileOut::from_absolute(result->result_path.string().c_str());
+                    write(file);
+                }
+                else
+                {
+                    auto file = file::FileIn::from_absolute(result->result_path.string().c_str());
+                    read(file);
+                    relink_assets();
+                }
+            }
+
+            ImGui::Text("DT: %f", m_dt);
             ImGui::SeparatorText("Camera");
             ImGui::DragFloat3("Pos", &m_camera.pos.x, 0.1f);
             if (ImGui::DragFloat3("Rot", &m_camera.euler.x, 0.1f))
@@ -82,51 +100,83 @@ namespace re
             ImGui::Checkbox("Perspective", &m_camera.perspective);
 
             ImGui::SeparatorText("Entities");
-            int to_remove = -1;
-            for(int i = 0; i < m_entities.size(); ++i)
+            if (ImGui::Button("Paste"))
             {
-                auto& entity = m_entities[i];
-                imhelp::Indent indentation;
-                ImGuizmo::PushID(&entity);
-                ImGui::PushID(&entity);
-                ImGui::Separator();
-                if (ImGui::Button("Clear entity"))
+                Entity e;
+                e.pos = m_clipboard.pos;
+                e.orientation = m_clipboard.orientation;
+                e.scale = m_clipboard.scale;
+                e.euler = m_clipboard.euler;
+                if (m_clipboard.visual_component)
                 {
-                    to_remove = i;
+                    e.visual_component = m_clipboard.visual_component->clone();
+                    e.visual_component->relink(*this);
                 }
-                ImGui::DragFloat3("Pos", &entity.pos.x, 0.1f);
-                ImGui::DragFloat3("Scale", &entity.scale.x, 0.1f);
-
-                auto transform = entity.transform();
-                if (ImGuizmo::Manipulate(
-                    m_camera.view_matrix().values,
-                    m_camera.perspective_matrix().values,
-                    ImGuizmo::OPERATION::TRANSLATE | ImGuizmo::OPERATION::ROTATE,
-                    ImGuizmo::MODE::LOCAL,
-                    transform.values))
-                {
-                    entity.euler = transform.euler();
-                    entity.pos = transform.translation();
-                    entity.orientation = maths::Quaternion::from_euler(entity.euler);
-                }
-                if (ImGui::DragFloat3("Rot", &entity.euler.x, 0.1f))
-                {
-                    entity.orientation = maths::Quaternion::from_euler(entity.euler);
-                }
-
-                edit("Test", entity.visual_component, *this);
-
-                ImGui::PopID();
-                ImGuizmo::PopID();
+                m_entities.push_back(std::move(e));
             }
+            ImGui::Checkbox("Show gizmos", &m_show_gizmos);
+            ImGui::Text("Count: %d", (int)m_entities.size());
 
-            if (to_remove != -1)
+            if (ImGui::CollapsingHeader("Entities"))
             {
-                m_entities.erase(m_entities.begin() + to_remove);
-            }
-            if (ImGui::Button("Add"))
-            {
-                m_entities.push_back({});
+                int to_remove = -1;
+                for(int i = 0; i < m_entities.size(); ++i)
+                {
+                    auto& entity = m_entities[i];
+                    imhelp::Indent indentation;
+                    ImGuizmo::PushID(&entity);
+                    ImGui::PushID(&entity);
+                    ImGui::Separator();
+                    if (ImGui::Button("Clear entity"))
+                    {
+                        to_remove = i;
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Copy"))
+                    {
+                        m_clipboard.pos = entity.pos;
+                        m_clipboard.orientation = entity.orientation;
+                        m_clipboard.scale = entity.scale;
+                        m_clipboard.euler = entity.euler;
+                        if (entity.visual_component)
+                        {
+                            m_clipboard.visual_component = entity.visual_component->clone();
+                        }
+                    }
+                    ImGui::DragFloat3("Pos", &entity.pos.x, 0.1f);
+                    ImGui::DragFloat3("Scale", &entity.scale.x, 0.1f);
+
+                    auto transform = entity.transform();
+                    if (m_show_gizmos && ImGuizmo::Manipulate(
+                        m_camera.view_matrix().values,
+                        m_camera.perspective_matrix().values,
+                        ImGuizmo::OPERATION::TRANSLATE | ImGuizmo::OPERATION::ROTATE,
+                        ImGuizmo::MODE::LOCAL,
+                        transform.values))
+                    {
+                        entity.euler = transform.euler();
+                        entity.pos = transform.translation();
+                        entity.orientation = maths::Quaternion::from_euler(entity.euler);
+                    }
+                    if (ImGui::DragFloat3("Rot", &entity.euler.x, 0.1f))
+                    {
+                        entity.orientation = maths::Quaternion::from_euler(entity.euler);
+                    }
+
+                    edit("Test", entity.visual_component, *this);
+
+                    ImGui::PopID();
+                    ImGuizmo::PopID();
+                }
+
+                if (to_remove != -1)
+                {
+                    m_entities.erase(m_entities.begin() + to_remove);
+                }
+                if (ImGui::Button("Add"))
+                {
+                    m_entities.push_back({});
+                }
             }
         }
         ImGui::End();
@@ -134,7 +184,6 @@ namespace re
     
     void Scene::relink_assets()
     {
-        m_missing_texture = m_gfx_manager.texture(m_missing_texture_name.c_str());
         for(auto& entity : m_entities)
         {
             entity.visual_component->relink(*this);

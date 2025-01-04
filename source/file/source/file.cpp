@@ -1,5 +1,8 @@
 #include "file.h"
 
+#include "maths/maths.h"
+#include "maths/vector2.h"
+
 #include <assert.h>
 #include <cstring>
 #include <filesystem>
@@ -91,6 +94,12 @@ namespace file
         return *this;
     }
 
+    FileOut& FileOut::operator<<(const maths::Vector2& value)    { write(value); return *this; }
+    FileOut& FileOut::operator<<(const maths::Vector3& value)    { write(value); return *this; }
+    FileOut& FileOut::operator<<(const maths::Quaternion& value) { write(value); return *this; }
+    FileOut& FileOut::operator<<(const maths::Matrix34& value)   { write(value); return *this; }
+    FileOut& FileOut::operator<<(const maths::Matrix44& value)   { write(value); return *this; }
+
     void FileOut::write(const void* data, size_t size)
     {
         m_impl->file.write(reinterpret_cast<const char*>(data), size);
@@ -157,6 +166,12 @@ namespace file
         }
         return *this;
     }
+
+    FileIn& FileIn::operator>>(maths::Vector2& value)    { read(value); return *this; }
+    FileIn& FileIn::operator>>(maths::Vector3& value)    { read(value); return *this; }
+    FileIn& FileIn::operator>>(maths::Quaternion& value) { read(value); return *this; }
+    FileIn& FileIn::operator>>(maths::Matrix34& value)   { read(value); return *this; }
+    FileIn& FileIn::operator>>(maths::Matrix44& value)   { read(value); return *this; }
 
     bool FileIn::read(void* data, size_t size)
     {

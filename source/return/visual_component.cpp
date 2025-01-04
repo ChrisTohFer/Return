@@ -10,11 +10,72 @@
 
 namespace re
 {
+    file::FileOut& operator<<(file::FileOut& f, const std::unique_ptr<VisualComponent>& vc)
+    {
+        f << (vc != nullptr);
+        if (vc == nullptr)
+        {
+            return f;
+        }
+
+        auto type = vc->type();
+        f << type;
+
+        switch (type)
+        {
+        case VisualComponentType::VAO:    static_cast<VAOComponent*>(vc.get())->write(f); break;
+        case VisualComponentType::Sphere: static_cast<SphereComponent*>(vc.get())->write(f); break;
+        case VisualComponentType::Cube:   static_cast<CubeComponent*>(vc.get())->write(f); break;
+        }
+
+        return f;
+    }
+
+    file::FileIn& operator>>(file::FileIn& f, std::unique_ptr<VisualComponent>& vc)
+    {
+        bool valid;
+        f >> valid;
+        if (!valid)
+        {
+            return f;
+        }
+
+        VisualComponentType type;
+        f >> type;
+
+        switch (type)
+        {
+        case VisualComponentType::VAO:
+        {
+            auto component = std::make_unique<VAOComponent>();
+            component->read(f);
+            vc = std::move(component);
+            break;
+        }
+        case VisualComponentType::Sphere:
+        {
+            auto component = std::make_unique<SphereComponent>();
+            component->read(f);
+            vc = std::move(component);
+            break;
+        }
+        case VisualComponentType::Cube:
+        {
+            auto component = std::make_unique<CubeComponent>();
+            component->read(f);
+            vc = std::move(component);
+            break;
+        }
+        }
+
+        return f;
+    }
+
     void VAOComponent::draw(
         const maths::Matrix44& transform,
-        const maths::Matrix44& camera,
-        const Scene& scene,
-        gfx::BatchRenderer& batch_renderer) const
+        [[maybe_unused]] const maths::Matrix44& camera,
+        [[maybe_unused]] const Scene& scene,
+        [[maybe_unused]] gfx::BatchRenderer& batch_renderer) const
     {
         if(m_vao == nullptr || m_program == nullptr) return;
 #if 1

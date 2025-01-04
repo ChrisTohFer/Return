@@ -73,6 +73,7 @@ endif()
 create_library_target(maths)
 
 create_library_target(file)
+target_link_libraries(file PRIVATE maths)
 
 create_library_target(gfx)
 target_link_libraries(gfx PRIVATE glad stb_image maths file)

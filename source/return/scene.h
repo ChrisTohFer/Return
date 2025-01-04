@@ -16,6 +16,8 @@ namespace re
     class Scene
     {
     public:
+        DEFINE_SERIALIZATION_FUNCTIONS(m_entities, m_time, m_camera, m_light, m_ambient);
+
         Scene(const gfx::GraphicsManager&, const InputManager&);
         void update_and_draw(float dt, float aspect_ratio);
 
@@ -35,10 +37,12 @@ namespace re
         
         Camera m_camera;
 
-        const gfx::Texture* m_missing_texture;
-        std::string m_missing_texture_name;
         DirectionalLight m_light;
         AmbientLight m_ambient;
+
+        Entity m_clipboard;
+        bool m_show_gizmos = true;
+        float m_dt;
 
         const gfx::GraphicsManager& m_gfx_manager;
         const InputManager& m_input_manager;

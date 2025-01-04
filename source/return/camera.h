@@ -2,10 +2,14 @@
 
 #include "maths/maths.h"
 
+#include "file/file.h"
+
 namespace re
 {
     struct Camera
     {
+        DEFINE_SERIALIZATION_FUNCTIONS(pos, orientation, fov_y, aspect, near, far, perspective, euler);
+
         maths::Vector3 pos = maths::Vector3(0.f, 0.f, 5.f);
         maths::Quaternion orientation = maths::Quaternion::identity();
         float fov_y = 1.f;
@@ -25,6 +29,8 @@ namespace re
 
     struct OrbitCamera
     {
+        DEFINE_SERIALIZATION_FUNCTIONS(center, orientation, fov_y, aspect, near, far, perspective, euler);
+
         maths::Vector3 center = maths::Vector3(0.f, 0.f, 0.f);
         maths::Quaternion orientation = maths::Quaternion::identity();
         float orbit_distance = 5.f;

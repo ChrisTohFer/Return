@@ -3,6 +3,7 @@
 #include "visual_component.h"
 
 #include "maths/maths.h"
+#include "file/file.h"
 
 #include <memory>
 
@@ -10,6 +11,8 @@ namespace re
 {
     struct Entity
     {
+        DEFINE_SERIALIZATION_FUNCTIONS(pos, scale, orientation, euler, visual_component);
+
         Entity()
         {
             visual_component = std::make_unique<VAOComponent>();

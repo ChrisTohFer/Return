@@ -1,5 +1,7 @@
 #pragma once
 
+#include "maths/maths_forward.h"
+
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -51,6 +53,13 @@ namespace file
         FileOut& operator<<(const bool&);
         FileOut& operator<<(const std::string&);
         FileOut& operator<<(const char*);
+
+        FileOut& operator<<(const maths::Vector2&);
+        FileOut& operator<<(const maths::Vector3&);
+        FileOut& operator<<(const maths::Quaternion&);
+        FileOut& operator<<(const maths::Matrix34&);
+        FileOut& operator<<(const maths::Matrix44&);
+
         template<typename ElementT>
         FileOut& operator<<(const ElementT&);
         template<typename ElementT>
@@ -92,6 +101,13 @@ namespace file
         FileIn& operator>>(double&);
         FileIn& operator>>(bool&);
         FileIn& operator>>(std::string&);
+
+        FileIn& operator>>(maths::Vector2&);
+        FileIn& operator>>(maths::Vector3&);
+        FileIn& operator>>(maths::Quaternion&);
+        FileIn& operator>>(maths::Matrix34&);
+        FileIn& operator>>(maths::Matrix44&);
+
         template<typename ElementT>
         FileIn& operator>>(ElementT&);
         template<typename ElementT>
