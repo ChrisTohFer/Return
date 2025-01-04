@@ -6,4 +6,6 @@ namespace gfx
     class VertexArray;
     class ShaderProgram;
     class Texture;
+
+    class BatchRenderer;
 }

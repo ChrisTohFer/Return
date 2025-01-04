@@ -13,10 +13,13 @@ namespace re
     void VAOComponent::draw(
         const maths::Matrix44& transform,
         const maths::Matrix44& camera,
-        const Scene& scene) const
+        const Scene& scene,
+        gfx::BatchRenderer& batch_renderer) const
     {
         if(m_vao == nullptr || m_program == nullptr) return;
-
+#if 1
+        batch_renderer.add_instance(*m_vao, *m_program, m_texture, transform);
+#else
         auto& vao = *m_vao;
         auto& program = *m_program;
         
@@ -43,6 +46,7 @@ namespace re
         //vao
         vao.use();
         vao.draw_triangles();
+#endif
     }
 
     void VAOComponent::edit(const Scene& scene)
@@ -118,7 +122,7 @@ namespace re
         m_texture = manager.texture(m_texture_name.c_str());
     }
 
-    void SphereComponent::draw(const maths::Matrix44& transform, const maths::Matrix44& camera, const Scene&) const
+    void SphereComponent::draw(const maths::Matrix44& transform, const maths::Matrix44& camera, const Scene&, gfx::BatchRenderer&) const
     {
         gfx::draw_sphere(transform, m_radius, camera, m_colour, m_num_segments);
     }
@@ -130,7 +134,7 @@ namespace re
         ImGui::SliderInt("Segments", &m_num_segments, 2, 64);
     }
     
-    void CubeComponent::draw(const maths::Matrix44& transform, const maths::Matrix44& camera, const Scene&) const
+    void CubeComponent::draw(const maths::Matrix44& transform, const maths::Matrix44& camera, const Scene&, gfx::BatchRenderer&) const
     {
         gfx::draw_cube(transform, m_dimensions, camera, m_colour);
     }

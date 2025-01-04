@@ -6,6 +6,7 @@
 #include "input_manager.h"
 
 #include "maths/maths.h"
+#include "gfx/batch_renderer.h"
 #include "gfx/graphics_manager.h"
 
 #include <vector>
@@ -26,6 +27,8 @@ namespace re
         float time() const { return (float)m_time; }
         const gfx::GraphicsManager& gfx_manager() const { return m_gfx_manager; }
 
+        gfx::BatchRenderer& batch_renderer() { return m_batch_renderer; }
+
     private:
         std::vector<Entity> m_entities;
         double m_time = 0.0;
@@ -39,6 +42,7 @@ namespace re
 
         const gfx::GraphicsManager& m_gfx_manager;
         const InputManager& m_input_manager;
+        gfx::BatchRenderer m_batch_renderer;
     };
 
 

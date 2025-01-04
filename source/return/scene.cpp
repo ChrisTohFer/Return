@@ -44,8 +44,11 @@ namespace re
         
         for(auto& entity : m_entities)
         {
-            entity.visual_component->draw(entity.transform(), camera, *this);
+            entity.visual_component->draw(entity.transform(), camera, *this, m_batch_renderer);
         }
+
+        m_batch_renderer.draw_all((float)m_time, m_camera.view_matrix(), m_camera.projection_matrix());
+        m_batch_renderer.clear();
     }
 
     void Scene::editor_ui()

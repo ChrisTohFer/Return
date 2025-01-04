@@ -20,7 +20,8 @@ namespace re
         virtual void draw(
             const maths::Matrix44& transform,
             const maths::Matrix44& camera,
-            const Scene&) const = 0;
+            const Scene&,
+            gfx::BatchRenderer&) const = 0;
         virtual void edit(const Scene&) = 0;
         virtual void relink(const Scene&) = 0;
     };
@@ -31,7 +32,8 @@ namespace re
         void draw(
             const maths::Matrix44& transform,
             const maths::Matrix44& camera,
-            const Scene&) const override;
+            const Scene&,
+            gfx::BatchRenderer&) const override;
         void edit(const Scene&) override;
         void relink(const Scene&) override;
 
@@ -52,7 +54,8 @@ namespace re
         void draw(
             const maths::Matrix44& transform,
             const maths::Matrix44& camera,
-            const Scene&) const override;
+            const Scene&,
+            gfx::BatchRenderer&) const override;
         void edit(const Scene&) override;
         void relink(const Scene&) override {}
 
@@ -68,7 +71,8 @@ namespace re
         void draw(
             const maths::Matrix44& transform,
             const maths::Matrix44& camera,
-            const Scene&) const override;
+            const Scene&,
+            gfx::BatchRenderer&) const override;
         void edit(const Scene&) override;
         void relink(const Scene&) override {}
 
