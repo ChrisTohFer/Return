@@ -43,6 +43,7 @@ namespace re
         Entity m_clipboard;
         bool m_show_gizmos = true;
         float m_dt;
+        float m_draw_time;
 
         const gfx::GraphicsManager& m_gfx_manager;
         const InputManager& m_input_manager;

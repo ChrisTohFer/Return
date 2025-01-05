@@ -20,15 +20,14 @@ graphics stuff:
 -try more graphics things
     -vfx
 -add more debug visualisation
+    -rework attribute pointers to have consistent locations based on type
     -capsules
     -frustum
-    -non-aligned cuboids
     -support frame/time duration
 -make graphics classes more flexible
     -streaming vs static data
     -triangles vs lines
     -try to avoid gl_ functions leaking out of classes by refactoring api
-    -try to avoid leaking glad headers
 
 new systems:
 -collision detection

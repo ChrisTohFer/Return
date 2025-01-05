@@ -1,5 +1,7 @@
 #include "scene.h"
 
+#include "timer.h"
+
 #include "maths/maths.h"
 
 #include "editor_support/imgui_helpers.h"
@@ -44,6 +46,8 @@ namespace re
         
         gfx::report_gl_error();
         
+        Timer draw_timer;
+
         for(auto& entity : m_entities)
         {
             entity.visual_component->draw(entity.transform(), camera, *this, m_batch_renderer);
@@ -51,6 +55,8 @@ namespace re
 
         m_batch_renderer.draw_all((float)m_time, m_camera.view_matrix(), m_camera.projection_matrix());
         m_batch_renderer.clear();
+
+        m_draw_time = draw_timer.age_seconds();
     }
 
     void Scene::editor_ui()
@@ -87,6 +93,7 @@ namespace re
             }
 
             ImGui::Text("DT: %f", m_dt);
+            ImGui::Text("Draw time: %f", m_draw_time);
             ImGui::SeparatorText("Camera");
             ImGui::DragFloat3("Pos", &m_camera.pos.x, 0.1f);
             if (ImGui::DragFloat3("Rot", &m_camera.euler.x, 0.1f))
