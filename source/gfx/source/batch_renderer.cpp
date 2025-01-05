@@ -2,7 +2,10 @@
 
 #include "shader.h"
 #include "texture.h"
+#include "vertex_buffer.h"
 #include "vertex_array_object.h"
+#include "graphics_manager.h"
+
 
 #include <algorithm>
 
@@ -85,11 +88,8 @@ namespace gfx
                     else
                         unbind_texture();
                     
-                    for(auto& transform : tbatch.transforms)
-                    {
-                        set_uniform(sbatch.program->uniform_location("transform"), transform);
-                        abatch.vao->draw_triangles();
-                    }
+                    VertexBuffer instances(tbatch.transforms.data(), tbatch.transforms.size(), {BufferAttributeType::InstanceTransform});
+                    abatch.vao->draw_triangles(&instances);
                 }
             }
         }

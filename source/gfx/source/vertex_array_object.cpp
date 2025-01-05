@@ -33,26 +33,48 @@ namespace gfx
             glDeleteVertexArrays(1, &m_id);
         }
     }
-    void VertexArray::draw_triangles() const
+    void VertexArray::draw_triangles(const VertexBuffer* instance_buffer) const
     {
         if(m_id != 0 && m_vb != nullptr)
         {
-            glBindVertexArray(m_id);
-            if (m_eb)
+            if(instance_buffer)
             {
-                glDrawElements(GL_TRIANGLES, m_eb->triangle_count() * 3, GL_UNSIGNED_INT, nullptr);
+                instance_buffer->bind_attributes();
+                if (m_eb)
+                {
+                    glDrawElementsInstanced(GL_TRIANGLES, m_eb->triangle_count() * 3, GL_UNSIGNED_INT, nullptr, instance_buffer->vertex_count());
+                }
+                else
+                {
+                    glDrawArraysInstanced(GL_TRIANGLES, 0, m_vb->vertex_count(), instance_buffer->vertex_count());
+                }
             }
             else
             {
-                glDrawArrays(GL_TRIANGLES, 0, m_vb->vertex_count());
+                if (m_eb)
+                {
+                    glDrawElements(GL_TRIANGLES, m_eb->triangle_count() * 3, GL_UNSIGNED_INT, nullptr);
+                }
+                else
+                {
+                    glDrawArrays(GL_TRIANGLES, 0, m_vb->vertex_count());
+                }
             }
-            glBindVertexArray(0);
         }
     }
-    void VertexArray::draw_lines() const
+    void VertexArray::draw_lines(const VertexBuffer* instance_buffer) const
     {
         if(m_id != 0 && m_vb != nullptr)
         {
+            if(instance_buffer)
+            {
+                instance_buffer->bind_attributes();
+                glDrawArraysInstanced(GL_LINES, 0, m_vb->vertex_count(), instance_buffer->vertex_count());
+            }
+            else
+            {
+                glDrawArrays(GL_LINES, 0, m_vb->vertex_count());
+            }
             glBindVertexArray(m_id);
             glDrawArrays(GL_LINES, 0, m_vb->vertex_count());
             glBindVertexArray(0);

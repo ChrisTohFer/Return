@@ -34,9 +34,7 @@ namespace gfx
         uint64_t offset = 0;
         for(auto& component : m_components)
         {
-            glVertexAttribPointer((int)component, attribute_opengl_count(component), attribute_opengl_type(component), GL_FALSE, stride, (void*)offset);
-            glEnableVertexAttribArray((int)component);
-            glVertexAttribDivisor((int)component, attribute_instanced(component) ? 1 : 0);
+            bind_attribute(component, stride, offset);
             offset += attribute_size(component); 
         }
     }

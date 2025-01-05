@@ -3,11 +3,13 @@
 #include "maths/maths.h"
 #include "maths/vector2.h"
 
+#include <cstdint>
+
 namespace gfx
 {
     enum class BufferAttributeType
     {
-        #define DEFINE_VERTEX_ATTRIBUTE(a, b, c, d, e) a,
+        #define DEFINE_VERTEX_ATTRIBUTE(a, b, c, d, e, f) a,
         #include "buffer_attributes.inl"
         #undef DEFINE_VERTEX_ATTRIBUTE
 
@@ -19,11 +21,12 @@ namespace gfx
         const char* name; 
         int size;
         bool instanced;
+        int location;
     };
 
     constexpr BufferAttributeInfo c_buffer_attribute_info[(int)BufferAttributeType::Num] =
     {
-        #define DEFINE_VERTEX_ATTRIBUTE(a, b, c, d, e) { #a , sizeof(b), e },
+        #define DEFINE_VERTEX_ATTRIBUTE(a, b, c, d, e, f) { #a , sizeof(b), e, f },
         #include "buffer_attributes.inl"
         #undef DEFINE_VERTEX_ATTRIBUTE
     };
@@ -43,8 +46,11 @@ namespace gfx
         return c_buffer_attribute_info[(int)type].instanced;
     }
 
-    int vertex_size(const BufferAttributeType*, int n);
+    constexpr int attribute_location(BufferAttributeType type)
+    {
+        return c_buffer_attribute_info[(int)type].location;
+    }
 
-    int attribute_opengl_type(BufferAttributeType);
-    int attribute_opengl_count(BufferAttributeType);
+    int vertex_size(const BufferAttributeType*, int n);
+    void bind_attribute(BufferAttributeType type, int stride, uint64_t offset);
 }
