@@ -8,7 +8,7 @@
 
 namespace gfx
 {
-    DEFINE_ENUM_SERIALIZE_FUNCTIONS(VertexComponent)
+    DEFINE_ENUM_SERIALIZE_FUNCTIONS(gfx::BufferAttributeType)
 }
 
 namespace re
@@ -24,7 +24,7 @@ namespace re
         std::string& error_log() { return m_error_log; }
         int total_size() const { return vertex_size() * m_num_vertices; }
         const void* data() const { return m_data.data(); }
-        const std::vector<gfx::VertexComponent>& components() const { return m_components; }
+        const std::vector<gfx::BufferAttributeType>& components() const { return m_components; }
         int vertex_size() const;
         int num_vertices() const { return m_num_vertices; }
 
@@ -34,7 +34,7 @@ namespace re
         bool edit_vertex(int i);
 
         std::string m_name;
-        std::vector<gfx::VertexComponent> m_components;
+        std::vector<gfx::BufferAttributeType> m_components;
         std::vector<uint8_t> m_data;
         int m_num_vertices = 0;
 

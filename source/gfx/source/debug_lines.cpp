@@ -56,7 +56,7 @@ void main()
         maths::Vector3 colour,
         bool use_z)
     {
-        VertexBuffer vbuffer(vertices.data(), (int)vertices.size(), { VertexComponent::Vec3 });
+        VertexBuffer vbuffer(vertices.data(), (int)vertices.size(), { BufferAttributeType::Translation });
         VertexArray vao(vbuffer, nullptr);
 
         glBindVertexArray(vao.id());

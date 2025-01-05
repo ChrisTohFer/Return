@@ -4,7 +4,7 @@
 
 namespace gfx
 {
-    VertexBuffer::VertexBuffer(const void* data, int vertex_count, const std::vector<VertexComponent>& components)
+    VertexBuffer::VertexBuffer(const void* data, int vertex_count, const std::vector<BufferAttributeType>& components)
         : m_vertex_count(vertex_count)
         , m_components(components)
     {
@@ -28,22 +28,16 @@ namespace gfx
     }
     void VertexBuffer::bind_attributes() const
     {
+        glBindBuffer(GL_ARRAY_BUFFER, m_id);
+        
         auto stride = vertex_size(m_components.data(), (int)m_components.size());
         uint64_t offset = 0;
-        for(int i = 0; i < m_components.size(); ++i)
+        for(auto& component : m_components)
         {
-            auto component = m_components[i];
-            switch(component)
-            {
-            case VertexComponent::Float: glVertexAttribPointer(i, 1, GL_FLOAT, GL_FALSE, stride, (void*)offset); break;
-            case VertexComponent::Int:   glVertexAttribPointer(i, 1, GL_INT,   GL_FALSE, stride, (void*)offset); break;
-            case VertexComponent::Bool:  glVertexAttribPointer(i, 1, GL_BOOL,  GL_FALSE, stride, (void*)offset); break;
-            case VertexComponent::Vec2:  glVertexAttribPointer(i, 2, GL_FLOAT, GL_FALSE, stride, (void*)offset); break;
-            case VertexComponent::Vec3:  glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset); break;
-            default: break;
-            }
-            offset += component_size(component); 
-            glEnableVertexAttribArray(i);
+            glVertexAttribPointer((int)component, attribute_opengl_count(component), attribute_opengl_type(component), GL_FALSE, stride, (void*)offset);
+            glEnableVertexAttribArray((int)component);
+            glVertexAttribDivisor((int)component, attribute_instanced(component) ? 1 : 0);
+            offset += attribute_size(component); 
         }
     }
 }

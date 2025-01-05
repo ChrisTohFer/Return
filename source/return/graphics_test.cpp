@@ -16,11 +16,25 @@
 
 namespace gfx
 {
-    static bool edit(const char* label, gfx::VertexComponent& vt)
+    static bool edit(const char* label, gfx::BufferAttributeType& type)
     {
-        int index = (int)vt;
-        bool changed = ImGui::Combo(label, &index, gfx::g_vertex_component_names, (int)gfx::VertexComponent::Num);
-        vt = gfx::VertexComponent(index);
+        bool changed = false;
+        int index = (int)type;
+        if(ImGui::BeginCombo(label, gfx::attribute_name(type)))
+        {
+            for(int i = 0; i < (int)gfx::BufferAttributeType::Num; ++i)
+            {
+                const bool selected = index == i;
+                if(ImGui::Selectable(gfx::attribute_name((gfx::BufferAttributeType)i), &selected) && !selected)
+                {
+                    changed = true;
+                    type = (gfx::BufferAttributeType) i;
+                }
+            }
+
+            ImGui::EndCombo();
+        }
+
         return changed;
     }
 }
@@ -33,9 +47,11 @@ namespace re
     {
         VertexBuffer triangle_buffer;
         triangle_buffer.m_name = "triangle";
-        triangle_buffer.m_components = { gfx::VertexComponent::Vec3, gfx::VertexComponent::Vec2 };
+        triangle_buffer.m_components = { gfx::BufferAttributeType::Translation, gfx::BufferAttributeType::TextureUVs };
         triangle_buffer.m_num_vertices = 3;
-        triangle_buffer.m_data.resize(3 * (sizeof(maths::Vector3) + sizeof(maths::Vector2)));
+        triangle_buffer.m_data.resize(
+            triangle_buffer.m_num_vertices *
+            gfx::vertex_size(triangle_buffer.m_components.data(), (int)triangle_buffer.m_components.size()));
 
         auto* floats = reinterpret_cast<float*>(triangle_buffer.m_data.data());
         floats[0] = -0.5f; floats[1] = -0.5f; floats[2] = 0.f; floats[3] = -0.5f; floats[4] = -0.5f;
@@ -96,15 +112,13 @@ namespace re
             ImGui::PushID(component_index);
             switch (component)
             {
-            case gfx::VertexComponent::Float: if (imhelp::edit("", *reinterpret_cast<float*>(element)))         changed = true; break;
-            case gfx::VertexComponent::Int:   if (imhelp::edit("", *reinterpret_cast<int*>(element)))           changed = true; break;
-            case gfx::VertexComponent::Bool:  if (imhelp::edit("", *reinterpret_cast<bool*>(element)))          changed = true; break;
-            case gfx::VertexComponent::Vec2:  if (imhelp::edit("", *reinterpret_cast<maths::Vector2*>(element))) changed = true; break;
-            case gfx::VertexComponent::Vec3:  if (imhelp::edit("", *reinterpret_cast<maths::Vector3*>(element))) changed = true; break;
+            case gfx::BufferAttributeType::Translation:        if (imhelp::edit("", *reinterpret_cast<maths::Vector3*>(element))) changed = true; break;
+            case gfx::BufferAttributeType::TextureUVs:         if (imhelp::edit("", *reinterpret_cast<maths::Vector2*>(element))) changed = true; break;
+            case gfx::BufferAttributeType::InstanceTransform:  break;
             }
             ImGui::PopID();
 
-            element += gfx::component_size(component);
+            element += gfx::attribute_size(component);
         }
         return changed;
     }

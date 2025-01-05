@@ -13,7 +13,6 @@ namespace gfx
     {
         glGenVertexArrays(1, &m_id);
         glBindVertexArray(m_id);
-        glBindBuffer(GL_ARRAY_BUFFER, vb.id());
         m_vb->bind_attributes();
         if (m_eb)
         {
