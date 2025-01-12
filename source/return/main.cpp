@@ -60,6 +60,9 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
+    auto& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
     gfx::GraphicsManager manager;
     re::GraphicsTestEditor editor;
     re::InputManager input_manager(*window);

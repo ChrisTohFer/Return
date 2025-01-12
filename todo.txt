@@ -7,6 +7,9 @@ file/management stuff:
 -make entities serializable (prefabs)
 -Should scenes/entities be the same thing? (like godot)
 
+editor stuff:
+-Update camera bounds based on dockspace info
+
 scene stuff:
 -add more capabilities to scene:
     -point lights

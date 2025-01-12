@@ -12,10 +12,11 @@ namespace re
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f,0.f));
 
+        bool open = true;
         ImGui::SetNextWindowPos(viewport->WorkPos);
         ImGui::SetNextWindowSize(viewport->WorkSize);
         ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::Begin("DockspaceHolder", nullptr,
+        ImGui::Begin("DockspaceHolder", &open,
             ImGuiWindowFlags_NoTitleBar |
             ImGuiWindowFlags_NoBackground |
             ImGuiWindowFlags_NoCollapse |
