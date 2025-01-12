@@ -13,6 +13,14 @@ namespace re
         maths::Vector3 colour = {1.f,1.f,1.f};
     };
 
+    struct PointLight
+    {
+        DEFINE_SERIALIZATION_FUNCTIONS(position, colour);
+
+        maths::Vector3 position = maths::Vector3::zero();
+        maths::Vector3 colour = {1.f, 1.f, 1.f};
+    };
+
     struct AmbientLight
     {
         DEFINE_SERIALIZATION_FUNCTIONS(colour);

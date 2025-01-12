@@ -2,7 +2,7 @@
 
 #include "camera.h"
 #include "entity.h"
-#include "lights.h"
+#include "gfx/lights.h"
 #include "input_manager.h"
 
 #include "maths/maths.h"

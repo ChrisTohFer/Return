@@ -1,7 +1,5 @@
 #pragma once
 
-#include "lights.h"
-
 #include "gfx/gfx_forward.h"
 #include "maths/maths.h"
 

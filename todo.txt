@@ -12,9 +12,7 @@ scene stuff:
     -point lights
     -make lights editable
     -skybox
--make generic interface for visual component for entities (support 3d, 2d, debug spheres, etc)
 -make gizmos work in orthogonal camera if possible
--camera flight controls
 
 graphics stuff:
 -try more graphics things
