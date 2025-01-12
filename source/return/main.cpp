@@ -2,6 +2,7 @@
 
 #include "graphics_test.h"
 #include "input_manager.h"
+#include "dockspace.h"
 
 #include "gfx/graphics_manager.h"
 #include "gfx/graphics_core.h"
@@ -39,7 +40,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    auto window = glfwCreateWindow(winx, winy, "Test", nullptr, nullptr);
+    auto window = glfwCreateWindow(winx, winy, "Return", nullptr, nullptr);
 
     if (!window)
     {
@@ -71,11 +72,10 @@ int main()
         ImGui::NewFrame();
 
         ImGuizmo::BeginFrame();
-        ImGuiIO& io = ImGui::GetIO();
-        ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
         
-        gfx::clear(0.f,0.f,0.f,1.f);
+        gfx::clear(0.f,0.f,0.f,0.f);
 
+        re::begin_dockspace();
         input_manager.update();
         if(editor.edit())
         {
@@ -88,6 +88,8 @@ int main()
         static float previous_time = time;
         scene.update_and_draw(time - previous_time, g_aspect);
         previous_time = time;
+
+        re::end_dockspace();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
