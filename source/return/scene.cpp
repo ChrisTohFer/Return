@@ -191,6 +191,7 @@ namespace re
     
     void Scene::relink_assets()
     {
+        m_batch_renderer.clear(true);
         for(auto& entity : m_entities)
         {
             entity.visual_component->relink(*this);
