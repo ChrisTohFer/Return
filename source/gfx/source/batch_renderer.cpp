@@ -88,7 +88,7 @@ namespace gfx
                     else
                         unbind_texture();
                     
-                    VertexBuffer instances(tbatch.transforms.data(), tbatch.transforms.size(), {BufferAttributeType::InstanceTransform});
+                    VertexBuffer instances(tbatch.transforms.data(), (int)tbatch.transforms.size(), {BufferAttributeType::InstanceTransform});
                     abatch.vao->draw_triangles(&instances);
                 }
             }

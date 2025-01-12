@@ -73,8 +73,8 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
-
         ImGuizmo::BeginFrame();
+        ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
         
         gfx::clear(0.f,0.f,0.f,0.f);
 
