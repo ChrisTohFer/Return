@@ -7,9 +7,23 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 
 namespace file
 {
+    //Private functions
+
+    void create_missing_directories(const std::filesystem::path& path)
+    {
+        auto parent_path = path.parent_path();
+        if (!std::filesystem::exists(parent_path))
+        {
+            std::filesystem::create_directories(parent_path);
+        }
+    }
+
+    //Public functions
+
     std::filesystem::path get_data_path(const char* relative_path)
     {
         auto result = std::filesystem::current_path();
@@ -22,13 +36,50 @@ namespace file
         assert(!"get_appdata_path() not implemented yet!");
         return std::filesystem::path();
     }
-    void create_missing_directories(const std::filesystem::path& path)
+
+    std::optional<std::string> read_string_from_data(const char* relative_path)
     {
-        auto parent_path = path.parent_path();
-        if (!std::filesystem::exists(parent_path))
+        auto path = get_data_path(relative_path);
+        return read_string_from_absolute(path.string().c_str());
+    }
+    std::optional<std::string> read_string_from_appdata(const char* relative_path)
+    {
+        auto path = get_appdata_path(relative_path);
+        return read_string_from_absolute(path.string().c_str());
+    }
+    std::optional<std::string> read_string_from_absolute(const char* path)
+    {
+        std::ifstream file(path);
+        if(!file.good())
         {
-            std::filesystem::create_directories(parent_path);
+            return {};
         }
+
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        return buffer.str();
+    }
+
+    bool write_string_to_data(const char* relative_path, const char* string)
+    {
+        auto path = get_data_path(relative_path);
+        return write_string_to_absolute(path.string().c_str(), string);
+    }
+    bool write_string_to_appdata(const char* relative_path, const char* string)
+    {
+        auto path = get_appdata_path(relative_path);
+        return write_string_to_absolute(path.string().c_str(), string);
+    }
+    bool write_string_to_absolute(const char* path, const char* string)
+    {
+        std::ofstream file(path);
+        if(!file.good())
+        {
+            return false;
+        }
+
+        file << string;
+        return true;
     }
 
     //FileOut =========================================================================

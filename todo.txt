@@ -6,9 +6,16 @@ file/management stuff:
 -make scene serializable
 -make entities serializable (prefabs)
 -Should scenes/entities be the same thing? (like godot)
+-asset versioning?
+-sanitize newlines in string files?
 
 editor stuff:
 -Update camera bounds based on dockspace info
+-Allow individual asset types to be serialized instead of entire editor state
+    -Vertex shaders
+    -Fragment shaders
+    -Shader Programs
+    -Vaos (includes vertex buffer, element buffer)
 
 scene stuff:
 -add more capabilities to scene:

@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -28,6 +29,14 @@ namespace file
 {
     std::filesystem::path get_data_path(const char* relative_path);
     std::filesystem::path get_appdata_path(const char* relative_path);
+
+    std::optional<std::string> read_string_from_data(const char* relative_path);
+    std::optional<std::string> read_string_from_appdata(const char* relative_path);
+    std::optional<std::string> read_string_from_absolute(const char* path);
+
+    bool write_string_to_data(const char* relative_path, const char* string);
+    bool write_string_to_appdata(const char* relative_path, const char* string);
+    bool write_string_to_absolute(const char* path, const char* string);
 
     class FileOut
     {
