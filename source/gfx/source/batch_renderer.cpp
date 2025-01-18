@@ -80,7 +80,6 @@ namespace gfx
             
             for(auto& abatch : sbatch.vao_batches)
             {
-                abatch.vao->use();
                 for(auto& tbatch : abatch.texture_batches)
                 {
                     if(tbatch.texture)
@@ -88,8 +87,8 @@ namespace gfx
                     else
                         unbind_texture();
                     
-                    VertexBuffer instances(tbatch.transforms.data(), (int)tbatch.transforms.size(), {BufferAttributeType::InstanceTransform});
-                    abatch.vao->draw_triangles(&instances);
+                    VertexBuffer instances(tbatch.transforms.data(), (int)tbatch.transforms.size(), PrimitiveType::None, {BufferAttributeType::InstanceTransform});
+                    abatch.vao->draw(instances);
                 }
             }
         }

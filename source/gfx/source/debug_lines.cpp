@@ -56,16 +56,15 @@ void main()
         maths::Vector3 colour,
         bool use_z)
     {
-        VertexBuffer vbuffer(vertices.data(), (int)vertices.size(), { BufferAttributeType::Translation });
+        VertexBuffer vbuffer(vertices.data(), (int)vertices.size(), PrimitiveType::Line, { BufferAttributeType::Translation });
         VertexArray vao(vbuffer, nullptr);
 
-        glBindVertexArray(vao.id());
         debug_lines_shader_program().use();
         gfx::set_uniform(debug_lines_shader_program().uniform_location("camera"), camera);
         gfx::set_uniform(debug_lines_shader_program().uniform_location("transform"), transform);
         gfx::set_uniform(debug_lines_shader_program().uniform_location("use_z"), use_z);
         gfx::set_uniform(debug_lines_shader_program().uniform_location("colour"), colour);
-        vao.draw_lines();
+        vao.draw();
     }
 
     void draw_line(

@@ -17,9 +17,8 @@ namespace gfx
 
         bool valid() const { return m_id != 0; }
         GLuint id() const { return m_id; }
-        void draw_triangles(const VertexBuffer* instance_buffer = nullptr) const;
-        void draw_lines(const VertexBuffer* instance_buffer = nullptr) const;
-        void use() const;
+        void draw() const;
+        void draw(const VertexBuffer& instance_buffer) const;
 
     private:
         GLuint m_id = 0;

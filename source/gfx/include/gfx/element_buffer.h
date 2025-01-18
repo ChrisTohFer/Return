@@ -7,15 +7,15 @@ namespace gfx
     class ElementBuffer
     {
     public:
-        ElementBuffer(const void* data, int triangle_count);
+        ElementBuffer(const void* data, int element_count);
         ElementBuffer(ElementBuffer&&);
         ~ElementBuffer();
 
         bool valid() const { return m_id != 0; }
         GLuint id() const { return m_id; }
-        int triangle_count() const { return m_triangle_count; }
+        int element_count() const { return m_element_count; }
     private:
         GLuint m_id = 0;
-        int m_triangle_count = 0;
+        int m_element_count = 0;
     };
 }
