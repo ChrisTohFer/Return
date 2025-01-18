@@ -56,8 +56,8 @@ void main()
         maths::Vector3 colour,
         bool use_z)
     {
-        VertexBuffer vbuffer(vertices.data(), (int)vertices.size(), PrimitiveType::Line, { BufferAttributeType::Translation });
-        VertexArray vao(vbuffer, nullptr);
+        VertexBuffer vbuffer(vertices.data(), (int)vertices.size(), { BufferAttributeType::Translation });
+        VertexArray vao(vbuffer, nullptr, PrimitiveType::Line);
 
         debug_lines_shader_program().use();
         gfx::set_uniform(debug_lines_shader_program().uniform_location("camera"), camera);

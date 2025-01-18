@@ -4,9 +4,8 @@
 
 namespace gfx
 {
-    VertexBuffer::VertexBuffer(const void* data, int vertex_count, PrimitiveType type, const std::vector<BufferAttributeType>& components)
+    VertexBuffer::VertexBuffer(const void* data, int vertex_count, const std::vector<BufferAttributeType>& components)
         : m_vertex_count(vertex_count)
-        , m_primitive_type(type)
         , m_components(components)
     {
         glGenBuffers(1, &m_id);
@@ -16,7 +15,6 @@ namespace gfx
     VertexBuffer::VertexBuffer(VertexBuffer&& other)
         : m_id(other.m_id)
         , m_vertex_count(other.m_vertex_count)
-        , m_primitive_type(other.m_primitive_type)
         , m_components(std::move(other.m_components))
     {
         other.m_id = 0;

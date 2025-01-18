@@ -423,7 +423,7 @@ namespace re
             buffer.error_log().clear();
             manager.add(
                 buffer.name().c_str(),
-                std::make_unique<gfx::VertexBuffer>(buffer.data(), buffer.num_vertices(), gfx::PrimitiveType::Triangle, buffer.components())
+                std::make_unique<gfx::VertexBuffer>(buffer.data(), buffer.num_vertices(), buffer.components())
             );
         }
         gfx::report_gl_error();
@@ -455,7 +455,7 @@ namespace re
                 continue;
             }
 
-            manager.add(vao.name().c_str(), std::make_unique<gfx::VertexArray>(*vbuffer, ebuffer));
+            manager.add(vao.name().c_str(), std::make_unique<gfx::VertexArray>(*vbuffer, ebuffer, gfx::PrimitiveType::Triangle));
         }
         gfx::report_gl_error();
 

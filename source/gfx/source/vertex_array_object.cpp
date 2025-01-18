@@ -7,9 +7,10 @@
 
 namespace gfx
 {
-    VertexArray::VertexArray(const VertexBuffer& vb, const ElementBuffer* eb)
+    VertexArray::VertexArray(const VertexBuffer& vb, const ElementBuffer* eb, PrimitiveType type)
         : m_vb(&vb)
         , m_eb(eb)
+        , m_type(type)
     {
         glGenVertexArrays(1, &m_id);
         glBindVertexArray(m_id);
@@ -24,6 +25,7 @@ namespace gfx
         : m_id(other.m_id)
         , m_vb(other.m_vb)
         , m_eb(other.m_eb)
+        , m_type(other.m_type)
     {
         other.m_id = 0;
     }
@@ -45,7 +47,7 @@ namespace gfx
 
         glBindVertexArray(m_id);
         int gl_primitive_type = GL_TRIANGLES;
-        switch(m_vb->get_primitive_type())
+        switch(m_type)
         {
         case PrimitiveType::Line:     gl_primitive_type = GL_LINES;     break;
         case PrimitiveType::Triangle: gl_primitive_type = GL_TRIANGLES; break;
@@ -71,7 +73,7 @@ namespace gfx
 
         glBindVertexArray(m_id);
         int gl_primitive_type = GL_TRIANGLES;
-        switch(m_vb->get_primitive_type())
+        switch(m_type)
         {
         case PrimitiveType::Line:     gl_primitive_type = GL_LINES;     break;
         case PrimitiveType::Triangle: gl_primitive_type = GL_TRIANGLES; break;

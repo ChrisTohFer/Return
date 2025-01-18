@@ -27,8 +27,6 @@ graphics stuff:
     -support frame/time duration
 -make graphics classes more flexible
     -streaming vs static data
-    -triangles vs lines
-    -try to avoid gl_ functions leaking out of classes by refactoring api
 
 new systems:
 -collision detection
