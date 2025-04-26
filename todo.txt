@@ -8,14 +8,17 @@ file/management stuff:
 -Should scenes/entities be the same thing? (like godot)
 -asset versioning?
 -sanitize newlines in string files?
+-asset management and ids - filename or uuid?
 
 editor stuff:
 -Update camera bounds based on dockspace info
+-combine vbo, ebo, vao into one asset
 -Allow individual asset types to be serialized instead of entire editor state
     -Vertex shaders
     -Fragment shaders
     -Shader Programs
     -Vaos (includes vertex buffer, element buffer)
+-instead of test editor with all assets at once, swap to assets window and editor for selected asset
 
 scene stuff:
 -add more capabilities to scene:
