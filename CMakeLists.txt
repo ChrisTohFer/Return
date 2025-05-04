@@ -72,6 +72,9 @@ endif()
 #original targets
 create_library_target(maths)
 
+create_library_target(physics)
+target_link_libraries(physics PRIVATE maths imgui)
+
 create_library_target(file)
 target_link_libraries(file PRIVATE maths)
 
@@ -84,7 +87,7 @@ target_link_libraries(editor_support PRIVATE imgui maths)
 file(GLOB_RECURSE return_source_files "source/return/*.h" "source/return/*.cpp")
 add_executable(return ${return_source_files})
 target_link_libraries(return PRIVATE GlobalSettings)
-target_link_libraries(return PRIVATE glfw imgui maths gfx file editor_support)
+target_link_libraries(return PRIVATE glfw imgui maths physics gfx file editor_support)
 
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	#debugger working directory
