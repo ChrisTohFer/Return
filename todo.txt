@@ -38,8 +38,11 @@ graphics stuff:
 -make graphics classes more flexible
     -streaming vs static data
 
+physics stuff:
+-tested collision but still need separation/motion
+-ideally need a test case with motion built in, e.g cubes/spheres being launched into one another
+-need to decide how to do arbitrary scripting in a way that doesn't disrupt the engine - virtual scene/entities?
+
 new systems:
--collision detection
--physics
 -input manager
 -ecs
