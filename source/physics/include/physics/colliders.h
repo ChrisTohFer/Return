@@ -8,12 +8,8 @@ namespace phys
 {
     struct AABB3
     {
-        float min_x = 0.f;
-        float max_x = 0.f;
-        float min_y = 0.f;
-        float max_y = 0.f;
-        float min_z = 0.f;
-        float max_z = 0.f;
+        maths::Vector3 min = maths::Vector3::zero();
+        maths::Vector3 max = maths::Vector3::zero();
 
         //clamp a vector to the bounds of this aabb
         maths::Vector3 clamp_point(maths::Vector3 vec) const;
@@ -32,9 +28,9 @@ namespace phys
     inline maths::Vector3 AABB3::clamp_point(maths::Vector3 vec) const
     {
         return {
-            std::clamp(vec.x, min_x, max_x),
-            std::clamp(vec.y, min_y, max_y),
-            std::clamp(vec.z, min_z, max_z)
+            std::clamp(vec.x, min.x, max.x),
+            std::clamp(vec.y, min.y, max.y),
+            std::clamp(vec.z, min.z, max.z)
         };
     }
 
@@ -44,9 +40,9 @@ namespace phys
     inline bool intersects(const AABB3& a, const AABB3& b)
     {
         return 
-            (a.max_x > b.min_x && a.min_x < b.max_x) &&
-            (a.max_y > b.min_y && a.min_y < b.max_y) &&
-            (a.max_z > b.min_z && a.min_z < b.max_z);
+            (a.max.x > b.min.x && a.min.x < b.max.x) &&
+            (a.max.y > b.min.y && a.min.y < b.max.y) &&
+            (a.max.z > b.min.z && a.min.z < b.max.z);
     }
 
     inline bool intersects(const Sphere& a, const Sphere& b)
