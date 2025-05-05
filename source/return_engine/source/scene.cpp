@@ -113,7 +113,6 @@ namespace re
                 e.pos = m_clipboard.pos;
                 e.orientation = m_clipboard.orientation;
                 e.scale = m_clipboard.scale;
-                e.euler = m_clipboard.euler;
                 if (m_clipboard.visual_component)
                 {
                     e.visual_component = m_clipboard.visual_component->clone();
@@ -144,7 +143,6 @@ namespace re
                         m_clipboard.pos = entity.pos;
                         m_clipboard.orientation = entity.orientation;
                         m_clipboard.scale = entity.scale;
-                        m_clipboard.euler = entity.euler;
                         if (entity.visual_component)
                         {
                             m_clipboard.visual_component = entity.visual_component->clone();
@@ -161,13 +159,14 @@ namespace re
                         ImGuizmo::MODE::LOCAL,
                         transform.values))
                     {
-                        entity.euler = transform.euler();
                         entity.pos = transform.translation();
-                        entity.orientation = maths::Quaternion::from_euler(entity.euler);
+                        entity.orientation = maths::Quaternion::from_euler(transform.euler());
                     }
-                    if (ImGui::DragFloat3("Rot", &entity.euler.x, 0.1f))
+
+                    auto euler = entity.orientation.euler();
+                    if (ImGui::DragFloat3("Rot", &euler.x, 0.1f))
                     {
-                        entity.orientation = maths::Quaternion::from_euler(entity.euler);
+                        entity.orientation = maths::Quaternion::from_euler(euler);
                     }
 
                     edit("Test", entity.visual_component, *this);
