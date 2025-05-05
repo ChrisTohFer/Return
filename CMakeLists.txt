@@ -84,17 +84,20 @@ target_link_libraries(gfx PRIVATE glad stb_image maths file)
 create_library_target(editor_support)
 target_link_libraries(editor_support PRIVATE imgui maths)
 
-file(GLOB_RECURSE return_source_files "source/return/*.h" "source/return/*.cpp")
-add_executable(return ${return_source_files})
-target_link_libraries(return PRIVATE GlobalSettings)
-target_link_libraries(return PRIVATE glfw imgui maths physics gfx file editor_support)
+create_library_target(return_engine)
+target_link_libraries(return_engine PRIVATE glfw imgui maths physics gfx file editor_support)
+
+file(GLOB_RECURSE game_source_files "source/game/*.h" "source/game/*.cpp")
+add_executable(game ${game_source_files})
+target_link_libraries(game PRIVATE GlobalSettings)
+target_link_libraries(game PRIVATE glfw imgui maths physics gfx file editor_support return_engine)
 
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	#debugger working directory
-	set_property(TARGET return PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+	set_property(TARGET game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 	
 	#add todo as source
-	target_sources(return PRIVATE "todo.txt")
+	target_sources(return_engine PRIVATE "todo.txt")
 
 	#put third party projects in folder
 	set_property(GLOBAL PROPERTY USE_FOLDERS true)
@@ -104,7 +107,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	add_custom_command(TARGET return POST_BUILD
-	  COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/third_party/glfw/win64/glfw3.dll" $<TARGET_FILE_DIR:return>/
+	add_custom_command(TARGET game POST_BUILD
+	  COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/third_party/glfw/win64/glfw3.dll" $<TARGET_FILE_DIR:game>/
 	  )
 endif()
