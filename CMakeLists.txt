@@ -106,7 +106,7 @@ add_executable(tests "source/test/test_main.cpp")
 target_link_libraries(tests PRIVATE GlobalSettings)
 target_link_libraries(tests PRIVATE ${third_party_targets} ${library_targets} gtest_main)
 
-include(googletest)
+include(GoogleTest)
 gtest_discover_tests(tests)
 
 #add visual studio filters, working directory, todo.txt if working in visual studio
