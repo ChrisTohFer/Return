@@ -1,34 +1,13 @@
 #include "main_loop.h"
 
-#include "task_manager.h"
-
 #include "graphics_test.h"
-#include "input_manager.h"
-#include "dockspace.h"
+#include "window.h"
 
 #include "gfx/graphics_manager.h"
-#include "gfx/graphics_core.h"
 #include "scene.h"
 
-#include "GLFW/glfw3.h"
-
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-#include "imgui/ImGuizmo.h"
-
+#include <chrono>
 #include <iostream>
-
-float g_aspect = 1.f;
-void error_callback(int /*error*/, const char* description)
-{
-    printf("Error: %s\n", description);
-}
-void framebuffer_size_callback(GLFWwindow*, int width, int height)
-{
-    gfx::resize_viewport(width, height);
-    g_aspect = (float)width / float(height);
-}
 
 namespace re
 {
@@ -37,58 +16,28 @@ namespace re
         std::cout << "Running " << CONFIGURATION_STR << " build.\n";
 
         //initiailize window
-        g_aspect = (float)config.init_window_width / float(config.init_window_height);
-        glfwInit();
-        glfwSetErrorCallback(error_callback);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-        auto window = glfwCreateWindow(
-            config.init_window_width,
-            config.init_window_height,
-            config.window_name,
-            nullptr,
-            nullptr);
-
-        if (!window)
+        if (!window_init(config.window_name, config.init_window_width, config.init_window_height))
         {
+            std::cout << "Failed to create window.\n";
             return -1;
         }
-        std::cout << "Created window" << std::endl;
-        glfwMakeContextCurrent(window);
-
-        if(!gfx::init(glfwGetProcAddress, config.init_window_width, config.init_window_height))
-        {
-            return -1;
-        }
-
-        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-        ImGui::CreateContext();
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
-        ImGui_ImplOpenGL3_Init();
-
-        auto& io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         gfx::GraphicsManager manager;
         re::GraphicsTestEditor editor;
-        re::InputManager input_manager(*window);
-        re::Scene scene(manager, input_manager);
-
-        while (!glfwWindowShouldClose(window))
-        {
-            ImGui_ImplGlfw_NewFrame();
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui::NewFrame();
-            ImGuizmo::BeginFrame();
-            ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+        re::Scene scene(manager, window_input_manager());
         
-            gfx::clear(0.f,0.f,0.f,0.f);
+        auto time = std::chrono::system_clock::now();
+        while (window_update())
+        {
+            //calculate dt
+            float dt = 0.f;
+            {
+                auto new_time = std::chrono::system_clock::now();
+                dt = 1e-9f * std::chrono::duration_cast<std::chrono::nanoseconds>(new_time - time).count();
+                time = new_time;
+            }
 
-            re::begin_dockspace();
-            input_manager.update();
+            //update editor
             if(editor.edit())
             {
                 editor.compile_assets(manager);
@@ -96,28 +45,12 @@ namespace re
             }
             scene.editor_ui();
 
-            float time = (float)glfwGetTime();
-            static float previous_time = time;
-            scene.update_and_draw(time - previous_time, g_aspect);
-            previous_time = time;
-
-            re::end_dockspace();
-
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-            glfwSwapBuffers(window);
-            glfwPollEvents();
+            //update scene
+            scene.update_and_draw(dt, window_aspect());
         }
 
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
-
-        gfx::shutdown();
-
-        glfwDestroyWindow(window);
-        glfwTerminate();
+        //shutdown window
+        window_shutdown();
 
         return 0;
     }
