@@ -18,7 +18,6 @@ namespace re
         Sphere,
         Cube,
     };
-    DEFINE_ENUM_SERIALIZE_FUNCTIONS(VisualComponentType);
 
     class VisualComponent
     {
@@ -30,7 +29,6 @@ namespace re
         virtual void draw(
             const maths::Matrix44& transform,
             const maths::Matrix44& camera,
-            const Scene&,
             gfx::BatchRenderer&) const = 0;
         virtual void edit(const Scene&) = 0;
         virtual void relink(const Scene&) = 0;
@@ -38,47 +36,14 @@ namespace re
         virtual VisualComponentType type() const = 0;
     };
 
-    file::FileOut& operator<<(file::FileOut& f, const std::unique_ptr<VisualComponent>& vc);
-    file::FileIn& operator>>(file::FileIn& f, std::unique_ptr<VisualComponent>& vc);
-
-    class VAOComponent : public VisualComponent
-    {
-    public:
-        DEFINE_SERIALIZATION_FUNCTIONS(m_vao_name, m_program_name, m_texture_name);
-
-        std::unique_ptr<VisualComponent> clone() const override { return std::make_unique<VAOComponent>(*this); }
-
-        void draw(
-            const maths::Matrix44& transform,
-            const maths::Matrix44& camera,
-            const Scene&,
-            gfx::BatchRenderer&) const override;
-        void edit(const Scene&) override;
-        void relink(const Scene&) override;
-        VisualComponentType type() const { return VisualComponentType::VAO; }
-
-    private:
-        const gfx::VertexArray* m_vao = nullptr;
-        const gfx::ShaderProgram* m_program = nullptr;
-        const gfx::Texture* m_texture = nullptr;
-
-        //needed by editor and for relinking
-        std::string m_vao_name;
-        std::string m_program_name;
-        std::string m_texture_name;
-    };
-
     class SphereComponent : public VisualComponent
     {
     public:
-        DEFINE_SERIALIZATION_FUNCTIONS(m_radius, m_colour, m_num_segments);
-
         std::unique_ptr<VisualComponent> clone() const override { return std::make_unique<SphereComponent>(*this); }
 
         void draw(
             const maths::Matrix44& transform,
             const maths::Matrix44& camera,
-            const Scene&,
             gfx::BatchRenderer&) const override;
         void edit(const Scene&) override;
         void relink(const Scene&) override {}
@@ -93,14 +58,11 @@ namespace re
     class CubeComponent : public VisualComponent
     {
     public:
-        DEFINE_SERIALIZATION_FUNCTIONS(m_dimensions, m_colour);
-
         std::unique_ptr<VisualComponent> clone() const override { return std::make_unique<CubeComponent>(*this); }
 
         void draw(
             const maths::Matrix44& transform,
             const maths::Matrix44& camera,
-            const Scene&,
             gfx::BatchRenderer&) const override;
         void edit(const Scene&) override;
         void relink(const Scene&) override {}

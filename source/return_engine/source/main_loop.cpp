@@ -22,31 +22,24 @@ namespace re
             return -1;
         }
 
-        gfx::GraphicsManager manager;
+        gfx::BatchRenderer batch_renderer;
         re::GraphicsTestEditor editor;
-        re::Scene scene(manager, window_input_manager());
+        re::Scene scene(batch_renderer, window_input_manager());
         
         auto time = std::chrono::system_clock::now();
         while (window_update())
         {
             //calculate dt
-            float dt = 0.f;
+            float frame_time = 0.f;
             {
                 auto new_time = std::chrono::system_clock::now();
-                dt = 1e-9f * std::chrono::duration_cast<std::chrono::nanoseconds>(new_time - time).count();
+                frame_time = 1e-9f * std::chrono::duration_cast<std::chrono::nanoseconds>(new_time - time).count();
                 time = new_time;
             }
 
-            //update editor
-            if(editor.edit())
-            {
-                editor.compile_assets(manager);
-                scene.relink_assets();
-            }
-            scene.editor_ui();
-
             //update scene
-            scene.update_and_draw(dt, window_aspect());
+            scene.try_update();
+            scene.draw(frame_time, window_aspect());
         }
 
         //shutdown window

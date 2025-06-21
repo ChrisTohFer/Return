@@ -2,10 +2,8 @@
 
 #include "camera.h"
 #include "entity.h"
-#include "gfx/lights.h"
 #include "input_manager.h"
 
-#include "maths/maths.h"
 #include "gfx/batch_renderer.h"
 #include "gfx/graphics_manager.h"
 
@@ -16,38 +14,25 @@ namespace re
     class Scene
     {
     public:
-        DEFINE_SERIALIZATION_FUNCTIONS(m_entities, m_time, m_camera, m_light, m_ambient);
+        Scene(gfx::BatchRenderer& batch_renderer, const InputManager& input_manager)
+            : m_batch_renderer(batch_renderer)
+            , m_input_manager(input_manager)
+        {
+            m_entities.push_back(Entity{});
+        }
 
-        Scene(const gfx::GraphicsManager&, const InputManager&);
-        void update_and_draw(float dt, float aspect_ratio);
-
-        void editor_ui();
-        void relink_assets();
-
-        const DirectionalLight& directional_light() const { return m_light; }
-        const AmbientLight& ambient_light() const { return m_ambient; }
-        float time() const { return (float)m_time; }
-        const gfx::GraphicsManager& gfx_manager() const { return m_gfx_manager; }
-
-        gfx::BatchRenderer& batch_renderer() { return m_batch_renderer; }
+        void try_update();
+        void draw(float frame_time, float aspect_ratio);
 
     private:
-        std::vector<Entity> m_entities;
-        double m_time = 0.0;
-        
-        Camera m_camera;
+        static constexpr float fixed_update_interval = 1.f / 60.f;
 
-        DirectionalLight m_light;
-        AmbientLight m_ambient;
-
-        Entity m_clipboard;
-        bool m_show_gizmos = true;
-        float m_dt;
-        float m_draw_time;
-
-        const gfx::GraphicsManager& m_gfx_manager;
+        gfx::BatchRenderer& m_batch_renderer;
         const InputManager& m_input_manager;
-        gfx::BatchRenderer m_batch_renderer;
+        Camera m_camera;
+        float m_time_since_update = 0.f;
+
+        std::vector<Entity> m_entities;
     };
 
 

@@ -11,11 +11,9 @@ namespace re
 {
     struct Entity
     {
-        DEFINE_SERIALIZATION_FUNCTIONS(pos, scale, orientation, visual_component);
-
         Entity()
         {
-            visual_component = std::make_unique<VAOComponent>();
+            visual_component = std::make_unique<SphereComponent>();
         }
 
         maths::Vector3 pos = maths::Vector3::zero();
