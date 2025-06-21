@@ -45,7 +45,10 @@ namespace re
         m_time_since_update -= fixed_update_interval;
 
         //update all entities
-
+        for (auto& entity : m_entities)
+        {
+            entity.rigid.update(fixed_update_interval, entity.pos, entity.orientation);
+        }
     }
 
     int draw_count = 0;

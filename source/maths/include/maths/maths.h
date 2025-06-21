@@ -135,6 +135,8 @@ namespace maths
 
     Quaternion operator+(const Quaternion& lhs, const Quaternion& rhs);
     Quaternion operator*(const Quaternion& lhs, const Quaternion& rhs);
+
+    Quaternion operator*=(Quaternion& lhs, const Quaternion& rhs);
 }
 
 //inline definitions ================================================================

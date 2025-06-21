@@ -64,6 +64,12 @@ namespace maths
         return qx + qy + qz + qw;
     }
 
+    inline Quaternion operator*=(Quaternion& lhs, const Quaternion& rhs)
+    {
+        lhs = lhs * rhs;
+        return lhs;
+    }
+
     inline Quaternion operator*(const Quaternion& q, float f)
     {
         return{

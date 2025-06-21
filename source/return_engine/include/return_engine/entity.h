@@ -3,7 +3,7 @@
 #include "visual_component.h"
 
 #include "maths/maths.h"
-#include "file/file.h"
+#include "physics/rigidbody.h"
 
 #include <memory>
 
@@ -19,6 +19,8 @@ namespace re
         maths::Vector3 pos = maths::Vector3::zero();
         maths::Vector3 scale = maths::Vector3::one();
         maths::Quaternion orientation = maths::Quaternion::identity();
+
+        phys::RigidBody rigid;
 
         std::unique_ptr<VisualComponent> visual_component;
 
