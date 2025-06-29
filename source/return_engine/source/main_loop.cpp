@@ -11,7 +11,7 @@
 
 namespace re
 {
-    int main_loop(const EngineConfig& config)
+    int main_loop(const EngineConfig& config, std::function<std::unique_ptr<Scene>(gfx::BatchRenderer&, const InputManager&)> scene_constructor)
     {
         std::cout << "Running " << CONFIGURATION_STR << " build.\n";
 
@@ -23,8 +23,7 @@ namespace re
         }
 
         gfx::BatchRenderer batch_renderer;
-        re::GraphicsTestEditor editor;
-        re::Scene scene(batch_renderer, window_input_manager());
+        auto scene = scene_constructor(batch_renderer, window_input_manager());
         
         auto time = std::chrono::system_clock::now();
         while (window_update())
@@ -38,8 +37,8 @@ namespace re
             }
 
             //update scene
-            scene.try_update();
-            scene.draw(frame_time, window_aspect());
+            scene->try_update();
+            scene->draw(frame_time, window_aspect());
         }
 
         //shutdown window

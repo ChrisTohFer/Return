@@ -17,19 +17,14 @@ namespace re
         Scene(gfx::BatchRenderer& batch_renderer, const InputManager& input_manager)
             : m_batch_renderer(batch_renderer)
             , m_input_manager(input_manager)
-        {
-            m_entities.push_back(Entity{});
-            m_entities.push_back(Entity{});
-            auto& e = m_entities.back();
-            e.pos.y += 10.f;
-            e.rigid.properties.gravity = 1.f;
-            e.rigid.properties.mass = 0.1f;
-        }
+        {}
 
         void try_update();
         void draw(float frame_time, float aspect_ratio);
 
-    private:
+        virtual void on_update() {};
+
+    protected:
         static constexpr float fixed_update_interval = 1.f / 60.f;
 
         gfx::BatchRenderer& m_batch_renderer;

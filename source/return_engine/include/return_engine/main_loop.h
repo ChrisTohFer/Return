@@ -1,5 +1,13 @@
 #pragma once
 
+#include "return_engine/input_manager.h"
+#include "return_engine/scene.h"
+
+#include "gfx/batch_renderer.h"
+
+#include <functional>
+#include <memory>
+
 namespace re
 {
     struct EngineConfig
@@ -9,5 +17,5 @@ namespace re
         int         init_window_height = 700;
     };
 
-    int main_loop(const EngineConfig&);
+    int main_loop(const EngineConfig&, std::function<std::unique_ptr<Scene>(gfx::BatchRenderer&, const InputManager&)>);
 }

@@ -12,14 +12,6 @@ namespace re
 {
     struct Entity
     {
-        Entity()
-        {
-            visual_component = std::make_unique<SphereComponent>();
-            auto sphere = std::make_unique<phys::Sphere>();
-            sphere->radius = 1.f;
-            collider = std::move(sphere);
-        }
-
         maths::Vector3 pos = maths::Vector3::zero();
         maths::Vector3 scale = maths::Vector3::one();
         maths::Quaternion orientation = maths::Quaternion::identity();
@@ -30,5 +22,8 @@ namespace re
         std::unique_ptr<phys::Collider> collider;
 
         maths::Matrix44 transform() const;
+
+        using UpdateCallback = void(*)(Entity& entity);
+        UpdateCallback update_function = nullptr;
     };
 }

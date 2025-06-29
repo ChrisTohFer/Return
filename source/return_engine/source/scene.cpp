@@ -50,6 +50,7 @@ namespace re
         std::vector<phys::Entity> phys_entities;
         for (auto& entity : m_entities)
         {
+            if (entity.update_function != nullptr) entity.update_function(entity);
             phys_entities.emplace_back(entity.pos, entity.orientation, entity.collider.get(), &entity.rigid);
         }
         phys::solve_physics(phys_entities, fixed_update_interval);
