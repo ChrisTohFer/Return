@@ -1,5 +1,7 @@
 #include "scene.h"
 
+#include "physics/physics_system.h"
+
 namespace re
 {
     void apply_camera_controls(Camera& camera, const InputManager& input_manager, float frame_time)
@@ -45,10 +47,12 @@ namespace re
         m_time_since_update -= fixed_update_interval;
 
         //update all entities
+        std::vector<phys::Entity> phys_entities;
         for (auto& entity : m_entities)
         {
-            entity.rigid.update(fixed_update_interval, entity.pos, entity.orientation);
+            phys_entities.emplace_back(entity.pos, entity.orientation, entity.collider.get(), &entity.rigid);
         }
+        phys::solve_physics(phys_entities, fixed_update_interval);
     }
 
     int draw_count = 0;

@@ -7,6 +7,7 @@ namespace phys
     struct RigidBodyProperties
     {
         float gravity = 0.f;
+        float mass = 1.f;
     };
 
     struct RigidBody

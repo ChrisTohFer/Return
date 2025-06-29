@@ -6,19 +6,38 @@
 
 namespace phys
 {
-    struct AABB3
+    enum class ColliderType
+    {
+        Cuboid,
+        Sphere,
+        AABB,
+    };
+
+    struct Collider
+    {
+        virtual ~Collider() = default;
+        virtual ColliderType type() const = 0;
+    };
+
+    struct AABB3 : public Collider
     {
         maths::Vector3 min = maths::Vector3::zero();
         maths::Vector3 max = maths::Vector3::zero();
 
         //clamp a vector to the bounds of this aabb
         maths::Vector3 clamp_point(maths::Vector3 vec) const;
+
+        //collider interface
+        ColliderType type() const override { return ColliderType::AABB; }
     };
 
-    struct Sphere
+    struct Sphere : public Collider
     {
         maths::Vector3 pos = maths::Vector3::zero();
         float radius = 0.f;
+
+        //collider interface
+        ColliderType type() const override { return ColliderType::Sphere; }
     };
 
 

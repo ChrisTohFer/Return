@@ -19,6 +19,11 @@ namespace re
             , m_input_manager(input_manager)
         {
             m_entities.push_back(Entity{});
+            m_entities.push_back(Entity{});
+            auto& e = m_entities.back();
+            e.pos.y += 10.f;
+            e.rigid.properties.gravity = 1.f;
+            e.rigid.properties.mass = 0.1f;
         }
 
         void try_update();
