@@ -1,5 +1,7 @@
 #include "return_engine/main_loop.h"
 
+#include "physics/colliders.h"
+#include "imgui/imgui.h"
 
 static void apply_camera_controls(re::Camera& camera, const re::InputManager& input_manager, float frame_time)
 {
@@ -35,6 +37,74 @@ static void apply_camera_controls(re::Camera& camera, const re::InputManager& in
     }
 }
 
+void entity_3_update(re::Scene& scene, re::Entity& entity)
+{
+    //despawn at >100 units from origin
+    if (entity.pos.magnitude_squared() > 10000.f) scene.remove_entity(entity);
+}
+
+int e1_cooldown = 60;
+int e1_cooldown_variation = 5;
+float e1_speed = 10.f;
+float e1_speed_variation = 0.5f;
+float e1_angle_variation = 0.f;
+void entity_1_update(re::Scene& scene, re::Entity& entity)
+{
+    static int cooldown = e1_cooldown;
+    --cooldown;
+    if (cooldown <= 0)
+    {
+        cooldown = e1_cooldown + static_cast<int>(e1_cooldown_variation * (rand() / (RAND_MAX * 0.5f) - 1.f));
+        re::Entity sphere;
+        sphere.update_function = entity_3_update;
+        
+        sphere.pos = entity.pos;
+        float speed = e1_speed + e1_speed_variation * (rand() / (RAND_MAX * 0.5f) - 1.f);
+        sphere.rigid.velocity = entity.orientation * maths::Vector3{ 0.f, 0.f, speed };
+
+        sphere.rigid.properties.gravity = 9.81f;
+        
+        sphere.visual_component = std::make_unique<re::SphereComponent>();
+        
+        auto collider = std::make_unique<phys::Sphere>();
+        collider->radius = 1.f;
+        sphere.collider = std::move(collider);
+        
+        scene.add_entity(std::move(sphere));
+    }
+}
+
+int e2_cooldown = 60;
+int e2_cooldown_variation = 5;
+float e2_speed = 10.f;
+float e2_speed_variation = 0.5f;
+float e2_angle_variation = 0.f;
+void entity_2_update(re::Scene& scene, re::Entity& entity)
+{
+    static int cooldown = e2_cooldown;
+    --cooldown;
+    if (cooldown <= 0)
+    {
+        cooldown = e2_cooldown + static_cast<int>(e2_cooldown_variation * (rand() / (RAND_MAX * 0.5f) - 1.f));
+        re::Entity sphere;
+        sphere.update_function = entity_3_update;
+
+        sphere.pos = entity.pos;
+        float speed = e2_speed + e2_speed_variation * (rand() / (RAND_MAX * 0.5f) - 1.f);
+        sphere.rigid.velocity = entity.orientation * maths::Vector3{ 0.f, 0.f, speed };
+
+        sphere.rigid.properties.gravity = 9.81f;
+
+        sphere.visual_component = std::make_unique<re::SphereComponent>();
+
+        auto collider = std::make_unique<phys::Sphere>();
+        collider->radius = 1.f;
+        sphere.collider = std::move(collider);
+
+        scene.add_entity(std::move(sphere));
+    }
+}
+
 class SceneOverride : public re::Scene
 {
 public:
@@ -44,22 +114,22 @@ public:
         {
             m_entities.push_back(re::Entity{});
             auto& e = m_entities.back();
-            e.visual_component = std::make_unique<re::SphereComponent>();
-            auto sphere_collider = std::make_unique<phys::Sphere>();;
-            sphere_collider->radius = 1.f;
-            e.collider = std::move(sphere_collider);
+            e.update_function = entity_1_update;
+            e.visual_component = std::make_unique<re::CubeComponent>();
+            e.scale.z = 1.5f;
+
+            e.pos.x -= 10.f;
+            e.orientation = maths::Quaternion::from_euler({ -maths::PI * 0.25f, maths::PI * 0.5f, 0.f });
         }
         {
             m_entities.push_back(re::Entity{});
             auto& e = m_entities.back();
-            e.visual_component = std::make_unique<re::SphereComponent>();
-            auto sphere_collider = std::make_unique<phys::Sphere>();;
-            sphere_collider->radius = 1.f;
-            e.collider = std::move(sphere_collider);
+            e.update_function = entity_2_update;
+            e.visual_component = std::make_unique<re::CubeComponent>();
+            e.scale.z = 1.5f;
 
-            e.pos.y += 10.f;
-            e.rigid.properties.gravity = 1.f;
-            e.rigid.properties.mass = 0.1f;
+            e.pos.x += 10.f;
+            e.orientation = maths::Quaternion::from_euler({ -maths::PI * 0.25f, -maths::PI * 0.5f, 0.f });
         }
     }
 
@@ -67,6 +137,22 @@ public:
     {
         //camera flight controls
         apply_camera_controls(m_camera, m_input_manager, frame_time);
+
+        ImGui::Begin("Controls");
+        ImGui::PushID(0);
+        ImGui::SliderInt("Cooldown", &e1_cooldown, 30, 100);
+        ImGui::SliderInt("Cooldown variation", &e1_cooldown_variation, 0, 30);
+        ImGui::SliderFloat("Speed", &e1_speed, 5.f, 30.f);
+        ImGui::SliderFloat("Speed variation", &e1_speed_variation, 0.f, 5.f);
+        ImGui::PopID();
+        ImGui::PushID(1);
+        ImGui::SliderInt("Cooldown", &e2_cooldown, 30, 100);
+        ImGui::SliderInt("Cooldown variation", &e2_cooldown_variation, 0, 30);
+        ImGui::SliderFloat("Speed", &e2_speed, 5.f, 30.f);
+        ImGui::SliderFloat("Speed variation", &e2_speed_variation, 0.f, 5.f);
+        ImGui::PopID();
+
+        ImGui::End();
     }
 
 private:

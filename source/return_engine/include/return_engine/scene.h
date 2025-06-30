@@ -22,6 +22,9 @@ namespace re
         void try_update();
         void draw(float frame_time, float aspect_ratio);
 
+        void add_entity(Entity entity);
+        void remove_entity(Entity& entity);
+
         virtual void on_fixed_update() {};
         virtual void on_update(float /*frame_time*/) {};
 
@@ -34,6 +37,9 @@ namespace re
         float m_time_since_update = 0.f;
 
         std::vector<Entity> m_entities;
+
+        std::vector<Entity> m_entities_to_add;
+        std::vector<size_t> m_entity_indices_to_remove;
     };
 
 

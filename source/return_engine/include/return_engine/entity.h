@@ -10,6 +10,8 @@
 
 namespace re
 {
+    class Scene;
+
     struct Entity
     {
         maths::Vector3 pos = maths::Vector3::zero();
@@ -23,7 +25,7 @@ namespace re
 
         maths::Matrix44 transform() const;
 
-        using UpdateCallback = void(*)(Entity& entity);
+        using UpdateCallback = void(*)(re::Scene& scene, Entity& entity);
         UpdateCallback update_function = nullptr;
     };
 }

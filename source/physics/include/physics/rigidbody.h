@@ -13,7 +13,7 @@ namespace phys
     struct RigidBody
     {
         maths::Vector3 velocity = maths::Vector3::zero();
-        maths::Quaternion angular_velocity = maths::Quaternion{ 0.f, 0.5f, 0.f, 0.5f }.normalized();
+        maths::Quaternion angular_velocity = maths::Quaternion::identity();
         RigidBodyProperties properties;
 
         void update(float delta_time, maths::Vector3& position, maths::Quaternion& orientation);
