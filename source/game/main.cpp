@@ -1,5 +1,40 @@
 #include "return_engine/main_loop.h"
 
+
+static void apply_camera_controls(re::Camera& camera, const re::InputManager& input_manager, float frame_time)
+{
+    {
+        //position
+        constexpr float speed = 5.f;
+        auto camera_velocity = maths::Vector3::zero();
+        if (input_manager.key_pressed(re::Key::W))        camera_velocity -= maths::Vector3::unit_z();
+        if (input_manager.key_pressed(re::Key::S))        camera_velocity += maths::Vector3::unit_z();
+        if (input_manager.key_pressed(re::Key::A))        camera_velocity -= maths::Vector3::unit_x();
+        if (input_manager.key_pressed(re::Key::D))        camera_velocity += maths::Vector3::unit_x();
+        if (input_manager.key_pressed(re::Key::Space))    camera_velocity += maths::Vector3::unit_y();
+        if (input_manager.key_pressed(re::Key::LControl)) camera_velocity -= maths::Vector3::unit_y();
+
+        camera_velocity = camera.orientation * camera_velocity;
+        camera.pos += camera_velocity * frame_time * speed;
+    }
+    {
+        //orientation
+        auto angular_velocity = maths::Vector3::zero();
+        if (input_manager.get_mouse_button(re::MouseButton::Right))
+        {
+            constexpr float rads_per_pixel = 0.001f;
+            auto mouse_delta = input_manager.mouse_delta();
+
+            angular_velocity.y += mouse_delta.x * rads_per_pixel;
+            angular_velocity.x += mouse_delta.y * rads_per_pixel;
+        }
+
+        auto euler = camera.orientation.euler();
+        euler += angular_velocity;
+        camera.orientation = maths::Quaternion::from_euler(euler);
+    }
+}
+
 class SceneOverride : public re::Scene
 {
 public:
@@ -26,6 +61,12 @@ public:
             e.rigid.properties.gravity = 1.f;
             e.rigid.properties.mass = 0.1f;
         }
+    }
+
+    void on_update(float frame_time) override
+    {
+        //camera flight controls
+        apply_camera_controls(m_camera, m_input_manager, frame_time);
     }
 
 private:

@@ -22,7 +22,8 @@ namespace re
         void try_update();
         void draw(float frame_time, float aspect_ratio);
 
-        virtual void on_update() {};
+        virtual void on_fixed_update() {};
+        virtual void on_update(float /*frame_time*/) {};
 
     protected:
         static constexpr float fixed_update_interval = 1.f / 60.f;
