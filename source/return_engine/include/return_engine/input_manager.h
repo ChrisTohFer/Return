@@ -2,6 +2,8 @@
 
 #include "maths/vector2.h"
 
+#include <cstdint> //required for uint32_t in gcc
+
 struct GLFWwindow;
 
 namespace re
