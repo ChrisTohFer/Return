@@ -2,6 +2,7 @@
 
 #include "GLFW/glfw3.h"
 #include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
 
 #include <array>
 
@@ -113,10 +114,15 @@ namespace re
     //input manager should be a namespace if this is how it's gonna be...
     static InputManager* g_input_manager = nullptr;
 
-    static void key_callback(GLFWwindow*, int key, int, int action, int)
+    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
-        if (action == GLFW_PRESS) g_input_manager->set_down(g_glfw_to_key_conversion[key]);
-        if (action == GLFW_RELEASE) g_input_manager->set_up(g_glfw_to_key_conversion[key]);
+        if (!ImGui::GetIO().WantCaptureKeyboard)
+        {
+            if (action == GLFW_PRESS) g_input_manager->set_down(g_glfw_to_key_conversion[key]);
+            if (action == GLFW_RELEASE) g_input_manager->set_up(g_glfw_to_key_conversion[key]);
+        }
+
+        ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
     }
 
     InputManager::InputManager(GLFWwindow& window)
@@ -129,7 +135,7 @@ namespace re
 
     void InputManager::update()
     {
-        m_key_input_consumed_by_imgui = ImGui::GetIO().WantCaptureKeyboard;
+        if (ImGui::GetIO().WantCaptureKeyboard) set_all_up();
         m_mouse_input_consumed_by_imgui = ImGui::GetIO().WantCaptureMouse;
 
         double x, y;
@@ -154,17 +160,17 @@ namespace re
 
     bool InputManager::key_pressed(Key key) const
     {
-        return !m_key_input_consumed_by_imgui && (m_key_pressed_buffers[m_active_buffer] & key_flag(key));
+        return m_key_pressed_buffers[m_active_buffer] & key_flag(key);
     }
 
     bool InputManager::key_down(Key key) const
     {
-        return !m_key_input_consumed_by_imgui && (m_key_down_buffers[m_active_buffer] & key_flag(key));
+        return m_key_down_buffers[m_active_buffer] & key_flag(key);
     }
 
     bool InputManager::key_up(Key key) const
     {
-        return !m_key_input_consumed_by_imgui && (m_key_up_buffers[m_active_buffer] & key_flag(key));
+        return m_key_up_buffers[m_active_buffer] & key_flag(key);
     }
 
     bool InputManager::get_mouse_button(MouseButton button) const
@@ -196,5 +202,14 @@ namespace re
 
         m_key_up_buffers[m_inactive_buffer] |= key_flag(key);
         m_key_pressed_buffers[m_inactive_buffer] &= ~key_flag(key);
+    }
+
+    void InputManager::set_all_up()
+    {
+        //all pressed keys raised
+        m_key_up_buffers[m_inactive_buffer] |= m_key_pressed_buffers[m_inactive_buffer];
+
+        //unset all keys
+        m_key_pressed_buffers[m_inactive_buffer] = 0u;
     }
 }

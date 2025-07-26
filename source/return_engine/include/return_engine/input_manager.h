@@ -79,6 +79,7 @@ namespace re
 
         void set_down(Key);
         void set_up(Key);
+        void set_all_up();
 
     private:
         GLFWwindow* m_window;

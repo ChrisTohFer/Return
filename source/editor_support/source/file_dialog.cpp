@@ -91,7 +91,9 @@ namespace re
             }
         }
 
-        std::sort(g_search_results.begin(), g_search_results.end(), [](auto& lhs, auto& rhs){ return lhs.levenshtein_distance < rhs.levenshtein_distance; });
+        std::sort(g_search_results.begin(), g_search_results.end(), [](auto &lhs, auto &rhs) {
+            return lhs.levenshtein_distance<rhs.levenshtein_distance;
+        });
     }
 
     std::optional<FileDialogResult> update_file_dialog()
@@ -139,7 +141,7 @@ namespace re
                         else
                         {
                             ImGui::CloseCurrentPopup();
-                            result = {entry};
+                            result = FileDialogResult{entry};
                         }
                     }
                 };
@@ -191,7 +193,7 @@ namespace re
             if(ImGui::Button(button_name))
             {
                 ImGui::CloseCurrentPopup();
-                result = {full_filename};
+                result = FileDialogResult{full_filename};
             }
             ImGui::EndDisabled();
 
