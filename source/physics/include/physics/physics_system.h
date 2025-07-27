@@ -17,27 +17,32 @@ namespace phys
         RigidBody* rigid = nullptr;
     };
 
-    void handle_cuboid_cuboid(Entity&, Entity&)
+    inline void handle_cuboid_cuboid(Entity&, Entity&)
     {
         //todo
     }
 
-    void handle_cuboid_sphere(Entity&, Entity&)
+    inline void handle_cuboid_sphere(Entity& lhs, Entity& rhs)
+    {
+        //todo
+
+
+        Cuboid& cube_col = *static_cast<Cuboid*>(lhs.collider);
+        Sphere& sphere_col = *static_cast<Sphere*>(lhs.collider);
+
+    }
+
+    inline void handle_cuboid_aabb(Entity&, Entity&)
     {
         //todo
     }
 
-    void handle_cuboid_aabb(Entity&, Entity&)
-    {
-        //todo
-    }
-
-    void handle_sphere_cuboid(Entity& lhs, Entity& rhs)
+    inline void handle_sphere_cuboid(Entity& lhs, Entity& rhs)
     {
         handle_cuboid_sphere(rhs, lhs);
     }
 
-    void handle_sphere_sphere(Entity& lhs, Entity& rhs)
+    inline void handle_sphere_sphere(Entity& lhs, Entity& rhs)
     {
         auto& lhs_col = *static_cast<Sphere*>(lhs.collider);
         lhs_col.pos = lhs.pos;
@@ -80,36 +85,36 @@ namespace phys
         rhs.rigid->velocity += rhs_ratio * separation_vector;
     }
 
-    void handle_sphere_aabb(Entity&, Entity&)
+    inline void handle_sphere_aabb(Entity&, Entity&)
     {
 
     }
 
-    void handle_aabb_cuboid(Entity& lhs, Entity& rhs)
+    inline void handle_aabb_cuboid(Entity& lhs, Entity& rhs)
     {
         handle_cuboid_sphere(rhs, lhs);
     }
 
-    void handle_aabb_sphere(Entity& lhs, Entity& rhs)
+    inline void handle_aabb_sphere(Entity& lhs, Entity& rhs)
     {
         handle_sphere_aabb(rhs, lhs);
     }
 
-    void handle_aabb_aabb(Entity&, Entity&)
+    inline void handle_aabb_aabb(Entity&, Entity&)
     {
         
     }
 
     using CollisionHandler = void(*)(Entity&, Entity&);
-    CollisionHandler handler_matrix[] = {
+    inline CollisionHandler handler_matrix[] = {
         handle_cuboid_cuboid, handle_cuboid_sphere, handle_cuboid_aabb,
         handle_sphere_cuboid, handle_sphere_sphere, handle_sphere_aabb,
         handle_aabb_cuboid, handle_aabb_sphere, handle_aabb_aabb,
     };
 
-    void solve_physics(std::vector<Entity>& entities, float delta_time)
+    inline void solve_physics(std::vector<Entity>& entities, float delta_time)
     {
-        //advance rigidbodies
+        //advance rigid bodies
         for (auto& entity : entities)
         {
             entity.rigid->update(delta_time, entity.pos, entity.orientation);
@@ -117,17 +122,17 @@ namespace phys
 
         //loop over all entity pairs and detect all collisions
         //this is the simple n squared implementation
-        for (int ent_index_1 = 0; ent_index_1 < entities.size(); ++ent_index_1)
+        for (size_t ent_index_1 = 0; ent_index_1 < entities.size(); ++ent_index_1)
         {
             Entity& e1 = entities[ent_index_1];
             if (e1.collider == nullptr) continue;
 
-            for (int ent_index_2 = ent_index_1 + 1; ent_index_2 < entities.size(); ++ent_index_2)
+            for (size_t ent_index_2 = ent_index_1 + 1; ent_index_2 < entities.size(); ++ent_index_2)
             {
                 Entity& e2 = entities[ent_index_2];
                 if (e2.collider == nullptr) continue;
 
-                auto handler = handler_matrix[(int)e1.collider->type() * 3 + (int)e2.collider->type()];
+                const auto handler = handler_matrix[static_cast<int>(e1.collider->type()) * 3 + static_cast<int>(e2.collider->type())];
                 handler(e1, e2);
             }
         }

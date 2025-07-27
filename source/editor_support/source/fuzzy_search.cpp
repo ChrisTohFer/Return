@@ -10,9 +10,9 @@ namespace re
     float levenshtein_distance(const char* s1, const char* s2, float substitution_cost)
     {
         //see wikipedia page for explanation and original algorithm
-        const auto l1 = strlen(s1);
+        const auto l1 = static_cast<int>(strlen(s1));
         const auto columns = l1 + 1;
-        const auto l2 = strlen(s2);
+        const auto l2 = static_cast<int>(strlen(s2));
         const auto rows = l2 + 1;
 
         //create a matrix of distances

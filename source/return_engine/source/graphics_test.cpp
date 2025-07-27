@@ -105,7 +105,7 @@ namespace re
 
         bool changed = false;
         uint8_t* element = &(m_data[vertex_index * vertex_size()]);
-        for (int component_index = 0; component_index < m_components.size(); ++component_index)
+        for (int component_index = 0; component_index < static_cast<int>(m_components.size()); ++component_index)
         {
             auto& component = m_components[component_index];
 

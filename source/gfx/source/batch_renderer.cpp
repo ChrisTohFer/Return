@@ -26,7 +26,7 @@ namespace gfx
             sbatch = &(*find_shader_batch);
         else
         {
-            m_batches.push_back({&program});
+            m_batches.push_back({&program, {}});
             sbatch = &m_batches.back();
         }
 
@@ -40,7 +40,7 @@ namespace gfx
             abatch = &(*find_vao_batch);
         else
         {
-            abatches.push_back({&vao});
+            abatches.push_back({&vao, {}});
             abatch = &abatches.back();
         }
 
@@ -54,7 +54,7 @@ namespace gfx
             tbatch = &(*find_texture_batch);
         else
         {
-            tbatches.push_back({texture});
+            tbatches.push_back({texture, {}});
             tbatch = &tbatches.back();
         }
 

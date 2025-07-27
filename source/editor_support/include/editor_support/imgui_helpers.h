@@ -51,7 +51,7 @@ namespace imhelp//ing
         //iterate elements and give opportunity to edit each one
         int to_delete = -1;
         int to_move = -1;
-        for (int i = 0; i < list.size(); ++i)
+        for (int i = 0; i < static_cast<int>(list.size()); ++i)
         {
             ImGui::PushID(i);
             auto& element = list[i];

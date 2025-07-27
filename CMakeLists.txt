@@ -6,9 +6,17 @@ project(Return)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-#compiler/platform dependent values
-if(MSVC_VERSION)
-	add_compile_options(/permissive- /W4 /WX) #conformance, warnings, warnings as errors
+#compiler/platform dependent values. Impl taken from stack overflow, not sure why there's a mismatch between MATCHES and STREQUAL
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+	MESSAGE("Clang")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	MESSAGE("GNU")
+	add_compile_options(-Wextra -pedantic-errors -fno-rtti) #warnings, warnings as errors, no rtti
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+	MESSAGE("Intel")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	MESSAGE("MSVC")
+	add_compile_options(/permissive- /W4 /WX /GR-) #conformance, warnings, warnings as errors, no rtti
 endif()
 
 #function definitions
@@ -62,6 +70,9 @@ list(APPEND third_party_targets stb_image)
 file(GLOB_RECURSE glad_source "third_party/glad/*.h" "third_party/glad/*.c")
 add_library(glad STATIC ${glad_source})
 target_include_directories(glad PUBLIC "third_party/glad")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	target_compile_options(glad PRIVATE -w) #disable warnings
+endif()
 list(APPEND third_party_targets glad)
 
 file(GLOB_RECURSE imgui_source "third_party/imgui/*.h" "third_party/imgui/*.cpp")

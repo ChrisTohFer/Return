@@ -238,7 +238,7 @@ namespace file
     bool FileIn::read(T& value)
     {
         m_impl->file.read(reinterpret_cast<char*>(&value), sizeof(T));
-        if (m_impl->file.gcount() < sizeof(T))
+        if (static_cast<size_t>(m_impl->file.gcount()) < sizeof(T))
         {
             value = T();
             return false;

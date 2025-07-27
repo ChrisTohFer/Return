@@ -58,7 +58,7 @@ namespace re
     template<typename ElementType>
     inline void ExpandingQueue<ElementType>::expand_if_full()
     {
-        if (m_count == m_elements.size())
+        if (m_count == static_cast<int>(m_elements.size()))
         {
             if (m_next_in_line != 0)
             {

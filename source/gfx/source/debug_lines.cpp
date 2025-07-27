@@ -86,7 +86,7 @@ void main()
 
         //push a pair of vertices for each line
         vertices.push_back(points.front());
-        for(int i = 1; i < points.size() - 1; ++i)
+        for(size_t i = 1; i < points.size() - 1; ++i)
         {
             //push vertex back twice, as end of previous line and beginning of next line
             vertices.push_back(points[i]);

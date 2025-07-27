@@ -19,6 +19,19 @@ namespace phys
         virtual ColliderType type() const = 0;
     };
 
+    struct Cuboid : public Collider
+    {
+        maths::Vector3 min = maths::Vector3::zero();
+        maths::Vector3 max = maths::Vector3::zero();
+        maths::Quaternion orientation = maths::Quaternion::identity();
+
+        //clamp a vector to the bounds of this Cuboid
+        maths::Vector3 clamp_point(maths::Vector3 vec) const;
+
+        //collider interface
+        ColliderType type() const override { return ColliderType::Cuboid; }
+    };
+
     struct AABB3 : public Collider
     {
         maths::Vector3 min = maths::Vector3::zero();
@@ -43,6 +56,18 @@ namespace phys
 
     //function defs
 
+
+    inline maths::Vector3 Cuboid::clamp_point(maths::Vector3 vec) const
+    {
+        auto rotated_point = orientation.inverse() * vec;
+        auto clamped_rotated_point = maths::Vector3{
+            std::clamp(rotated_point.x, min.x, max.x),
+            std::clamp(rotated_point.y, min.y, max.y),
+            std::clamp(rotated_point.z, min.z, max.z)
+        };
+
+        return orientation * clamped_rotated_point;
+    }
 
     inline maths::Vector3 AABB3::clamp_point(maths::Vector3 vec) const
     {

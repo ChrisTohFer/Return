@@ -28,7 +28,7 @@ namespace re
         int vertex_size() const;
         int num_vertices() const { return m_num_vertices; }
 
-        DEFINE_SERIALIZATION_FUNCTIONS(m_name, m_components, m_data);
+        DEFINE_SERIALIZATION_FUNCTIONS(m_name, m_components, m_data)
 
     private:
         bool edit_vertex(int i);
@@ -47,7 +47,7 @@ namespace re
         struct Triangle
         {
             unsigned a, b, c;
-            DEFINE_SERIALIZATION_FUNCTIONS(a,b,c);
+            DEFINE_SERIALIZATION_FUNCTIONS(a,b,c)
         };
         bool edit();
 
@@ -56,7 +56,7 @@ namespace re
         const void* data() const { return m_triangles.data(); }
         int num_triangles() const { return (int)m_triangles.size(); }
         
-        DEFINE_SERIALIZATION_FUNCTIONS(m_name, m_triangles);
+        DEFINE_SERIALIZATION_FUNCTIONS(m_name, m_triangles)
 
     private:
         std::string m_name;
