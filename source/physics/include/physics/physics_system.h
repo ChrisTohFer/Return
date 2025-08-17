@@ -17,6 +17,8 @@ namespace phys
         RigidBody* rigid = nullptr;
     };
 
+    constexpr float coefficient_of_restitution = 0.5f;
+
     inline void handle_cuboid_cuboid(Entity&, Entity&)
     {
         //todo
@@ -25,11 +27,57 @@ namespace phys
     inline void handle_cuboid_sphere(Entity& lhs, Entity& rhs)
     {
         //todo
+        const Cuboid& cube_col = *static_cast<Cuboid*>(lhs.collider);
+        RigidBody & cube_rigid = *lhs.rigid;
+        const Sphere& sphere_col = *static_cast<Sphere*>(rhs.collider);
+        const auto sphere_pos = rhs.pos;
+        RigidBody& sphere_rigid = *rhs.rigid;
 
+        const auto sphere_pos_in_cube_space = cube_col.orientation.inverse() * (sphere_pos - lhs.pos);
+        const auto clamped_sphere_pos_in_cube_space = maths::Vector3{
+            std::clamp(sphere_pos_in_cube_space.x, cube_col.min.x, cube_col.max.x),
+            std::clamp(sphere_pos_in_cube_space.y, cube_col.min.y, cube_col.max.y),
+            std::clamp(sphere_pos_in_cube_space.z, cube_col.min.z, cube_col.max.z)
+        };
+        if ((clamped_sphere_pos_in_cube_space - sphere_pos_in_cube_space).magnitude_squared() >= sphere_col.radius * sphere_col.radius)
+        {
+            //not touching
+            return;
+        }
 
-        Cuboid& cube_col = *static_cast<Cuboid*>(lhs.collider);
-        Sphere& sphere_col = *static_cast<Sphere*>(lhs.collider);
+        //in cube space
+        const maths::Vector3 collision_point_cube_space = clamped_sphere_pos_in_cube_space;
+        const maths::Vector3 collision_unit_cube_space = (clamped_sphere_pos_in_cube_space - sphere_pos_in_cube_space).normalized();
+        const maths::Vector3 collision_overlap_cube_space = (sphere_pos_in_cube_space - clamped_sphere_pos_in_cube_space) + collision_unit_cube_space * sphere_col.radius;
 
+        //in world space
+        const maths::Vector3 collision_point = cube_col.orientation * collision_point_cube_space;
+        const maths::Vector3 collision_unit = cube_col.orientation * collision_unit_cube_space;
+        const maths::Vector3 collision_overlap = cube_col.orientation * collision_overlap_cube_space;
+        const maths::Vector3 relative_velocity = sphere_rigid.velocity - cube_rigid.velocity - maths::Vector3::cross(cube_rigid.angular_velocity, collision_point);
+        const float relative_velocity_collision = maths::Vector3::dot(relative_velocity, collision_unit);
+        const float relative_velocity_change = -(1.f + coefficient_of_restitution) * relative_velocity_collision;
+
+        const float inverse_cube_mass = 1.f / cube_rigid.properties.mass;
+        const float inverse_sphere_mass = 1.f / sphere_rigid.properties.mass;
+        const maths::Vector3 inverse_cube_inertia = (inverse_cube_mass * 2.5f /*approx*/) * maths::Vector3::cross(maths::Vector3::cross(collision_point, collision_unit), collision_point);
+
+        const float impulse_magnitude = relative_velocity_change / (inverse_cube_mass + inverse_sphere_mass + maths::Vector3::dot(inverse_cube_inertia, collision_unit));
+        const maths::Vector3 impulse = impulse_magnitude * collision_unit;
+
+        //apply impulse
+        cube_rigid.velocity -= inverse_cube_mass * impulse;
+        cube_rigid.angular_velocity -= (inverse_cube_mass * 2.5f /*approx*/) * maths::Vector3::cross(collision_point, impulse);
+        sphere_rigid.velocity += inverse_sphere_mass * impulse;
+
+        //separate
+        const float total_mass = lhs.rigid->properties.mass + rhs.rigid->properties.mass;
+        const float lhs_ratio = rhs.rigid->properties.mass / total_mass;
+        const float rhs_ratio = lhs.rigid->properties.mass / total_mass;
+
+        //separate the colliders, proportion of separation applied to each entity is based on mass ratio
+        lhs.pos += lhs_ratio * collision_overlap;
+        rhs.pos -= rhs_ratio * collision_overlap;
     }
 
     inline void handle_cuboid_aabb(Entity&, Entity&)
@@ -75,10 +123,9 @@ namespace phys
         const float parallel_relative_speed = maths::Vector3::dot(relative_velocity, center_to_center_separation_unit);
 
         //should be a property on the rigidbody
-        constexpr float elasticity = 1.f;
         const float relative_speed_delta = 
             parallel_relative_speed /*first term cancels the original velocity*/ +
-            parallel_relative_speed * elasticity /*second term is the preserved velocity*/;
+            parallel_relative_speed * coefficient_of_restitution /*second term is the preserved velocity*/;
 
         const auto separation_vector = relative_speed_delta * center_to_center_separation_unit;
         lhs.rigid->velocity -= lhs_ratio * separation_vector;

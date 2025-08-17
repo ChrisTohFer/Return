@@ -29,7 +29,8 @@ namespace re
         virtual void on_update(float /*frame_time*/) {};
 
     protected:
-        static constexpr float fixed_update_interval = 1.f / 60.f;
+        float m_fixed_update_interval = 1.f / 60.f;
+        float m_time_modifier = 1.f;
 
         gfx::BatchRenderer& m_batch_renderer;
         const InputManager& m_input_manager;

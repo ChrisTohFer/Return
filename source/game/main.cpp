@@ -55,22 +55,25 @@ void entity_1_update(re::Scene& scene, re::Entity& entity)
     if (cooldown <= 0)
     {
         cooldown = e1_cooldown + static_cast<int>(e1_cooldown_variation * (rand() / (RAND_MAX * 0.5f) - 1.f));
-        re::Entity sphere;
-        sphere.update_function = entity_3_update;
+        re::Entity cube;
+        cube.update_function = entity_3_update;
         
-        sphere.pos = entity.pos;
+        cube.pos = entity.pos;
         float speed = e1_speed + e1_speed_variation * (rand() / (RAND_MAX * 0.5f) - 1.f);
-        sphere.rigid.velocity = entity.orientation * maths::Vector3{ 0.f, 0.f, speed };
+        cube.rigid.velocity = entity.orientation * maths::Vector3{ 0.f, 0.f, speed };
 
-        sphere.rigid.properties.gravity = 9.81f;
+        cube.rigid.angular_velocity = {rand() / (RAND_MAX * 0.5f), rand() / (RAND_MAX * 0.5f), rand() / (RAND_MAX * 0.5f)};
+
+        cube.rigid.properties.gravity = 9.81f;
         
-        sphere.visual_component = std::make_unique<re::SphereComponent>();
+        cube.visual_component = std::make_unique<re::CubeComponent>();
         
-        auto collider = std::make_unique<phys::Sphere>();
-        collider->radius = 1.f;
-        sphere.collider = std::move(collider);
+        auto collider = std::make_unique<phys::Cuboid>();
+        collider->min = -maths::Vector3::one() * 0.5f;
+        collider->max = maths::Vector3::one() * 0.5f;
+        cube.collider = std::move(collider);
         
-        scene.add_entity(std::move(sphere));
+        scene.add_entity(std::move(cube));
     }
 }
 
@@ -120,6 +123,13 @@ public:
 
             e.pos.x -= 10.f;
             e.orientation = maths::Quaternion::from_euler({ -maths::PI * 0.25f, maths::PI * 0.5f, 0.f });
+        }
+        {
+            m_entities.push_back(re::Entity{});
+            auto& e = m_entities.back();
+            e.visual_component = std::make_unique<re::SphereComponent>();
+            e.pos.z -= 10.f;
+            e.rigid.angular_velocity = {0.f, 1.f, 0.f};
         }
         {
             m_entities.push_back(re::Entity{});

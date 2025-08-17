@@ -83,6 +83,7 @@ namespace maths
         static Quaternion from_rotation_matrix(const Matrix44& mat);
         //euler angle order can be defined using EULER_ORDER_XYZ syntax, defaults to EULER_ORDER_ZXY
         static Quaternion from_euler(Vector3);
+        static Quaternion from_axis_and_rotation(Vector3 unit_axis, float rotation);
 
         Quaternion raised_to_power(float power) const;
         Quaternion normalized() const;

@@ -182,6 +182,13 @@ namespace maths
         return from_rotation_matrix(Matrix44::from_euler(euler));
     }
 
+    inline Quaternion Quaternion::from_axis_and_rotation(Vector3 unit_axis, float rotation)
+    {
+        float w, axis_weight;
+        sincosf(rotation * 0.5f, &axis_weight, &w);
+        return Quaternion{axis_weight * unit_axis.x, axis_weight * unit_axis.y, axis_weight * unit_axis.z, w};
+    }
+
     inline Quaternion Quaternion::raised_to_power(float power) const
     {
         float mod_squared_value = mod_squared();

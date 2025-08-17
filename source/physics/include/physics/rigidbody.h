@@ -13,7 +13,7 @@ namespace phys
     struct RigidBody
     {
         maths::Vector3 velocity = maths::Vector3::zero();
-        maths::Quaternion angular_velocity = maths::Quaternion::identity();
+        maths::Vector3 angular_velocity = maths::Vector3::zero();
         RigidBodyProperties properties;
 
         void update(float delta_time, maths::Vector3& position, maths::Quaternion& orientation);
@@ -24,6 +24,10 @@ namespace phys
         velocity.y -= properties.gravity * delta_time;
         
         position += velocity * delta_time;
-        orientation *= maths::Quaternion::slerp(maths::Quaternion::identity(), angular_velocity, delta_time);
+        const float magnitude = angular_velocity.magnitude();
+        if (magnitude != 0.f)
+        {
+            orientation *= maths::Quaternion::from_axis_and_rotation(angular_velocity / magnitude, delta_time * magnitude);
+        }
     }
 }

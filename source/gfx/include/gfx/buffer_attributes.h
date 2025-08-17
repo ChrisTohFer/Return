@@ -24,7 +24,7 @@ namespace gfx
         int location;
     };
 
-    constexpr BufferAttributeInfo c_buffer_attribute_info[(int)BufferAttributeType::Num] =
+    constexpr BufferAttributeInfo c_buffer_attribute_info[static_cast<int>(BufferAttributeType::Num)] =
     {
         #define DEFINE_VERTEX_ATTRIBUTE(a, b, c, d, e, f) { #a , sizeof(b), e, f },
         #include "buffer_attributes.inl"
@@ -33,22 +33,22 @@ namespace gfx
 
     constexpr int attribute_size(BufferAttributeType type)
     {
-        return c_buffer_attribute_info[(int)type].size;
+        return c_buffer_attribute_info[static_cast<int>(type)].size;
     }
 
     constexpr const char* attribute_name(BufferAttributeType type)
     {
-        return c_buffer_attribute_info[(int)type].name;
+        return c_buffer_attribute_info[static_cast<int>(type)].name;
     }
 
     constexpr bool attribute_instanced(BufferAttributeType type)
     {
-        return c_buffer_attribute_info[(int)type].instanced;
+        return c_buffer_attribute_info[static_cast<int>(type)].instanced;
     }
 
     constexpr int attribute_location(BufferAttributeType type)
     {
-        return c_buffer_attribute_info[(int)type].location;
+        return c_buffer_attribute_info[static_cast<int>(type)].location;
     }
 
     int vertex_size(const BufferAttributeType*, int n);
