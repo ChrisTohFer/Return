@@ -45,6 +45,7 @@ namespace maths
     };
     using Matrix44 = Matrix<4, 4>;
     using Matrix34 = Matrix<3, 4>;
+    using Matrix33 = Matrix<3, 3>;
 
     struct Vector3
     {
@@ -128,6 +129,7 @@ namespace maths
 
     Vector3 operator*(const Matrix44& mat, Vector3 vec);
     Vector3 operator*(const Matrix34& mat, Vector3 vec);
+    Vector3 operator*(const Matrix33& mat, Vector3 vec);
     Vector3 operator*(const Quaternion& q, Vector3 vec);
 
     //quaternion

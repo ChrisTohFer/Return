@@ -26,15 +26,16 @@ namespace phys
 
     inline void handle_cuboid_sphere(Entity& lhs, Entity& rhs)
     {
-        //todo
+        using namespace maths;
+
         const Cuboid& cube_col = *static_cast<Cuboid*>(lhs.collider);
-        RigidBody & cube_rigid = *lhs.rigid;
+        RigidBody& cube_rigid = *lhs.rigid;
+
         const Sphere& sphere_col = *static_cast<Sphere*>(rhs.collider);
-        const auto sphere_pos = rhs.pos;
         RigidBody& sphere_rigid = *rhs.rigid;
 
-        const auto sphere_pos_in_cube_space = cube_col.orientation.inverse() * (sphere_pos - lhs.pos);
-        const auto clamped_sphere_pos_in_cube_space = maths::Vector3{
+        const auto sphere_pos_in_cube_space = cube_col.orientation.inverse() * (rhs.pos - lhs.pos);
+        const auto clamped_sphere_pos_in_cube_space = Vector3{
             std::clamp(sphere_pos_in_cube_space.x, cube_col.min.x, cube_col.max.x),
             std::clamp(sphere_pos_in_cube_space.y, cube_col.min.y, cube_col.max.y),
             std::clamp(sphere_pos_in_cube_space.z, cube_col.min.z, cube_col.max.z)
@@ -45,29 +46,31 @@ namespace phys
             return;
         }
 
-        //in cube space
-        const maths::Vector3 collision_point_cube_space = clamped_sphere_pos_in_cube_space;
-        const maths::Vector3 collision_unit_cube_space = (clamped_sphere_pos_in_cube_space - sphere_pos_in_cube_space).normalized();
-        const maths::Vector3 collision_overlap_cube_space = (sphere_pos_in_cube_space - clamped_sphere_pos_in_cube_space) + collision_unit_cube_space * sphere_col.radius;
+        //in cube orientation
+        const Vector3 collision_point_cube_space = clamped_sphere_pos_in_cube_space;
+        const Vector3 collision_unit_cube_space = (clamped_sphere_pos_in_cube_space - sphere_pos_in_cube_space).normalized();
+        const Vector3 collision_overlap_cube_space = (sphere_pos_in_cube_space - clamped_sphere_pos_in_cube_space) + collision_unit_cube_space * sphere_col.radius;
 
-        //in world space
-        const maths::Vector3 collision_point = cube_col.orientation * collision_point_cube_space;
-        const maths::Vector3 collision_unit = cube_col.orientation * collision_unit_cube_space;
-        const maths::Vector3 collision_overlap = cube_col.orientation * collision_overlap_cube_space;
-        const maths::Vector3 relative_velocity = sphere_rigid.velocity - cube_rigid.velocity - maths::Vector3::cross(cube_rigid.angular_velocity, collision_point);
-        const float relative_velocity_collision = maths::Vector3::dot(relative_velocity, collision_unit);
+        //in world space orientation
+        const Vector3 collision_point = cube_col.orientation * collision_point_cube_space + lhs.pos;
+        const Vector3 cube_collision_offset = collision_point - lhs.pos;
+        const Vector3 collision_direction = cube_col.orientation * collision_unit_cube_space;
+        const Vector3 collision_overlap = cube_col.orientation * collision_overlap_cube_space;
+        const Vector3 relative_velocity = sphere_rigid.velocity - cube_rigid.velocity - Vector3::cross(cube_rigid.angular_velocity, cube_collision_offset);
+        const float relative_velocity_collision = Vector3::dot(relative_velocity, collision_direction);
         const float relative_velocity_change = -(1.f + coefficient_of_restitution) * relative_velocity_collision;
 
         const float inverse_cube_mass = 1.f / cube_rigid.properties.mass;
         const float inverse_sphere_mass = 1.f / sphere_rigid.properties.mass;
-        const maths::Vector3 inverse_cube_inertia = (inverse_cube_mass * 2.5f /*approx*/) * maths::Vector3::cross(maths::Vector3::cross(collision_point, collision_unit), collision_point);
+        const Matrix33 inverse_cube_moment_of_inertia = inverse_cube_mass * cube_col.inertia_tensor_over_mass().inverse();
+        const Vector3 scaled_inverse_cube_moment_of_inertia = inverse_cube_moment_of_inertia * Vector3::cross(Vector3::cross(cube_collision_offset, collision_direction), cube_collision_offset);
 
-        const float impulse_magnitude = relative_velocity_change / (inverse_cube_mass + inverse_sphere_mass + maths::Vector3::dot(inverse_cube_inertia, collision_unit));
-        const maths::Vector3 impulse = impulse_magnitude * collision_unit;
+        const float impulse_magnitude = relative_velocity_change / (inverse_cube_mass + inverse_sphere_mass + Vector3::dot(scaled_inverse_cube_moment_of_inertia, collision_direction));
+        const Vector3 impulse = impulse_magnitude * collision_direction;
 
         //apply impulse
         cube_rigid.velocity -= inverse_cube_mass * impulse;
-        cube_rigid.angular_velocity -= (inverse_cube_mass * 2.5f /*approx*/) * maths::Vector3::cross(collision_point, impulse);
+        cube_rigid.angular_velocity -= inverse_cube_moment_of_inertia * Vector3::cross(cube_collision_offset, impulse);
         sphere_rigid.velocity += inverse_sphere_mass * impulse;
 
         //separate

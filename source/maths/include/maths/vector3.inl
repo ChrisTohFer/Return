@@ -192,6 +192,26 @@ namespace maths
         return result;
     }
 
+    inline Vector3 operator*(const Matrix33& mat, Vector3 vec)
+    {
+        Vector3 result;
+
+        result.x =
+            mat.get(0, 0) * vec.x +
+            mat.get(0, 1) * vec.y +
+            mat.get(0, 2) * vec.z;
+        result.y =
+            mat.get(1, 0) * vec.x +
+            mat.get(1, 1) * vec.y +
+            mat.get(1, 2) * vec.z;
+        result.z =
+            mat.get(2, 0) * vec.x +
+            mat.get(2, 1) * vec.y +
+            mat.get(2, 2) * vec.z;
+
+        return result;
+    }
+
     inline Vector3 operator*(const Quaternion& q, Vector3 vec)
     {
         Quaternion q_res = q * Quaternion{ vec.x, vec.y, vec.z, 0.f } *q.inverse();

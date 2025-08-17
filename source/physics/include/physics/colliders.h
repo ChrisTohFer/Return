@@ -25,8 +25,17 @@ namespace phys
         maths::Vector3 max = maths::Vector3::zero();
         maths::Quaternion orientation = maths::Quaternion::identity();
 
-        //clamp a vector to the bounds of this Cuboid
-        maths::Vector3 clamp_point(maths::Vector3 vec) const;
+        maths::Matrix33 inertia_tensor_over_mass() const
+        {
+            const float x = (max.x - min.x);
+            const float y = (max.y - min.y);
+            const float z = (max.z - min.z);
+            return maths::Matrix33::from_orientation(orientation) * maths::Matrix33{
+                1.f / 12.f * (z * z + y * y), 0.f, 0.f,
+                0.f, 1.f / 12.f * (x * x + z * z), 0.f,
+                0.f, 0.f, 1.f / 12.f * (y * y + z * z)
+            };
+        }
 
         //collider interface
         ColliderType type() const override { return ColliderType::Cuboid; }
@@ -55,19 +64,6 @@ namespace phys
 
 
     //function defs
-
-
-    inline maths::Vector3 Cuboid::clamp_point(maths::Vector3 vec) const
-    {
-        auto rotated_point = orientation.inverse() * vec;
-        auto clamped_rotated_point = maths::Vector3{
-            std::clamp(rotated_point.x, min.x, max.x),
-            std::clamp(rotated_point.y, min.y, max.y),
-            std::clamp(rotated_point.z, min.z, max.z)
-        };
-
-        return orientation * clamped_rotated_point;
-    }
 
     inline maths::Vector3 AABB3::clamp_point(maths::Vector3 vec) const
     {
