@@ -25,17 +25,17 @@ namespace re
         void add_entity(Entity entity);
         void remove_entity(Entity& entity);
 
-        virtual void on_fixed_update() {};
-        virtual void on_update(float /*frame_time*/) {};
+        virtual void on_fixed_update() {}
+        virtual void on_update(float /*frame_time*/) {}
 
     protected:
         float m_fixed_update_interval = 1.f / 60.f;
-        float m_time_modifier = 1.f;
+        float m_time_modifier         = 1.f;
 
         gfx::BatchRenderer& m_batch_renderer;
         const InputManager& m_input_manager;
-        Camera m_camera;
-        float m_time_since_update = 0.f;
+        Camera              m_camera;
+        float               m_time_since_update = 0.f;
 
         std::vector<Entity> m_entities;
 
@@ -44,4 +44,4 @@ namespace re
     };
 
 
-}
+} // namespace re

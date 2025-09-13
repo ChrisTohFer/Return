@@ -15,14 +15,14 @@ namespace gfx
         , m_height(other.m_height)
         , m_n_channels(other.m_n_channels)
     {
-        other.m_data = nullptr;
-        other.m_width = 0;
-        other.m_height = 0;
+        other.m_data       = nullptr;
+        other.m_width      = 0;
+        other.m_height     = 0;
         other.m_n_channels = 0;
     }
     Image::~Image()
     {
-        if(m_data != nullptr)
+        if (m_data != nullptr)
             stbi_image_free(m_data);
     }
-}
+} // namespace gfx

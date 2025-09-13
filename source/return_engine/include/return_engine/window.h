@@ -13,6 +13,6 @@ namespace re
     //return true if execution should continue, false if should exit
     bool window_update();
 
-    float window_aspect();
+    float               window_aspect();
     const InputManager& window_input_manager();
-}
+} // namespace re

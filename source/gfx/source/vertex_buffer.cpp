@@ -21,7 +21,7 @@ namespace gfx
     }
     VertexBuffer::~VertexBuffer()
     {
-        if(m_id != 0)
+        if (m_id != 0)
         {
             glDeleteBuffers(1, &m_id);
         }
@@ -29,13 +29,13 @@ namespace gfx
     void VertexBuffer::bind_attributes() const
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_id);
-        
-        auto stride = vertex_size(m_components.data(), (int)m_components.size());
+
+        auto     stride = vertex_size(m_components.data(), (int)m_components.size());
         uint64_t offset = 0;
-        for(auto& component : m_components)
+        for (auto& component : m_components)
         {
             bind_attribute(component, stride, offset);
-            offset += attribute_size(component); 
+            offset += attribute_size(component);
         }
     }
-}
+} // namespace gfx

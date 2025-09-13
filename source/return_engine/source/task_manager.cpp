@@ -57,7 +57,7 @@ namespace re
 
         m_task = std::move(task);
         m_next = start;
-        m_end = end;
+        m_end  = end;
     }
 
     void TaskManager::finish_tasks()
@@ -82,8 +82,8 @@ namespace re
     {
         int start, end;
         m_task_mutex.lock();
-        start = m_next;
-        end = std::min(m_end, start + m_task_batch_count);
+        start  = m_next;
+        end    = std::min(m_end, start + m_task_batch_count);
         m_next = end;
         m_task_mutex.unlock();
 
@@ -131,4 +131,4 @@ namespace re
         //
         //return true;
     }
-}
+} // namespace re

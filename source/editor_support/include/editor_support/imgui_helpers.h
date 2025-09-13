@@ -13,9 +13,9 @@ namespace maths
 {
     struct Vector2;
     struct Vector3;
-}
+} // namespace maths
 
-namespace imhelp//ing
+namespace imhelp //ing
 {
     void display_error_if_present(const char* error);
     bool edit_multiline_string(const char* label, std::string& s);
@@ -27,7 +27,7 @@ namespace imhelp//ing
     bool edit(const char* label, maths::Vector2&);
     bool edit(const char* label, maths::Vector3&);
 
-    template<typename ElementT, typename ...ContextArgs>
+    template<typename ElementT, typename... ContextArgs>
     bool edit_list(const char* label, std::vector<ElementT>& list, ContextArgs&&... args);
 
     //RAII class to indent the output of a block of imgui code
@@ -40,7 +40,7 @@ namespace imhelp//ing
 
     //inline implementations ========================================================
 
-    template<typename ElementT, typename ...ContextArgs>
+    template<typename ElementT, typename... ContextArgs>
     bool edit_list(const char* label, std::vector<ElementT>& list, ContextArgs&&... args)
     {
         bool changed = false;
@@ -50,7 +50,7 @@ namespace imhelp//ing
 
         //iterate elements and give opportunity to edit each one
         int to_delete = -1;
-        int to_move = -1;
+        int to_move   = -1;
         for (int i = 0; i < static_cast<int>(list.size()); ++i)
         {
             ImGui::PushID(i);
@@ -106,4 +106,4 @@ namespace imhelp//ing
         return changed;
     }
 
-}
+} // namespace imhelp

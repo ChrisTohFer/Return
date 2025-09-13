@@ -23,17 +23,17 @@ namespace re
         }
 
         gfx::BatchRenderer batch_renderer;
-        auto scene = scene_constructor(batch_renderer, window_input_manager());
-        
-        auto time = std::chrono::system_clock::now();
+        auto               scene = scene_constructor(batch_renderer, window_input_manager());
+
+        auto time                = std::chrono::system_clock::now();
         while (window_update())
         {
             //calculate dt
             float frame_time = 0.f;
             {
                 auto new_time = std::chrono::system_clock::now();
-                frame_time = 1e-9f * std::chrono::duration_cast<std::chrono::nanoseconds>(new_time - time).count();
-                time = new_time;
+                frame_time    = 1e-9f * std::chrono::duration_cast<std::chrono::nanoseconds>(new_time - time).count();
+                time          = new_time;
             }
 
             //update scene
@@ -46,4 +46,4 @@ namespace re
 
         return 0;
     }
-}
+} // namespace re

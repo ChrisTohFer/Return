@@ -3,8 +3,8 @@
 #include "editor_support/file_dialog.h"
 #include "editor_support/imgui_helpers.h"
 
-#include "maths/vector2.h"
 #include "maths/maths.h"
+#include "maths/vector2.h"
 
 #include "gfx/image.h"
 
@@ -19,16 +19,16 @@ namespace gfx
     static bool edit(const char* label, gfx::BufferAttributeType& type)
     {
         bool changed = false;
-        int index = (int)type;
-        if(ImGui::BeginCombo(label, gfx::attribute_name(type)))
+        int  index   = (int)type;
+        if (ImGui::BeginCombo(label, gfx::attribute_name(type)))
         {
-            for(int i = 0; i < (int)gfx::BufferAttributeType::Num; ++i)
+            for (int i = 0; i < (int)gfx::BufferAttributeType::Num; ++i)
             {
                 const bool selected = index == i;
-                if(ImGui::Selectable(gfx::attribute_name((gfx::BufferAttributeType)i), &selected) && !selected)
+                if (ImGui::Selectable(gfx::attribute_name((gfx::BufferAttributeType)i), &selected) && !selected)
                 {
                     changed = true;
-                    type = (gfx::BufferAttributeType) i;
+                    type    = (gfx::BufferAttributeType)i;
                 }
             }
 
@@ -37,7 +37,7 @@ namespace gfx
 
         return changed;
     }
-}
+} // namespace gfx
 
 namespace re
 {
@@ -46,17 +46,19 @@ namespace re
     VertexBuffer VertexBuffer::create_triangle_buffer()
     {
         VertexBuffer triangle_buffer;
-        triangle_buffer.m_name = "triangle";
-        triangle_buffer.m_components = { gfx::BufferAttributeType::Translation, gfx::BufferAttributeType::TextureUVs };
+        triangle_buffer.m_name         = "triangle";
+        triangle_buffer.m_components   = { gfx::BufferAttributeType::Translation, gfx::BufferAttributeType::TextureUVs };
         triangle_buffer.m_num_vertices = 3;
         triangle_buffer.m_data.resize(
             triangle_buffer.m_num_vertices *
             gfx::vertex_size(triangle_buffer.m_components.data(), (int)triangle_buffer.m_components.size()));
 
         auto* floats = reinterpret_cast<float*>(triangle_buffer.m_data.data());
-        floats[0] = -0.5f; floats[1] = -0.5f; floats[2] = 0.f; floats[3] = -0.5f; floats[4] = -0.5f;
-        floats[5] = 0.5f; floats[6] = -0.5f; floats[7] = 0.f; floats[8] = 0.5f; floats[9] = -0.5f;
-        floats[10] = 0.f; floats[11] = 0.5f; floats[12] = 0.f; floats[13] = 0.f; floats[14] = 0.5f;
+        // clang-format off
+        floats[0]  = -0.5f; floats[1]  = -0.5f; floats[2]  = 0.f; floats[3]  = -0.5f; floats[4] = -0.5f;
+        floats[5]  =  0.5f; floats[6]  = -0.5f; floats[7]  = 0.f; floats[8]  =  0.5f; floats[9] = -0.5f;
+        floats[10] =  0.0f; floats[11] =  0.5f; floats[12] = 0.f; floats[13] =  0.0f; floats[14] = 0.5f;
+        // clang-format on
 
         return triangle_buffer;
     }
@@ -72,7 +74,7 @@ namespace re
         imhelp::Indent indent;
 
         bool changed = false;
-        if (imhelp::edit("Name", m_name))                     changed = true;
+        if (imhelp::edit("Name", m_name)) changed = true;
         if (imhelp::edit_list("Vertex Components", m_components))
         {
             m_data.resize(vertex_size() * m_num_vertices, 0);
@@ -83,7 +85,7 @@ namespace re
         {
             m_data.resize(vertex_size() * m_num_vertices, 0);
         }
-        if (ImGui::IsItemDeactivatedAfterEdit())              changed = true;
+        if (ImGui::IsItemDeactivatedAfterEdit()) changed = true;
         for (int i = 0; i < m_num_vertices; ++i)
         {
             ImGui::PushID(i);
@@ -103,7 +105,7 @@ namespace re
             return false;
         }
 
-        bool changed = false;
+        bool     changed = false;
         uint8_t* element = &(m_data[vertex_index * vertex_size()]);
         for (int component_index = 0; component_index < static_cast<int>(m_components.size()); ++component_index)
         {
@@ -112,9 +114,13 @@ namespace re
             ImGui::PushID(component_index);
             switch (component)
             {
-            case gfx::BufferAttributeType::Translation:        if (imhelp::edit("", *reinterpret_cast<maths::Vector3*>(element))) changed = true; break;
-            case gfx::BufferAttributeType::TextureUVs:         if (imhelp::edit("", *reinterpret_cast<maths::Vector2*>(element))) changed = true; break;
-            case gfx::BufferAttributeType::InstanceTransform:  break;
+            case gfx::BufferAttributeType::Translation:
+                if (imhelp::edit("", *reinterpret_cast<maths::Vector3*>(element))) changed = true;
+                break;
+            case gfx::BufferAttributeType::TextureUVs:
+                if (imhelp::edit("", *reinterpret_cast<maths::Vector2*>(element))) changed = true;
+                break;
+            case gfx::BufferAttributeType::InstanceTransform: break;
             }
             ImGui::PopID();
 
@@ -132,7 +138,7 @@ namespace re
 
     static bool edit(const char* label, ElementBuffer::Triangle& vt)
     {
-        int i3[3] = { (int)vt.a,(int)vt.b,(int)vt.c };
+        int i3[3] = { (int)vt.a, (int)vt.b, (int)vt.c };
         ImGui::InputInt3(label, i3);
         vt = { (unsigned)i3[0], (unsigned)i3[1], (unsigned)i3[2] };
 
@@ -150,7 +156,7 @@ namespace re
         imhelp::Indent indent;
 
         bool changed = false;
-        if (imhelp::edit("Name", m_name))                changed = true;
+        if (imhelp::edit("Name", m_name)) changed = true;
         if (imhelp::edit_list("Triangles", m_triangles)) changed = true;
         imhelp::display_error_if_present(m_error_log.c_str());
 
@@ -159,52 +165,50 @@ namespace re
 
     //Shader ========================================================================
 
-    template <gfx::ShaderType shader_type>
+    template<gfx::ShaderType shader_type>
     Shader<shader_type> Shader<shader_type>::create_triangle_shader() requires(shader_type == gfx::ShaderType::Vertex)
     {
         Shader shader;
         shader.m_name = "triangle";
-        shader.m_source = 
-        "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "layout (location = 1) in vec2 aTexCoords;\n"
-        "out vec2 texCoords;\n"
-        "uniform float time;\n"
-        "uniform mat4 camera;\n"
-        "uniform mat4 transform;\n"
-        "void main()\n"
-        "{\n"
-        //roatation part
-        "    float x = aPos.x * cos(time) + aPos.y * sin(time);\n"
-        "    float y = aPos.y * cos(time) - aPos.x * sin(time);\n"
-        "    float z = aPos.z;\n"
-        //outputs
-        "    texCoords = aTexCoords;\n"
-        "    gl_Position = camera * transform * vec4(x, y, z, 1.0);\n"
-        "}\n"
-        ;
+        shader.m_source =
+            "#version 330 core\n"
+            "layout (location = 0) in vec3 aPos;\n"
+            "layout (location = 1) in vec2 aTexCoords;\n"
+            "out vec2 texCoords;\n"
+            "uniform float time;\n"
+            "uniform mat4 camera;\n"
+            "uniform mat4 transform;\n"
+            "void main()\n"
+            "{\n"
+            //roatation part
+            "    float x = aPos.x * cos(time) + aPos.y * sin(time);\n"
+            "    float y = aPos.y * cos(time) - aPos.x * sin(time);\n"
+            "    float z = aPos.z;\n"
+            //outputs
+            "    texCoords = aTexCoords;\n"
+            "    gl_Position = camera * transform * vec4(x, y, z, 1.0);\n"
+            "}\n";
         return shader;
     }
 
-    template <gfx::ShaderType shader_type>
+    template<gfx::ShaderType shader_type>
     Shader<shader_type> Shader<shader_type>::create_triangle_shader() requires(shader_type == gfx::ShaderType::Fragment)
     {
         Shader shader;
         shader.m_name = "triangle";
-        shader.m_source = 
-        "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "in vec2 texCoords;\n"
-        "uniform sampler2D tex;\n"
-        "void main()\n"
-        "{\n"
-        "    FragColor = texture(tex, texCoords);\n"
-        "}\n"
-        ;
+        shader.m_source =
+            "#version 330 core\n"
+            "out vec4 FragColor;\n"
+            "in vec2 texCoords;\n"
+            "uniform sampler2D tex;\n"
+            "void main()\n"
+            "{\n"
+            "    FragColor = texture(tex, texCoords);\n"
+            "}\n";
         return shader;
     }
 
-    template <gfx::ShaderType shader_type>
+    template<gfx::ShaderType shader_type>
     bool Shader<shader_type>::edit()
     {
         char label[256];
@@ -216,7 +220,7 @@ namespace re
         imhelp::Indent indent;
 
         bool changed = false;
-        if (imhelp::edit("Name", m_name))                      changed = true;
+        if (imhelp::edit("Name", m_name)) changed = true;
         if (imhelp::edit_multiline_string("Source", m_source)) changed = true;
         imhelp::display_error_if_present(m_error_log.c_str());
 
@@ -231,7 +235,7 @@ namespace re
     ShaderProgram ShaderProgram::create_default_triangle_program()
     {
         ShaderProgram triangle_program;
-        triangle_program.m_name = "triangle";
+        triangle_program.m_name             = "triangle";
         triangle_program.m_vert_shader_name = "triangle";
         triangle_program.m_frag_shader_name = "triangle";
         return triangle_program;
@@ -248,8 +252,8 @@ namespace re
         imhelp::Indent indent;
 
         bool changed = false;
-        if (imhelp::edit("Name", m_name))                        changed = true;
-        if (imhelp::edit("Vertex Shader", m_vert_shader_name))   changed = true;
+        if (imhelp::edit("Name", m_name)) changed = true;
+        if (imhelp::edit("Vertex Shader", m_vert_shader_name)) changed = true;
         if (imhelp::edit("Fragment Shader", m_frag_shader_name)) changed = true;
         imhelp::display_error_if_present(m_error_log.c_str());
 
@@ -261,7 +265,7 @@ namespace re
     VertexArrayObject VertexArrayObject::create_default_triangle_vao()
     {
         VertexArrayObject triangle_array;
-        triangle_array.m_name = "triangle";
+        triangle_array.m_name               = "triangle";
         triangle_array.m_vertex_buffer_name = "triangle";
         return triangle_array;
     }
@@ -277,8 +281,8 @@ namespace re
         imhelp::Indent indent;
 
         bool changed = false;
-        if (imhelp::edit("Name", m_name))                          changed = true;
-        if (imhelp::edit("Vertex buffer", m_vertex_buffer_name))   changed = true;
+        if (imhelp::edit("Name", m_name)) changed = true;
+        if (imhelp::edit("Vertex buffer", m_vertex_buffer_name)) changed = true;
         if (imhelp::edit("Element buffer", m_element_buffer_name)) changed = true;
         imhelp::display_error_if_present(m_error_log.c_str());
 
@@ -290,7 +294,7 @@ namespace re
     Texture Texture::default_wall_texture()
     {
         Texture t;
-        t.m_name = "triangle";
+        t.m_name     = "triangle";
         t.m_filename = "wall.jpg";
         return t;
     }
@@ -306,7 +310,7 @@ namespace re
         imhelp::Indent indent;
 
         bool changed = false;
-        if (imhelp::edit("Name", m_name))         changed = true;
+        if (imhelp::edit("Name", m_name)) changed = true;
         if (imhelp::edit("Filename", m_filename)) changed = true;
         imhelp::display_error_if_present(m_error_log.c_str());
 
@@ -315,13 +319,16 @@ namespace re
 
     //GraphicsTestEditor ============================================================
 
-    static bool edit(const char*, VertexBuffer& vb)       { return vb.edit(); }
-    static bool edit(const char*, ElementBuffer& eb)      { return eb.edit(); }
+    static bool edit(const char*, VertexBuffer& vb) { return vb.edit(); }
+    static bool edit(const char*, ElementBuffer& eb) { return eb.edit(); }
     template<gfx::ShaderType shader_type>
-    static bool edit(const char*, Shader<shader_type>& s) { return s.edit(); }
-    static bool edit(const char*, ShaderProgram& sp)      { return sp.edit(); }
+    static bool edit(const char*, Shader<shader_type>& s)
+    {
+        return s.edit();
+    }
+    static bool edit(const char*, ShaderProgram& sp) { return sp.edit(); }
     static bool edit(const char*, VertexArrayObject& vao) { return vao.edit(); }
-    static bool edit(const char*, Texture& texture)       { return texture.edit(); }
+    static bool edit(const char*, Texture& texture) { return texture.edit(); }
 
     GraphicsTestEditor::GraphicsTestEditor()
     {
@@ -335,27 +342,27 @@ namespace re
 
     bool GraphicsTestEditor::edit()
     {
-        bool changed = m_deferred_update;
+        bool changed      = m_deferred_update;
         m_deferred_update = false;
 
         if (ImGui::Begin("GraphicsTestEditor"))
         {
             static bool saving = false;
-            if(ImGui::Button("Save state"))
+            if (ImGui::Button("Save state"))
             {
                 saving = true;
-                save_file_dialog({file::get_data_path(""), ".editor_state"});
+                save_file_dialog({ file::get_data_path(""), ".editor_state" });
             }
             ImGui::SameLine();
-            if(ImGui::Button("Load state"))
+            if (ImGui::Button("Load state"))
             {
                 saving = false;
-                open_file_dialog({file::get_data_path(""), ".editor_state"});
+                open_file_dialog({ file::get_data_path(""), ".editor_state" });
             }
             auto update_dialog_result = update_file_dialog();
-            if(update_dialog_result)
+            if (update_dialog_result)
             {
-                if(saving)
+                if (saving)
                 {
                     auto file = file::FileOut::from_absolute(update_dialog_result->result_path.string().c_str());
                     m_data.write(file);
@@ -370,15 +377,15 @@ namespace re
 
             ImGui::Text("Undo frame: %d, Undo/Redo length:[%d, %d]", m_undo_current, m_undo_length, m_redo_length);
             ImGui::Separator();
-            if (imhelp::edit_list("Vertex Buffers", m_data.m_vertex_buffers))             changed = true;
+            if (imhelp::edit_list("Vertex Buffers", m_data.m_vertex_buffers)) changed = true;
             ImGui::Separator();
-            if (imhelp::edit_list("Element Buffers", m_data.m_element_buffers))           changed = true;
+            if (imhelp::edit_list("Element Buffers", m_data.m_element_buffers)) changed = true;
             ImGui::Separator();
-            if (imhelp::edit_list("Vertex shaders", m_data.m_vertex_shaders))             changed = true;
+            if (imhelp::edit_list("Vertex shaders", m_data.m_vertex_shaders)) changed = true;
             ImGui::Separator();
-            if (imhelp::edit_list("Fragment shaders", m_data.m_fragment_shaders))         changed = true;
+            if (imhelp::edit_list("Fragment shaders", m_data.m_fragment_shaders)) changed = true;
             ImGui::Separator();
-            if (imhelp::edit_list("Shader programs", m_data.m_shader_programs))           changed = true;
+            if (imhelp::edit_list("Shader programs", m_data.m_shader_programs)) changed = true;
             ImGui::Separator();
             if (imhelp::edit_list("Vertex array objects", m_data.m_vertex_array_objects)) changed = true;
             ImGui::Separator();
@@ -393,11 +400,11 @@ namespace re
             {
                 if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z))
                 {
-                    if(undo()) changed = true;
+                    if (undo()) changed = true;
                 }
                 if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Y))
                 {
-                    if(redo()) changed = true;
+                    if (redo()) changed = true;
                 }
             }
         }
@@ -406,7 +413,7 @@ namespace re
         return changed;
     }
 
-    void GraphicsTestEditor::compile_assets(gfx::GraphicsManager &manager)
+    void GraphicsTestEditor::compile_assets(gfx::GraphicsManager& manager)
     {
         manager.clear();
 
@@ -418,37 +425,35 @@ namespace re
         auto& vaos      = m_data.m_vertex_array_objects;
         auto& textures  = m_data.m_textures;
 
-        for(auto& buffer : v_buffers)
+        for (auto& buffer : v_buffers)
         {
             buffer.error_log().clear();
             manager.add(
                 buffer.name().c_str(),
-                std::make_unique<gfx::VertexBuffer>(buffer.data(), buffer.num_vertices(), buffer.components())
-            );
+                std::make_unique<gfx::VertexBuffer>(buffer.data(), buffer.num_vertices(), buffer.components()));
         }
         gfx::report_gl_error();
 
-        for(auto& buffer : e_buffers)
+        for (auto& buffer : e_buffers)
         {
             buffer.error_log().clear();
             manager.add(
-                buffer.name().c_str(), 
-                std::make_unique<gfx::ElementBuffer>(buffer.data(), buffer.num_triangles() * 3)
-            );
+                buffer.name().c_str(),
+                std::make_unique<gfx::ElementBuffer>(buffer.data(), buffer.num_triangles() * 3));
         }
         gfx::report_gl_error();
 
-        for(auto& vao : vaos)
+        for (auto& vao : vaos)
         {
             vao.error_log().clear();
 
             //find components, report if missing
-            bool requires_e_buffer = !vao.element_buffer_name().empty();
-            auto* vbuffer = manager.vertex_buffer(vao.vertex_buffer_name().c_str());
-            auto* ebuffer = manager.element_buffer(vao.element_buffer_name().c_str());
+            bool  requires_e_buffer = !vao.element_buffer_name().empty();
+            auto* vbuffer           = manager.vertex_buffer(vao.vertex_buffer_name().c_str());
+            auto* ebuffer           = manager.element_buffer(vao.element_buffer_name().c_str());
             vao.error_log() += vbuffer == nullptr ? "Couldn't find vertex buffer.\n" : "";
             vao.error_log() += requires_e_buffer && ebuffer == nullptr ? "Couldn't find element buffer.\n" : "";
-            
+
             if (!vao.error_log().empty())
             {
                 //no point trying to create a vao if we're missing the components
@@ -459,30 +464,28 @@ namespace re
         }
         gfx::report_gl_error();
 
-        for(auto& vert_shader : v_shaders)
+        for (auto& vert_shader : v_shaders)
         {
             vert_shader.error_log().clear();
             manager.add(
-                vert_shader.name().c_str(), 
-                std::make_unique<gfx::VertexShader>(vert_shader.source().c_str(), &vert_shader.error_log())
-            );
+                vert_shader.name().c_str(),
+                std::make_unique<gfx::VertexShader>(vert_shader.source().c_str(), &vert_shader.error_log()));
         }
         gfx::report_gl_error();
 
-        for(auto& frag_shader : f_shaders)
+        for (auto& frag_shader : f_shaders)
         {
             frag_shader.error_log().clear();
             manager.add(
                 frag_shader.name().c_str(),
-                std::make_unique<gfx::FragmentShader>(frag_shader.source().c_str(), &frag_shader.error_log())
-            );
+                std::make_unique<gfx::FragmentShader>(frag_shader.source().c_str(), &frag_shader.error_log()));
         }
         gfx::report_gl_error();
 
-        for(auto& shader_program : programs)
+        for (auto& shader_program : programs)
         {
             shader_program.error_log().clear();
-            
+
             //find components, report if missing
             auto* vshader = manager.vertex_shader(shader_program.vertex_shader().c_str());
             auto* fshader = manager.fragment_shader(shader_program.fragment_shader().c_str());
@@ -496,22 +499,21 @@ namespace re
             }
 
             manager.add(shader_program.name().c_str(), std::make_unique<gfx::ShaderProgram>(*vshader, *fshader, &shader_program.error_log()));
-
         }
         gfx::report_gl_error();
 
-        for(auto& texture : textures)
+        for (auto& texture : textures)
         {
             texture.error_log().clear();
 
-            if(texture.texture_filename().empty())
+            if (texture.texture_filename().empty())
             {
                 texture.error_log() = "Filename not specified.";
                 continue;
             }
 
             gfx::Image texture_image(texture.texture_filename().c_str());
-            if(!texture_image.valid())
+            if (!texture_image.valid())
             {
                 texture.error_log() = "Couldn't load the file.";
             }
@@ -526,7 +528,7 @@ namespace re
         if (m_undo_current >= undo_stack_size) m_undo_current -= undo_stack_size;
         m_undo_length += 1;
         if (m_undo_length >= undo_stack_size) m_undo_length = undo_stack_size - 1;
-        m_redo_length = 0;
+        m_redo_length                = 0;
         m_undo_stack[m_undo_current] = m_data;
     }
 
@@ -557,4 +559,4 @@ namespace re
         }
         return false;
     }
-}
+} // namespace re

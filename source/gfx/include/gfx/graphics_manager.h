@@ -1,10 +1,10 @@
 #pragma once
 
-#include "vertex_buffer.h"
 #include "element_buffer.h"
-#include "vertex_array_object.h"
 #include "shader.h"
 #include "texture.h"
+#include "vertex_array_object.h"
+#include "vertex_buffer.h"
 
 #include <memory>
 #include <string>
@@ -52,4 +52,4 @@ namespace gfx
         std::unordered_map<std::string, std::unique_ptr<gfx::ShaderProgram>>  m_shader_programs;
         std::unordered_map<std::string, std::unique_ptr<gfx::Texture>>        m_textures;
     };
-}
+} // namespace gfx

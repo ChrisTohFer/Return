@@ -11,20 +11,23 @@ namespace re
     class ExpandingQueue
     {
     public:
-        ExpandingQueue(int initial_size = 8) : m_elements(initial_size) {}
+        ExpandingQueue(int initial_size = 8)
+            : m_elements(initial_size)
+        {}
 
-        void push(const ElementType&);
-        void push(ElementType&&);
+        void        push(const ElementType&);
+        void        push(ElementType&&);
         ElementType pop();
 
         int count() const { return m_count; }
+
     private:
         void expand_if_full();
-        int back_of_line() { return (m_next_in_line + m_count) % m_elements.size(); }
+        int  back_of_line() { return (m_next_in_line + m_count) % m_elements.size(); }
 
         std::vector<ElementType> m_elements;
-        int m_next_in_line = 0;
-        int m_count = 0;
+        int                      m_next_in_line = 0;
+        int                      m_count        = 0;
     };
 
     //inline definitions
@@ -49,7 +52,7 @@ namespace re
     inline ElementType ExpandingQueue<ElementType>::pop()
     {
         assert(m_count > 0);
-        auto element = std::move(m_elements[m_next_in_line]);
+        auto element   = std::move(m_elements[m_next_in_line]);
         m_next_in_line = (m_next_in_line + 1) % m_elements.size();
         --m_count;
         return element;
@@ -72,4 +75,4 @@ namespace re
         }
     }
 
-}
+} // namespace re

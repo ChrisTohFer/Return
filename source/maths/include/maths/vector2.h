@@ -16,18 +16,18 @@ namespace maths
         float y;
 
         //useful default values
-        static Vector2 zero() { return { 0.f,0.f }; }
-        static Vector2 one() { return { 1.f,1.f }; }
-        static Vector2 unit_x() { return { 1.f,0.f }; }
-        static Vector2 unit_y() { return { 0.f,1.f }; }
+        static Vector2 zero() { return { 0.f, 0.f }; }
+        static Vector2 one() { return { 1.f, 1.f }; }
+        static Vector2 unit_x() { return { 1.f, 0.f }; }
+        static Vector2 unit_y() { return { 0.f, 1.f }; }
 
         //operations
         //+-*/ operations are defined as non-member functions
-        static float dot(const Vector2&, const Vector2&);
+        static float   dot(const Vector2&, const Vector2&);
         static Vector2 interpolate(const Vector2&, const Vector2&, float t);
 
-        float magnitude_squared() const;
-        float magnitude() const;
+        float   magnitude_squared() const;
+        float   magnitude() const;
         Vector2 normalized() const;
     };
 
@@ -38,19 +38,19 @@ namespace maths
 
     Vector2 operator-(const Vector2& value);
 
-    Vector2 operator+(const Vector2& lhs, const Vector2& rhs);
+    Vector2  operator+(const Vector2& lhs, const Vector2& rhs);
     Vector2& operator+=(Vector2& lhs, const Vector2& rhs);
 
-    Vector2 operator-(const Vector2& lhs, const Vector2& rhs);
+    Vector2  operator-(const Vector2& lhs, const Vector2& rhs);
     Vector2& operator-=(Vector2& lhs, const Vector2& rhs);
 
-    Vector2 operator*(const Vector2& lhs, float rhs);
-    Vector2 operator*(float lhs, const Vector2& rhs);
+    Vector2  operator*(const Vector2& lhs, float rhs);
+    Vector2  operator*(float lhs, const Vector2& rhs);
     Vector2& operator*=(Vector2& lhs, float rhs);
 
-    Vector2 operator/(const Vector2& lhs, float rhs);
+    Vector2  operator/(const Vector2& lhs, float rhs);
     Vector2& operator/=(Vector2& lhs, float rhs);
-}
+} // namespace maths
 
 //inline definitions
 namespace maths
@@ -59,9 +59,8 @@ namespace maths
 
     inline bool operator==(const Vector2& lhs, const Vector2& rhs)
     {
-        return
-            lhs.x == rhs.x &&
-            lhs.y == rhs.y;
+        return lhs.x == rhs.x &&
+               lhs.y == rhs.y;
     }
 
     inline bool operator!=(const Vector2& lhs, const Vector2& rhs)
@@ -138,9 +137,8 @@ namespace maths
 
     inline float Vector2::dot(const Vector2& lhs, const Vector2& rhs)
     {
-        return
-            lhs.x * rhs.x +
-            lhs.y * rhs.y;
+        return lhs.x * rhs.x +
+               lhs.y * rhs.y;
     }
 
     inline Vector2 Vector2::interpolate(const Vector2& v1, const Vector2& v2, float t)
@@ -171,4 +169,4 @@ namespace maths
         return *this / m;
     }
 
-}
+} // namespace maths

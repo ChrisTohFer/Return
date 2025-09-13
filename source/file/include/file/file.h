@@ -8,22 +8,22 @@
 #include <string>
 #include <vector>
 
-#define DEFINE_ENUM_SERIALIZE_FUNCTIONS(type)                  \
-inline ::file::FileOut& operator<<(::file::FileOut& f, type v) \
-{                                                              \
-    return f << (uint64_t)v;                                   \
-}                                                              \
-inline ::file::FileIn& operator>>(::file::FileIn& f, type& v)  \
-{                                                              \
-    uint64_t v_int;                                            \
-    f >> v_int;                                                \
-    v = (type)v_int;                                           \
-    return f;                                                  \
-}
+#define DEFINE_ENUM_SERIALIZE_FUNCTIONS(type)                      \
+    inline ::file::FileOut& operator<<(::file::FileOut& f, type v) \
+    {                                                              \
+        return f << (uint64_t)v;                                   \
+    }                                                              \
+    inline ::file::FileIn& operator>>(::file::FileIn& f, type& v)  \
+    {                                                              \
+        uint64_t v_int;                                            \
+        f >> v_int;                                                \
+        v = (type)v_int;                                           \
+        return f;                                                  \
+    }
 
 #define DEFINE_SERIALIZATION_FUNCTIONS(...)                            \
     void write(::file::FileOut& f) const { f.write_all(__VA_ARGS__); } \
-    void read(::file::FileIn& f) { f.read_all(__VA_ARGS__); };
+    void read(::file::FileIn& f) { f.read_all(__VA_ARGS__); }
 
 namespace file
 {
@@ -44,7 +44,7 @@ namespace file
         static FileOut from_data(const char* relative_path);
         static FileOut from_app_data(const char* relative_path);
         static FileOut from_absolute(const char* path);
-        
+
         ~FileOut();
 
         bool valid() const;
@@ -73,9 +73,9 @@ namespace file
         FileOut& operator<<(const ElementT&);
         template<typename ElementT>
         FileOut& operator<<(const std::vector<ElementT>&);
-        template<typename ... ElementT>
+        template<typename... ElementT>
         FileOut& write_all(const ElementT&...);
-        void write(const void*, size_t size);
+        void     write(const void*, size_t size);
 
     private:
         FileOut(const char*);
@@ -97,7 +97,7 @@ namespace file
         ~FileIn();
 
         bool valid() const;
-        
+
         FileIn& operator>>(int8_t&);
         FileIn& operator>>(int16_t&);
         FileIn& operator>>(int32_t&);
@@ -121,10 +121,10 @@ namespace file
         FileIn& operator>>(ElementT&);
         template<typename ElementT>
         FileIn& operator>>(std::vector<ElementT>&);
-        template<typename ... ElementT>
+        template<typename... ElementT>
         FileIn& read_all(ElementT&...);
         //returns true if read successfully, false if hit end of file
-        bool read(void*, size_t size);
+        bool    read(void*, size_t size);
 
     private:
         FileIn(const char*);
@@ -150,13 +150,13 @@ namespace file
     FileOut& FileOut::operator<<(const std::vector<ElementT>& vec)
     {
         *this << (int)vec.size();
-        for(auto& elem : vec)
+        for (auto& elem : vec)
         {
             *this << elem;
         }
         return *this;
     }
-    template<typename ... ElementT>
+    template<typename... ElementT>
     FileOut& FileOut::write_all(const ElementT&... elements)
     {
         ((*this << elements), ...);
@@ -177,16 +177,16 @@ namespace file
         int size;
         *this >> size;
         vec.resize(size);
-        for(auto& elem : vec)
+        for (auto& elem : vec)
         {
             *this >> elem;
         }
         return *this;
     }
-    template<typename ... ElementT>
+    template<typename... ElementT>
     FileIn& FileIn::read_all(ElementT&... elements)
     {
         ((*this >> elements), ...);
         return *this;
     }
-}
+} // namespace file

@@ -82,20 +82,20 @@ namespace re
         void set_all_up();
 
     private:
-        GLFWwindow* m_window;
-        bool m_key_input_consumed_by_imgui = false;
-        bool m_mouse_input_consumed_by_imgui = false;
-        maths::Vector2 m_cursor_pos = { 0.f,0.f };
-        maths::Vector2 m_cursor_delta = { 0.f,0.f };
+        GLFWwindow*    m_window;
+        bool           m_key_input_consumed_by_imgui   = false;
+        bool           m_mouse_input_consumed_by_imgui = false;
+        maths::Vector2 m_cursor_pos                    = { 0.f, 0.f };
+        maths::Vector2 m_cursor_delta                  = { 0.f, 0.f };
 
 
         static_assert((int)Key::Count < 64);
-        uint64_t m_key_pressed_buffers[2] = { 0,0 };
-        uint64_t m_key_down_buffers[2] = { 0,0 };
-        uint64_t m_key_up_buffers[2] = { 0,0 };
+        uint64_t m_key_pressed_buffers[2] = { 0, 0 };
+        uint64_t m_key_down_buffers[2]    = { 0, 0 };
+        uint64_t m_key_up_buffers[2]      = { 0, 0 };
 
         //alternates each frame, key events fill the inactive buffers
-        bool m_active_buffer : 1 = true;
-        bool m_inactive_buffer : 1 = false;
+        bool m_active_buffer   : 1        = true;
+        bool m_inactive_buffer : 1        = false;
     };
-}
+} // namespace re

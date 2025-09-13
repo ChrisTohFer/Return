@@ -7,42 +7,42 @@ namespace gfx
 {
     void draw_line(
         const std::vector<maths::Vector3>& points,
-        const maths::Matrix44& camera,
-        maths::Vector3 colour,
-        bool use_z = true,
-        bool loop = false);
-    
+        const maths::Matrix44&             camera,
+        maths::Vector3                     colour,
+        bool                               use_z = true,
+        bool                               loop  = false);
+
     void draw_sphere(
         const maths::Matrix44& transform,
-        float radius,
+        float                  radius,
         const maths::Matrix44& camera,
-        maths::Vector3 colour,
-        int num_segments = 20,
-        bool use_z = true);
-    
+        maths::Vector3         colour,
+        int                    num_segments = 20,
+        bool                   use_z        = true);
+
     void draw_sphere(
-        maths::Vector3 pos,
-        float radius,
+        maths::Vector3         pos,
+        float                  radius,
         const maths::Matrix44& camera,
-        maths::Vector3 colour,
-        int num_segments = 20,
-        bool use_z = true);
-    
+        maths::Vector3         colour,
+        int                    num_segments = 20,
+        bool                   use_z        = true);
+
     //TODO!
     void draw_frustum(
-        maths::Vector3 pos,
-        float fov_y,
-        float near,
-        float far,
+        maths::Vector3         pos,
+        float                  fov_y,
+        float                  near,
+        float                  far,
         const maths::Matrix44& view,
         const maths::Matrix44& projection,
-        maths::Vector3 colour,
-        bool use_z = true);
-    
+        maths::Vector3         colour,
+        bool                   use_z = true);
+
     void draw_cube(
         const maths::Matrix44& transform,
-        maths::Vector3 dimensions,
+        maths::Vector3         dimensions,
         const maths::Matrix44& camera,
-        maths::Vector3 colour,
-        bool use_z = true);
-}
+        maths::Vector3         colour,
+        bool                   use_z = true);
+} // namespace gfx

@@ -18,11 +18,11 @@ namespace re
 {
     namespace
     {
-        GLFWwindow* g_window = nullptr;
+        GLFWwindow*   g_window        = nullptr;
         InputManager* g_input_manager = nullptr;
-        float g_aspect;
-        bool g_first_update = true;
-    }
+        float         g_aspect;
+        bool          g_first_update = true;
+    } // namespace
 
     void error_callback(int /*error*/, const char* description)
     {
@@ -153,4 +153,4 @@ namespace re
         assert(g_input_manager);
         return *g_input_manager;
     }
-}
+} // namespace re

@@ -9,15 +9,15 @@ namespace re
     struct FileDialogContext
     {
         std::filesystem::path root_path;
-        std::string extension;
+        std::string           extension;
     };
     struct FileDialogResult
     {
         std::filesystem::path result_path;
     };
 
-    void save_file_dialog(const FileDialogContext&);
-    void open_file_dialog(const FileDialogContext&);
+    void                            save_file_dialog(const FileDialogContext&);
+    void                            open_file_dialog(const FileDialogContext&);
     std::optional<FileDialogResult> update_file_dialog();
-    bool file_dialog_open();
-}
+    bool                            file_dialog_open();
+} // namespace re

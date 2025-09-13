@@ -8,10 +8,9 @@ namespace maths
 {
     inline bool operator==(const Vector3& lhs, const Vector3& rhs)
     {
-        return
-            lhs.x == rhs.x &&
-            lhs.y == rhs.y &&
-            lhs.z == rhs.z;
+        return lhs.x == rhs.x &&
+               lhs.y == rhs.y &&
+               lhs.z == rhs.z;
     }
 
     inline bool operator!=(const Vector3& lhs, const Vector3& rhs)
@@ -97,10 +96,9 @@ namespace maths
 
     inline float Vector3::dot(const Vector3& lhs, const Vector3& rhs)
     {
-        return
-            lhs.x * rhs.x +
-            lhs.y * rhs.y +
-            lhs.z * rhs.z;
+        return lhs.x * rhs.x +
+               lhs.y * rhs.y +
+               lhs.z * rhs.z;
     }
 
     inline Vector3 Vector3::cross(const Vector3& lhs, const Vector3& rhs)
@@ -120,8 +118,8 @@ namespace maths
             std::lerp(v1.z, v2.z, t)
         };
     }
-    
-    inline float Vector3::angle_between(const Vector3& v1, const Vector3& v2) 
+
+    inline float Vector3::angle_between(const Vector3& v1, const Vector3& v2)
     {
         return acos(dot(v1, v2) / (v1.magnitude() * v2.magnitude()));
     }
@@ -145,7 +143,7 @@ namespace maths
         }
         return *this / m;
     }
-    
+
     inline Vector3 operator*(const Matrix44& mat, Vector3 vec)
     {
         Vector3 result;
@@ -214,7 +212,7 @@ namespace maths
 
     inline Vector3 operator*(const Quaternion& q, Vector3 vec)
     {
-        Quaternion q_res = q * Quaternion{ vec.x, vec.y, vec.z, 0.f } *q.inverse();
+        Quaternion q_res = q * Quaternion{ vec.x, vec.y, vec.z, 0.f } * q.inverse();
         return q_res.axis();
     }
-}
+} // namespace maths

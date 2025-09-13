@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gfx_forward.h"
 #include "buffer_attributes.h"
+#include "gfx_forward.h"
 
 #include <vector>
 
@@ -14,13 +14,13 @@ namespace gfx
         VertexBuffer(VertexBuffer&&);
         ~VertexBuffer();
 
-        bool valid() const                       { return m_id != 0; }
-        int vertex_count() const                 { return m_vertex_count; }
+        bool valid() const { return m_id != 0; }
+        int  vertex_count() const { return m_vertex_count; }
         void bind_attributes() const;
 
     private:
-        GLuint m_id = 0;
-        int m_vertex_count = 0;
+        GLuint                           m_id           = 0;
+        int                              m_vertex_count = 0;
         std::vector<BufferAttributeType> m_components;
     };
-}
+} // namespace gfx

@@ -22,23 +22,23 @@ namespace re
     void ContentBrowser::apply_filter()
     {
         m_results.clear();
-        if(m_search_filter.empty())
+        if (m_search_filter.empty())
         {
             return;
         }
 
-        for(auto& entry : m_entries)
+        for (auto& entry : m_entries)
         {
             apply_filter(entry);
         }
 
-        std::sort(m_results.begin(), m_results.end(), [](auto& lhs, auto& rhs){ return lhs.distance < rhs.distance;});
+        std::sort(m_results.begin(), m_results.end(), [](auto& lhs, auto& rhs) { return lhs.distance < rhs.distance; });
     }
 
     void ContentBrowser::apply_filter(const Entry& entry)
     {
-        m_results.push_back({&entry, adjusted_levenshtein_distance(entry.relative_path.string().c_str(), m_search_filter.c_str())});
-        for(auto& sub_entry : entry.sub_entries)
+        m_results.push_back({ &entry, adjusted_levenshtein_distance(entry.relative_path.string().c_str(), m_search_filter.c_str()) });
+        for (auto& sub_entry : entry.sub_entries)
         {
             apply_filter(sub_entry);
         }
@@ -49,7 +49,7 @@ namespace re
         m_results.clear();
         m_entries.clear();
 
-        for(auto iter : std::filesystem::directory_iterator(file::get_data_path("")))
+        for (auto iter : std::filesystem::directory_iterator(file::get_data_path("")))
         {
             //todo: push back entries with relative path, and if directory then recursively push sub entries
         }
@@ -57,4 +57,4 @@ namespace re
         apply_filter();
     }
 
-}
+} // namespace re

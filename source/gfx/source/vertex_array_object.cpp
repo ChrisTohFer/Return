@@ -1,7 +1,7 @@
 #include "vertex_array_object.h"
 
-#include "vertex_buffer.h"
 #include "element_buffer.h"
+#include "vertex_buffer.h"
 
 #include "glad/glad.h"
 
@@ -32,7 +32,7 @@ namespace gfx
 
     VertexArray::~VertexArray()
     {
-        if(m_id != 0)
+        if (m_id != 0)
         {
             glDeleteVertexArrays(1, &m_id);
         }
@@ -40,16 +40,16 @@ namespace gfx
 
     void VertexArray::draw() const
     {
-        if(m_id == 0 || m_vb == nullptr)
+        if (m_id == 0 || m_vb == nullptr)
         {
             return;
         }
 
         glBindVertexArray(m_id);
         int gl_primitive_type = GL_TRIANGLES;
-        switch(m_type)
+        switch (m_type)
         {
-        case PrimitiveType::Line:     gl_primitive_type = GL_LINES;     break;
+        case PrimitiveType::Line:     gl_primitive_type = GL_LINES; break;
         case PrimitiveType::Triangle: gl_primitive_type = GL_TRIANGLES; break;
         }
 
@@ -66,16 +66,16 @@ namespace gfx
 
     void VertexArray::draw(const VertexBuffer& instance_buffer) const
     {
-        if(m_id == 0 || m_vb == nullptr)
+        if (m_id == 0 || m_vb == nullptr)
         {
             return;
         }
 
         glBindVertexArray(m_id);
         int gl_primitive_type = GL_TRIANGLES;
-        switch(m_type)
+        switch (m_type)
         {
-        case PrimitiveType::Line:     gl_primitive_type = GL_LINES;     break;
+        case PrimitiveType::Line:     gl_primitive_type = GL_LINES; break;
         case PrimitiveType::Triangle: gl_primitive_type = GL_TRIANGLES; break;
         }
 
@@ -91,4 +91,4 @@ namespace gfx
         glBindVertexArray(0);
     }
 
-}
+} // namespace gfx

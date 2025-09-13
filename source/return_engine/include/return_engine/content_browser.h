@@ -22,7 +22,7 @@ namespace re
         struct Entry
         {
             std::filesystem::path relative_path;
-            std::vector<Entry> sub_entries;
+            std::vector<Entry>    sub_entries;
         };
 
         void apply_filter(const Entry& entry);
@@ -30,15 +30,15 @@ namespace re
         void refresh_cache();
 
         std::vector<Entry> m_entries;
-        const Entry* m_selected_entry = nullptr;
-        const Entry* m_current_directory = nullptr;
+        const Entry*       m_selected_entry    = nullptr;
+        const Entry*       m_current_directory = nullptr;
 
         struct SearchResult
         {
-            const Entry* entry = nullptr;
-            float distance = 0.f;
+            const Entry* entry    = nullptr;
+            float        distance = 0.f;
         };
-        std::string m_search_filter;
+        std::string               m_search_filter;
         std::vector<SearchResult> m_results;
     };
-}
+} // namespace re

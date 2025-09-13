@@ -17,19 +17,19 @@ namespace re
     struct SearchResult
     {
         std::filesystem::path path;
-        float levenshtein_distance;
+        float                 levenshtein_distance;
     };
 
     static FileDialogMode g_mode;
 
-    static std::string g_search_string;
-    static bool g_recursive_search;
+    static std::string               g_search_string;
+    static bool                      g_recursive_search;
     static std::vector<SearchResult> g_search_results;
 
     static std::filesystem::path g_current_path;
-    static std::string g_file_name;
-    static FileDialogContext g_context;
-    
+    static std::string           g_file_name;
+    static FileDialogContext     g_context;
+
 
     bool current_path_is_sub_path_of_root(std::filesystem::path root_path)
     {
@@ -40,10 +40,10 @@ namespace re
     //open functions
     static void file_dialog(const FileDialogContext& context)
     {
-        g_context = context;
+        g_context       = context;
         g_search_string = "";
         g_search_results.clear();
-        if(!current_path_is_sub_path_of_root(context.root_path))
+        if (!current_path_is_sub_path_of_root(context.root_path))
         {
             g_current_path = context.root_path;
         }
@@ -68,31 +68,28 @@ namespace re
         {
             return;
         }
-        g_search_results.push_back({
-            path,
-            adjusted_levenshtein_distance(path.filename().string().c_str(), g_search_string.c_str())
-            });
+        g_search_results.push_back({ path, adjusted_levenshtein_distance(path.filename().string().c_str(), g_search_string.c_str()) });
     }
     static void apply_search()
     {
         g_search_results.clear();
-        if(g_recursive_search)
+        if (g_recursive_search)
         {
-            for(auto entry : std::filesystem::recursive_directory_iterator(g_current_path))
+            for (auto entry : std::filesystem::recursive_directory_iterator(g_current_path))
             {
                 apply_search_to_path(entry.path());
             }
         }
         else
         {
-            for(auto entry : std::filesystem::directory_iterator(g_current_path))
+            for (auto entry : std::filesystem::directory_iterator(g_current_path))
             {
                 apply_search_to_path(entry.path());
             }
         }
 
-        std::sort(g_search_results.begin(), g_search_results.end(), [](auto &lhs, auto &rhs) {
-            return lhs.levenshtein_distance<rhs.levenshtein_distance;
+        std::sort(g_search_results.begin(), g_search_results.end(), [](auto& lhs, auto& rhs) {
+            return lhs.levenshtein_distance < rhs.levenshtein_distance;
         });
     }
 
@@ -100,16 +97,16 @@ namespace re
     {
         std::optional<FileDialogResult> result;
 
-        if(ImGui::BeginPopupModal("File", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        if (ImGui::BeginPopupModal("File", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         {
             //display current path relative to root
             ImGui::Text("Root path: %s", g_context.root_path.c_str());
             ImGui::Text("Relative path: %s", std::filesystem::relative(g_current_path, g_context.root_path).c_str());
-            
+
             //allow user to step up a directory
             ImGui::SameLine();
             ImGui::BeginDisabled(!current_path_is_sub_path_of_root(g_context.root_path));
-            if(ImGui::Button("^"))
+            if (ImGui::Button("^"))
             {
                 g_current_path = g_current_path.parent_path();
             }
@@ -119,38 +116,37 @@ namespace re
             bool search_string_updated = ImGui::InputText("Search", &g_search_string);
             ImGui::SameLine();
             ImGui::Checkbox("Recursive", &g_recursive_search);
-            if(search_string_updated)
+            if (search_string_updated)
             {
                 apply_search();
             }
 
             //list files/folders in current directory OR search results
-            if(ImGui::BeginListBox("files"))
+            if (ImGui::BeginListBox("files"))
             {
-                auto display_entry = [&](const std::filesystem::path& entry, bool is_directory)
-                {
+                auto display_entry = [&](const std::filesystem::path& entry, bool is_directory) {
                     char buf[512];
                     snprintf(buf, sizeof(buf), "%s%s", is_directory ? "F> " : "   ", entry.filename().string().c_str());
                     ImGui::Selectable(buf);
-                    if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered())
+                    if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered())
                     {
-                        if(is_directory)
+                        if (is_directory)
                         {
                             g_current_path = entry;
                         }
                         else
                         {
                             ImGui::CloseCurrentPopup();
-                            result = FileDialogResult{entry};
+                            result = FileDialogResult{ entry };
                         }
                     }
                 };
-                if(g_search_string.empty())
+                if (g_search_string.empty())
                 {
-                    for(auto entry : std::filesystem::directory_iterator(g_current_path))
+                    for (auto entry : std::filesystem::directory_iterator(g_current_path))
                     {
                         bool is_directory = entry.is_directory();
-                        if(!is_directory && !g_context.extension.empty() && entry.path().extension() != g_context.extension)
+                        if (!is_directory && !g_context.extension.empty() && entry.path().extension() != g_context.extension)
                         {
                             continue;
                         }
@@ -160,7 +156,7 @@ namespace re
                 }
                 else
                 {
-                    for(auto search_result : g_search_results)
+                    for (auto search_result : g_search_results)
                     {
                         display_entry(search_result.path, std::filesystem::is_directory(search_result.path));
                         ImGui::SameLine();
@@ -169,12 +165,12 @@ namespace re
                 }
                 ImGui::EndListBox();
             }
-            
+
             //resolve and display full filename
             ImGui::InputText("Filename", &g_file_name);
             auto full_filename = g_current_path;
             full_filename.append(g_file_name);
-            if(!g_context.extension.empty() && full_filename.extension() != g_context.extension)
+            if (!g_context.extension.empty() && full_filename.extension() != g_context.extension)
             {
                 full_filename.concat(g_context.extension);
             }
@@ -182,7 +178,7 @@ namespace re
 
             //open/save
             const char* button_name = "";
-            switch(g_mode)
+            switch (g_mode)
             {
             case FileDialogMode::Open: button_name = "Open"; break;
             case FileDialogMode::Save: button_name = "Save"; break;
@@ -190,16 +186,16 @@ namespace re
             ImGui::BeginDisabled(
                 g_file_name.empty() ||
                 (g_mode == FileDialogMode::Open && !std::filesystem::exists(full_filename)));
-            if(ImGui::Button(button_name))
+            if (ImGui::Button(button_name))
             {
                 ImGui::CloseCurrentPopup();
-                result = FileDialogResult{full_filename};
+                result = FileDialogResult{ full_filename };
             }
             ImGui::EndDisabled();
 
             //cancel
             ImGui::SameLine();
-            if(ImGui::Button("Cancel"))
+            if (ImGui::Button("Cancel"))
             {
                 ImGui::CloseCurrentPopup();
             }
@@ -207,9 +203,9 @@ namespace re
         }
         return result;
     }
-    
+
     bool file_dialog_open()
     {
         return ImGui::IsPopupOpen("File");
     }
-}
+} // namespace re

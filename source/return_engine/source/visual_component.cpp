@@ -2,9 +2,9 @@
 
 #include "scene.h"
 
-#include "maths/maths.h"
 #include "gfx/debug_lines.h"
 #include "gfx/graphics_manager.h"
+#include "maths/maths.h"
 
 #include "imgui/imgui.h"
 
@@ -21,12 +21,12 @@ namespace re
         ImGui::SliderFloat("Radius", &m_radius, 0.01f, 10.f);
         ImGui::SliderInt("Segments", &m_num_segments, 2, 64);
     }
-    
+
     void CubeComponent::draw(const maths::Matrix44& transform, const maths::Matrix44& camera, gfx::BatchRenderer&) const
     {
         gfx::draw_cube(transform, m_dimensions, camera, m_colour);
     }
-    
+
     void CubeComponent::edit(const Scene&)
     {
         ImGui::SliderFloat3("Colour", &m_colour.x, 0.f, 1.f);
@@ -38,19 +38,19 @@ namespace re
         bool changed = false;
 
         ImGui::PushID(label);
-        if(ImGui::Button("Use Sphere"))
+        if (ImGui::Button("Use Sphere"))
         {
-            vc = std::make_unique<SphereComponent>();
+            vc      = std::make_unique<SphereComponent>();
             changed = true;
         }
         ImGui::SameLine();
-        if(ImGui::Button("Use Cube"))
+        if (ImGui::Button("Use Cube"))
         {
-            vc = std::make_unique<CubeComponent>();
+            vc      = std::make_unique<CubeComponent>();
             changed = true;
         }
-        
-        if(vc)
+
+        if (vc)
         {
             //should be checking for changes internally...
             vc->edit(scene);
@@ -59,4 +59,4 @@ namespace re
 
         return changed;
     }
-}
+} // namespace re

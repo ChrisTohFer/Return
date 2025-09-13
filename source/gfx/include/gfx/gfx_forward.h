@@ -1,5 +1,5 @@
 using GLuint = unsigned;
-using GLint = int;
+using GLint  = int;
 
 namespace gfx
 {
@@ -8,4 +8,4 @@ namespace gfx
     class Texture;
 
     class BatchRenderer;
-}
+} // namespace gfx

@@ -18,4 +18,4 @@ namespace re
     };
 
     int main_loop(const EngineConfig&, std::function<std::unique_ptr<Scene>(gfx::BatchRenderer&, const InputManager&)>);
-}
+} // namespace re

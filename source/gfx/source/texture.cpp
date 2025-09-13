@@ -8,7 +8,7 @@ namespace gfx
 {
     Texture::Texture(const gfx::Image& image)
     {
-        if(!image.valid())
+        if (!image.valid())
         {
             return;
         }
@@ -34,17 +34,17 @@ namespace gfx
     }
     Texture::~Texture()
     {
-        if(m_id != 0)
+        if (m_id != 0)
             glDeleteTextures(1, &m_id);
     }
-    
+
     void Texture::use() const
     {
         glBindTexture(GL_TEXTURE_2D, m_id);
     }
-    
+
     void unbind_texture()
     {
         glBindTexture(GL_TEXTURE_2D, 0u);
     }
-}
+} // namespace gfx

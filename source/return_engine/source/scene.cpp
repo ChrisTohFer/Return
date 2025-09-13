@@ -59,7 +59,7 @@ namespace re
 
         m_time_since_update = fminf(m_time_since_update + frame_time, 2.f * m_fixed_update_interval);
 
-        m_camera.aspect = aspect_ratio;
+        m_camera.aspect     = aspect_ratio;
 
         on_update(frame_time);
 
@@ -81,4 +81,4 @@ namespace re
         assert(&entity >= m_entities.data() && &entity < m_entities.data() + m_entities.size());
         m_entity_indices_to_remove.push_back(&entity - m_entities.data());
     }
-}
+} // namespace re

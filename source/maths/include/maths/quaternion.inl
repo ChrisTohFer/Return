@@ -8,11 +8,10 @@ namespace maths
 {
     inline bool operator==(const Quaternion& lhs, const Quaternion& rhs)
     {
-        return
-            lhs.x == rhs.x &&
-            lhs.y == rhs.y &&
-            lhs.z == rhs.z &&
-            lhs.w == rhs.w;
+        return lhs.x == rhs.x &&
+               lhs.y == rhs.y &&
+               lhs.z == rhs.z &&
+               lhs.w == rhs.w;
     }
 
     inline bool operator!=(const Quaternion& lhs, const Quaternion& rhs)
@@ -72,7 +71,7 @@ namespace maths
 
     inline Quaternion operator*(const Quaternion& q, float f)
     {
-        return{
+        return {
             q.x * f,
             q.y * f,
             q.z * f,
@@ -85,8 +84,8 @@ namespace maths
     inline Quaternion Quaternion::slerp(const Quaternion& qa, const Quaternion& qb, float t)
     {
         //todo - is this the most effective way to allow >360 degree interpolation?
-        Quaternion a_to_b = qa.inverse() * qb;
-        float fraction_of_pi = a_to_b.angle() / PI;
+        Quaternion a_to_b         = qa.inverse() * qb;
+        float      fraction_of_pi = a_to_b.angle() / PI;
         if (fraction_of_pi > 1.f)
         {
             return qa * a_to_b.raised_to_power(-t * (2.f - fraction_of_pi) / fraction_of_pi);
@@ -142,7 +141,7 @@ namespace maths
         //the source uses row vectors, so the matrix defined here is a transposed version
 
         Quaternion q;
-        float t;
+        float      t;
         if (m.get(2, 2) < 0)
         {
             if (m.get(0, 0) > m.get(1, 1))
@@ -186,16 +185,16 @@ namespace maths
     {
         float w, axis_weight;
         sincosf(rotation * 0.5f, &axis_weight, &w);
-        return Quaternion{axis_weight * unit_axis.x, axis_weight * unit_axis.y, axis_weight * unit_axis.z, w};
+        return Quaternion{ axis_weight * unit_axis.x, axis_weight * unit_axis.y, axis_weight * unit_axis.z, w };
     }
 
     inline Quaternion Quaternion::raised_to_power(float power) const
     {
-        float mod_squared_value = mod_squared();
-        float half_angle = 0.5f * angle();
-        Vector3 axis = axis_normalized();
+        float   mod_squared_value   = mod_squared();
+        float   half_angle          = 0.5f * angle();
+        Vector3 axis                = axis_normalized();
 
-        float front_term = powf(mod_squared_value, power * 0.5f);
+        float front_term            = powf(mod_squared_value, power * 0.5f);
         float vector_part_magnitude = sinf(power * half_angle);
 
         return {
@@ -222,7 +221,7 @@ namespace maths
 
     inline Vector3 Quaternion::axis() const
     {
-        return { x,y,z };
+        return { x, y, z };
     }
 
     inline Vector3 Quaternion::axis_normalized() const
@@ -244,4 +243,4 @@ namespace maths
     {
         return x * x + y * y + z * z + w * w;
     }
-}
+} // namespace maths

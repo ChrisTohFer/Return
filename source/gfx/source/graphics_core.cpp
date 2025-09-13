@@ -5,7 +5,7 @@
 
 namespace gfx
 {
-    bool init(void(*(*proc_address)(const char*))(), int width, int height)
+    bool init(void (*(*proc_address)(const char*))(), int width, int height)
     {
         if (!gladLoadGLLoader((GLADloadproc)proc_address))
         {
@@ -17,7 +17,7 @@ namespace gfx
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable( GL_BLEND );
+        glEnable(GL_BLEND);
 
         return true;
     }
@@ -36,4 +36,4 @@ namespace gfx
     {
         glViewport(0, 0, width, height);
     }
-}
+} // namespace gfx

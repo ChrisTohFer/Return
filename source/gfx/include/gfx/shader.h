@@ -23,7 +23,7 @@ namespace gfx
         Shader(Shader&&);
         ~Shader();
 
-        bool valid() const { return m_id != 0; }
+        bool   valid() const { return m_id != 0; }
         GLuint id() const { return m_id; }
 
     private:
@@ -40,11 +40,11 @@ namespace gfx
         ShaderProgram(const VertexShader&, const FragmentShader&, std::string* error_log = nullptr);
         ShaderProgram(ShaderProgram&&);
         ~ShaderProgram();
-        
-        bool valid() const { return m_id != 0; }
+
+        bool   valid() const { return m_id != 0; }
         GLuint id() const { return m_id; }
-        void use() const;
-        int uniform_location(const char* name) const;
+        void   use() const;
+        int    uniform_location(const char* name) const;
 
     private:
         GLuint m_id = 0;
@@ -56,4 +56,4 @@ namespace gfx
     void set_uniform(GLint location, const maths::Vector2&);
     void set_uniform(GLint location, const maths::Vector3&);
     void set_uniform(GLint location, const maths::Matrix44&);
-}
+} // namespace gfx

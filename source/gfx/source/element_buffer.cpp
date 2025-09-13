@@ -24,4 +24,4 @@ namespace gfx
             glDeleteBuffers(1, &m_id);
         }
     }
-}
+} // namespace gfx

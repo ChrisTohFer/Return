@@ -72,7 +72,7 @@ namespace maths
     Matrix<rows, columns> Matrix<rows, columns>::from_scale(Vector3 v)
         requires(columns >= 3 && rows >= 3)
     {
-        auto result = identity();
+        auto result      = identity();
         result.get(0, 0) = v.x;
         result.get(1, 1) = v.y;
         result.get(2, 2) = v.z;
@@ -83,7 +83,7 @@ namespace maths
     Matrix<rows, columns> Matrix<rows, columns>::from_translation(Vector3 v)
         requires(columns >= 4 && rows >= 3)
     {
-        auto result = identity();
+        auto result      = identity();
         result.get(0, 3) = v.x;
         result.get(1, 3) = v.y;
         result.get(2, 3) = v.z;
@@ -94,7 +94,7 @@ namespace maths
     Matrix<rows, columns> Matrix<rows, columns>::from_orientation(Quaternion q)
         requires(columns >= 3 && rows >= 3)
     {
-        Matrix result = identity();
+        Matrix result    = identity();
 
         result.get(0, 0) = 2.f * (q.w * q.w + q.x * q.x) - 1;
         result.get(0, 1) = 2.f * (q.x * q.y - q.w * q.z);
@@ -115,7 +115,7 @@ namespace maths
     Matrix<rows, columns> Matrix<rows, columns>::from_x_rotation(float angle)
         requires(columns >= 3 && rows >= 3)
     {
-        auto result = Matrix44::identity();
+        auto result      = Matrix44::identity();
 
         result.get(0, 0) = 1.f;
         result.get(1, 0) = 0.f;
@@ -136,7 +136,7 @@ namespace maths
     Matrix<rows, columns> Matrix<rows, columns>::from_y_rotation(float angle)
         requires(columns >= 3 && rows >= 3)
     {
-        auto result = Matrix44::identity();
+        auto result      = Matrix44::identity();
 
         result.get(0, 0) = cosf(angle);
         result.get(1, 0) = 0.f;
@@ -157,7 +157,7 @@ namespace maths
     Matrix<rows, columns> Matrix<rows, columns>::from_z_rotation(float angle)
         requires(columns >= 3 && rows >= 3)
     {
-        auto result = Matrix44::identity();
+        auto result      = Matrix44::identity();
 
         result.get(0, 0) = cosf(angle);
         result.get(1, 0) = sinf(angle);
@@ -217,7 +217,7 @@ namespace maths
     {
         Matrix44 result;
 
-        float tan_fov_2 = tanf(fov / 2.f);
+        float tan_fov_2  = tanf(fov / 2.f);
 
         result.get(0, 0) = 1.f / (aspect * tan_fov_2);
         result.get(0, 1) = 0.f;
@@ -287,7 +287,7 @@ namespace maths
             int from_column = column < j ? column : column + 1;
             for (int row = 0; row < rows - 1; ++row)
             {
-                int from_row = row < i ? row : row + 1;
+                int from_row            = row < i ? row : row + 1;
 
                 result.get(row, column) = get(from_row, from_column);
             }
@@ -305,7 +305,7 @@ namespace maths
         {
             for (int row = 0; row < rows; ++row)
             {
-                float sign = ((row + column) % 2 == 0) ? 1.f : -1.f;
+                float sign              = ((row + column) % 2 == 0) ? 1.f : -1.f;
                 result.get(row, column) = sign * submatrix(row, column).determinant();
             }
         }
@@ -337,7 +337,7 @@ namespace maths
     Vector3 Matrix<rows, columns>::translation() const
         requires(columns >= 4 && rows >= 3)
     {
-        return { get(0, 3), get(1, 3), get(2,3) };
+        return { get(0, 3), get(1, 3), get(2, 3) };
     }
 
     template<int rows, int columns>
@@ -346,21 +346,21 @@ namespace maths
     {
         //assumes rotation matrix is formed of RyRxRz (EULER_ORDER_ZXY)
         //definition taken from https://www.geometrictools.com/Documentation/EulerAngles.pdf
-        if(get(1,2) < 1.f)
+        if (get(1, 2) < 1.f)
         {
-            if(get(1,2) > -1.f)
+            if (get(1, 2) > -1.f)
             {
                 return {
-                    asinf(-get(1,2)),
-                    atan2(get(0,2), get(2,2)),
-                    atan2(get(1,0), get(1,1))
+                    asinf(-get(1, 2)),
+                    atan2(get(0, 2), get(2, 2)),
+                    atan2(get(1, 0), get(1, 1))
                 };
             }
             else
             {
                 return {
                     PI / 2.f,
-                    -atan2(-get(0,1), get(0,0)),
+                    -atan2(-get(0, 1), get(0, 0)),
                     0.f
                 };
             }
@@ -369,10 +369,9 @@ namespace maths
         {
             return {
                 -PI / 2.f,
-                 atan2(-get(0,1) , get(0,0)),
-                 0.f
+                atan2(-get(0, 1), get(0, 0)),
+                0.f
             };
         }
-
     }
-}
+} // namespace maths

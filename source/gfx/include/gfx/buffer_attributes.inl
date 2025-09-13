@@ -1,3 +1,4 @@
+// clang-format off
 #ifndef DEFINE_VERTEX_ATTRIBUTE
 static_assert(false, "buffer_attributes.inl should only be included in buffer_attributes.h for use with DEFINE_VERTEX_ATTRIBUTE!");
 #else
@@ -8,3 +9,4 @@ DEFINE_VERTEX_ATTRIBUTE(TextureUVs,            maths::Vector2,     GL_FLOAT,    
 DEFINE_VERTEX_ATTRIBUTE(InstanceTransform,     maths::Matrix44,    GL_FLOAT,    4,     true,     10)
 
 #endif
+// clang-format on

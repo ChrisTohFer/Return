@@ -13,14 +13,14 @@ namespace gfx
         auto error = glGetError();
         switch (error)
         {
-        case GL_INVALID_ENUM:       return "GL_INVALID_ENUM";      break;
-        case GL_INVALID_VALUE:      return "GL_INVALID_VALUE";     break;
-        case GL_INVALID_OPERATION:  return "GL_INVALID_OPERATION"; break;
-        case GL_STACK_OVERFLOW:     return "GL_STACK_OVERFLOW";    break;
-        case GL_STACK_UNDERFLOW:    return "GL_STACK_UNDERFLOW";   break;
-        case GL_OUT_OF_MEMORY:      return "GL_OUT_OF_MEMORY";     break;
-        case GL_NO_ERROR:           return "";                     break;
-        default:                    assert(!"Unrecognised error type"); return "";
+        case GL_INVALID_ENUM:      return "GL_INVALID_ENUM"; break;
+        case GL_INVALID_VALUE:     return "GL_INVALID_VALUE"; break;
+        case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION"; break;
+        case GL_STACK_OVERFLOW:    return "GL_STACK_OVERFLOW"; break;
+        case GL_STACK_UNDERFLOW:   return "GL_STACK_UNDERFLOW"; break;
+        case GL_OUT_OF_MEMORY:     return "GL_OUT_OF_MEMORY"; break;
+        case GL_NO_ERROR:          return ""; break;
+        default:                   assert(!"Unrecognised error type"); return "";
         }
     }
     void report_gl_error()
@@ -45,19 +45,19 @@ namespace gfx
         m_textures.clear();
     }
 
-    void GraphicsManager::add(const char *name, std::unique_ptr<gfx::VertexBuffer> &&obj)   { m_vertex_buffers.emplace(name, std::move(obj)); }
-    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::ElementBuffer>&& obj)  { m_element_buffers.emplace(name, std::move(obj)); }
-    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::VertexArray>&& obj)    { m_vertex_arrays.emplace(name, std::move(obj)); }
-    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::VertexShader>&& obj)   { m_vertex_shaders.emplace(name, std::move(obj)); }
+    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::VertexBuffer>&& obj) { m_vertex_buffers.emplace(name, std::move(obj)); }
+    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::ElementBuffer>&& obj) { m_element_buffers.emplace(name, std::move(obj)); }
+    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::VertexArray>&& obj) { m_vertex_arrays.emplace(name, std::move(obj)); }
+    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::VertexShader>&& obj) { m_vertex_shaders.emplace(name, std::move(obj)); }
     void GraphicsManager::add(const char* name, std::unique_ptr<gfx::FragmentShader>&& obj) { m_fragment_shaders.emplace(name, std::move(obj)); }
-    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::ShaderProgram>&& obj)  { m_shader_programs.emplace(name, std::move(obj)); }
-    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::Texture>&& obj)        { m_textures.emplace(name, std::move(obj)); }
+    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::ShaderProgram>&& obj) { m_shader_programs.emplace(name, std::move(obj)); }
+    void GraphicsManager::add(const char* name, std::unique_ptr<gfx::Texture>&& obj) { m_textures.emplace(name, std::move(obj)); }
 
     template<typename MapT>
     static std::vector<std::string> get_map_keys(MapT&& m)
     {
         std::vector<std::string> keys;
-        for(auto& entry : m)
+        for (auto& entry : m)
         {
             keys.push_back(entry.first);
         }
@@ -123,8 +123,8 @@ namespace gfx
     {
         return get_map_value(name, m_shader_programs);
     }
-    const gfx::Texture *GraphicsManager::texture(const char *name) const
+    const gfx::Texture* GraphicsManager::texture(const char* name) const
     {
         return get_map_value(name, m_textures);
     }
-}
+} // namespace gfx
